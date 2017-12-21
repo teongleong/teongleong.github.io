@@ -1,0 +1,731 @@
+<html>
+<head>
+<title>HYPY</title>
+<link rel="shortcut icon" href="#" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<style>
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	text-align: center;
+	overflow-x: hidden;
+}
+.portrait canvas {
+	transform-origin: 0 0;
+	transform: rotate(-90deg) translateX(-100%);
+}
+.desktop canvas {
+ 	transform: scale(1, 1);
+}
+#myCanvas2 {
+	background: rgba(0,0,0,0.0);
+	position: absolute;
+	z-index: 1;
+	border: 1px solid black;
+	border-width: 2px;
+	border-style: groove;
+	transform: scale(1, 1);
+}
+
+#mainTable {
+  position: relative;
+  padding: 8px;
+}
+
+@font-face { font-family: Hypy; src: url('fonts/Hypy.ttf'); }
+
+
+
+</style>
+</head>
+<body>
+<table align="center">
+<tr><td id="mainTable">
+<canvas id="myCanvas2" width="640" height="480"></canvas>
+</td></tr>
+</table>
+<h1>Hanyu Pinyin</h1>
+
+<script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/build/artoolkit.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/examples/js/third_party/three.js/three.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/js/artoolkit.three.js"></script>
+
+<script>
+
+window.ARThreeOnLoad = function() {
+
+	ARController.getUserMediaThreeScene({
+		maxARVideoSize: 640,
+		cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
+		onSuccess: function(arScene, arController, arCamera) {
+			
+			var markerTracked = {};
+			var prevMarkerTracked = {};
+			var longTermTracking = {};
+			var history = [];
+			var avgPos = {};
+
+			var canvasWidth = 640;
+			var canvasHeight = 480;
+			var ctx = document.getElementById("myCanvas2").getContext('2d');
+			var renderer = new THREE.WebGLRenderer({antialias: true});
+
+			var cardLen = 1;
+			var ref1 = -88;
+			var ref2 = -99;
+			
+			arSetup(arController, renderer);
+			
+			const rendererCanvas = renderer.domElement;
+			const width = rendererCanvas.clientWidth;
+			const height = rendererCanvas.clientHeight;  
+			console.log(width + " " + height );
+			  
+			sceneSetup(arScene);
+			tick(ctx);
+			mappingFunction();
+
+			
+			function arSetup(arController, renderer) {
+				document.body.className = arController.orientation;
+				arController.setPatternDetectionMode(artoolkit.AR_TEMPLATE_MATCHING_MONO_AND_MATRIX);
+				arController.borderStyle = "white";
+				
+				if (arController.orientation === 'portrait') {
+					var w = (window.innerWidth / arController.videoHeight) * arController.videoWidth;
+					var h = window.innerWidth;
+					renderer.setSize(w, h);
+					renderer.domElement.style.paddingBottom = (w-h) + 'px';
+				} else {
+					if (/Android|mobile|iPad|iPhone/i.test(navigator.userAgent)) {
+						renderer.setSize(window.innerWidth, (window.innerWidth / arController.videoWidth) * arController.videoHeight);
+					} else {
+						renderer.setSize(arController.videoWidth, arController.videoHeight);
+						document.body.className += ' desktop';
+					}
+				}
+				
+				// add three js renderer to main_table
+				var mainTable = document.getElementById("mainTable");
+				mainTable.appendChild(renderer.domElement, mainTable);
+			}
+			
+			function sceneSetup(arScene) {
+				// create primitive shapes (sphere, torus, cube)
+				var sphere = new THREE.Mesh(
+					new THREE.SphereGeometry(0.5, 10, 10),
+					new THREE.MeshNormalMaterial()
+				);
+				sphere.material.shading = THREE.FlatShading;
+				sphere.position.z = 1.0;
+
+				var torus = new THREE.Mesh(
+					new THREE.TorusGeometry(0.1*2.5, 0.2*2.0, 10, 10),
+					new THREE.MeshNormalMaterial()
+				);
+				torus.material.shading = THREE.FlatShading;
+				torus.position.z = 1.25;
+				torus.rotation.x = Math.PI/2;
+				
+				var cube = new THREE.Mesh(
+					new THREE.BoxGeometry(1,1,1),
+					new THREE.MeshNormalMaterial()
+				);
+				cube.material.shading = THREE.FlatShading;
+				cube.position.z = 0.5;
+
+				// create markers with id 0, 1, 2
+				// anchor primitive shapes to marker
+				var markerRoot = arController.createThreeBarcodeMarker(0, 1);
+				markerRoot.add(sphere);
+				arScene.scene.add(markerRoot);
+				
+				var markerRoot = arController.createThreeBarcodeMarker(1, 1);
+				markerRoot.add(torus);
+				arScene.scene.add(markerRoot);
+				
+				var markerRoot = arController.createThreeBarcodeMarker(2, 1);
+				markerRoot.add(cube);
+				arScene.scene.add(markerRoot);
+
+				/*arController.loadMarker('data/patt1.patt', function(markerId) {
+					var markerRoot = arController.createThreeMarker(markerId, 3);
+					markerRoot.add(torus);
+					arScene.scene.add(markerRoot);
+					console.log("markerID? "+markerId);
+				});
+
+				arController.loadMarker('data/patt15.patt', function(markerId) {
+					var markerRoot = arController.createThreeMarker(markerId, 3);
+					markerRoot.add(sphere);
+					arScene.scene.add(markerRoot);
+					console.log("markerID? "+markerId);
+				});
+
+				arController.loadMarker('data/patt51.patt', function(markerId) {
+					var markerRoot = arController.createThreeMarker(markerId, 3);
+					markerRoot.add(cube);
+					arScene.scene.add(markerRoot);
+					console.log("markerID? "+markerId);
+				});
+
+				arController.loadMarker('data/patt5.patt', function(markerId) {
+					var markerRoot = arController.createThreeMarker(markerId, 3);
+					markerRoot.add(torus);
+					arScene.scene.add(markerRoot);
+					console.log("markerID? "+markerId);
+				});*/
+			}
+
+			function markerRecord(id, pos, vertex, timestamp, area) {
+				var retval = [];
+				retval.id = id;
+				retval.pos = pos.slice();
+				retval.vertex = vertex.slice();
+				retval.timestamp = timestamp;
+				retval.area = area;
+				return retval;
+			}
+
+			function retireOld(history) {
+				var stopFlag = false;
+				while (history.length > 0 && !stopFlag) {
+					var elapsed = Date.now() - history[0].timestamp;
+					if (elapsed > 2000) {
+						history.shift();
+					} else {
+						stopFlag = true;
+					}
+				}
+			}
+
+			function retireOld2(avgPos) {
+				//console.log(Object.keys(avgPos).length);
+				Object.keys(avgPos).forEach(function(key) {
+			        var apos = avgPos[key];
+
+			        if (apos == undefined)
+			        	return;
+
+			        var elapsed = Date.now() - apos.timestamp;
+
+			        if (elapsed > 2000) {
+						avgPos[key] = undefined;
+					} else {
+						stopFlag = true;
+					}
+			    });
+			}
+
+			function lerp(a, b, f)
+			{
+			    return a + f * (b - a);
+			}
+
+			function printAvgPos() {
+
+				/*for (apos in avgPos) {
+        			ctx.beginPath();
+					ctx.arc(apos[0], apos[1], 8, 0, Math.PI * 2);
+					ctx.fillStyle = "#00ff00";
+					ctx.fill();
+					ctx.fillText(id,apos[0],apos[1])
+				}*/
+
+				Object.keys(avgPos).forEach(function(key) {
+			        var apos = avgPos[key];
+			        if (apos == undefined)
+			        	return;
+			        ctx.font = "25px Arial";
+			        ctx.beginPath();
+					ctx.arc(apos[0], apos[1], 8, 0, Math.PI * 2);
+					ctx.fillStyle = "#00ff00";
+					ctx.fill();
+					ctx.fillText(key,apos[0],apos[1]);
+			    });
+        		/*
+				avgPos.forEach(function(apos) {
+					//ctx.strokeStyle = 'green';
+					ctx.beginPath();
+					ctx.arc(apos[0], apos[1], 8, 0, Math.PI * 2);
+					ctx.fillStyle = "#00ff00";
+					ctx.fill();
+					ctx.fillText(id,apos[0],apos[1])
+				});*/
+			}
+
+			function toUTF16(codePoint) {
+			    var TEN_BITS = parseInt('1111111111', 2);
+			    function u(codeUnit) {
+			        return '\\u'+codeUnit.toString(16).toUpperCase();
+			    }
+
+			    if (codePoint <= 0xFFFF) {
+			        return u(codePoint);
+			    }
+			    codePoint -= 0x10000;
+
+			    // Shift right to get to most significant 10 bits
+			    var leadSurrogate = 0xD800 + (codePoint >> 10);
+
+			    // Mask to get least significant 10 bits
+			    var tailSurrogate = 0xDC00 + (codePoint & TEN_BITS);
+
+			    return u(leadSurrogate) + u(tailSurrogate);
+			}
+
+			function mappingFunction() {
+
+				var validCombi = [];
+				var validCombiAlt = [];
+
+				var yunmu = [
+					"ai", "an", "ang", "ao", "a", 
+					"e", "ei", "en", "eng", "er", 
+					"i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", 
+					"o", "ong", "ou", 
+					"u", "ua", "uai", "uan", "uang", "ue", "ui", "un", "uo", 
+					"v", "ve",
+					"g"
+				];
+
+				var shengmu = [
+					"", "b", "c", "ch", "d", "f", "g", "h", "j", "k", "l", "m", 
+					"n", "p", "q", "r", "s", "sh", "t", "w", "x", "y", "z", "zh"
+				];
+
+
+				validCombi["n"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "g", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan", "un", "uo", "v", "ve"];
+				validCombi["l"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "eng", "i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan","un", "uo", "v", "ve"];
+				validCombi["d"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ia", "ian", "iao", "ie", "ing", "iu", "ong", "ou", "u", "uan", "ui", "un", "uo"];
+				validCombi["g"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
+				validCombi["h"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
+				validCombi["sh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
+				validCombi["t"] = ["ai", "an", "ang", "ao", "a", "e", "eng", "i", "ian", "iao", "ie", "ing", "ong", "ou", "u", "uan", "ui", "un", "uo"];
+				validCombi["zh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "ua", "uai", "uang", "ui", "un", "uo"];
+				validCombi["m"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "iu", "o", "ou", "u"];
+				validCombi["k"] = ["ai", "an", "ang", "ao", "a", "e", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
+				validCombi["ch"] = ["ai", "an", "ang", "ao", "a", "e", "eng", "i", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
+				validCombi["p"] = ["ai", "an", "ang", "ao", "a", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "o", "ou", "u"];
+				validCombi["z"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
+				validCombi["c"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
+				validCombi["b"] = ["ai", "an", "ang", "ao", "a", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "o", "u"];
+				validCombi["s"] = ["ai", "an", "ang", "ao", "a", "e", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
+				validCombi["q"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iang", "iong", "iu", "u", "uan", "ue", "un"];
+				validCombi["y"] = ["an", "ang", "ao", "a", "e", "i", "in", "ing", "o", "ong", "ou", "u", "uan", "ue", "un"];
+				validCombi["j"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "u", "uan", "ue", "un"];
+				validCombi["x"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "u", "uan", "ue", "un"];
+				validCombi["r"] = ["an", "ang", "ao", "e", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
+				validCombi[""] = ["ao", "ai", "an", "ang", "ao", "e", "ei", "en", "eng", "er", "o", "ou"];
+				validCombi["f"] = ["an", "ang", "a", "ei", "en", "eng", "o", "ou", "u"];
+				validCombi["w"] = ["ai", "an", "ang", "a", "ei", "en", "eng", "o", "u"];
+
+				// verify that there is no typo in validCombi
+
+				var orderedValidCombi = [
+					validCombi["n"], validCombi["l"], validCombi["d"], validCombi["g"], validCombi["h"],
+					validCombi["sh"], validCombi["t"], validCombi["zh"], validCombi["m"], validCombi["k"],
+					validCombi["ch"], validCombi["p"], validCombi["z"], validCombi["c"], 
+					validCombi["b"],  validCombi["s"], validCombi["q"], validCombi["y"], 
+					validCombi["j"], validCombi["x"], validCombi["r"], validCombi[""], validCombi["f"], validCombi["w"]
+				];
+				//console.log(orderedValidCombi.map(function(x) {return x.length;}));
+				
+
+				/// typo check 
+				var result = true;
+				shengmu.forEach(function(x) { 
+					//console.log(validCombi[x]); 
+					validCombi[x].forEach(function(y) {
+
+						//result = result && yunmu.includes(y);
+						//result = result && (yunmu.indexOf(y) != -1);
+
+						if (typeof Array.prototype.includes === "function") { 
+						    result = result && yunmu.includes(y);
+
+						} else {
+							result = result && (yunmu.indexOf(y) != -1);
+						}
+					}); 
+				});
+				// if true no typo in validCombi
+				//console.log(result);
+
+
+				//status.sort(function(a,b) {
+				//    return a.val - b.val;
+				//});
+
+				yunmuCount = {};
+
+				// count yunmu appearance in all the word combi
+
+				yunmu.forEach(function(x) { 
+					yunmuCount[x] = 0;
+					shengmu.forEach(function(y) {
+						if (validCombi[y].includes(x))
+							yunmuCount[x]++;
+					});
+				});
+
+				//console.log(yunmuCount);
+
+				var sortedYunmu = yunmu.sort(function(a, b){ return yunmuCount[b] - yunmuCount[a]; });
+				console.log(yunmuCount);
+				console.log(sortedYunmu);
+			}
+			
+			function tick (ctx) {
+				arScene.process();
+				arScene.renderOn(renderer);
+				requestAnimationFrame(function () { 
+					tick(ctx); 
+				});
+				var markerNum = arController.getMarkerNum();
+				ctx.clearRect(0,0,canvasWidth,canvasHeight);
+
+				prevMarkerTracked = markerTracked;
+				markerTracked = {};
+				
+				retireOld(history);
+				retireOld2(avgPos);
+
+				for (var i = 0; i<markerNum; i++) {
+					var markerInfo = arController.getMarker(i);
+					var vertex = markerInfo.vertex;
+					var pos = markerInfo.pos;
+					var id = -1;
+					var color = "blue";
+					var area = markerInfo.area;
+					var newMarkerRecord = null;
+
+					// pattern marker
+					if (markerInfo.idPatt >= 0 || markerInfo.idMatrix < 0) {
+						//markerTracked[markerInfo.idPatt] = markerInfo;
+						id = markerInfo.idPatt;
+					}
+
+					// matrix marker
+					else if (markerInfo.idMatrix >= 0 && markerInfo.idPatt < 0) {
+						//markerTracked[markerInfo.idMatrix] = markerInfo;
+						id = markerInfo.idMatrix;
+
+					}
+
+					if (markerInfo.area > 3000) {
+						//console.log("area " + markerInfo.area);
+						//markerTracked[markerInfo.idMatrix] = markerInfo;
+						newMarkerRecord = markerRecord(id, pos, vertex, Date.now(), area);
+						markerTracked[markerInfo.idMatrix] = newMarkerRecord;
+
+						if (id != -1) {
+							if (avgPos[id] == undefined) {
+								avgPos[id] = pos.slice();
+							} else {
+								var newPos = pos.slice();
+								var oldPos = avgPos[id];
+								var newX = lerp(oldPos[0], newPos[0], 0.6);
+								var newY = lerp(oldPos[1], newPos[1], 0.6);
+								var lerpedPos = [newX, newY];
+								lerpedPos.timestamp = Date.now();
+								avgPos[id] = lerpedPos;
+							}
+						}
+					}
+
+
+					if (id >= 0) {
+						color = "#00ff00";
+					} else {
+						color = "#ff0000";
+					}
+					//drawMarkerOutline(vertex, pos, color, id);
+
+					//if (id >= 0) {
+					//	console.log(id + " " + pos );
+						//console.log(markerTracked);
+					//}
+					if (newMarkerRecord != null)
+						history.push(newMarkerRecord);
+
+					if (avgPos[61] != undefined && avgPos[62] != undefined) {
+						//console.log(avgPos[61]);
+						//console.log(avgPos[62]);	
+						var dx = avgPos[61][0] - avgPos[62][0];
+						var dy = avgPos[61][1] - avgPos[62][1];
+						cardLen = Math.sqrt(dx*dx + dy*dy);
+						//console.log(cardLen);
+					}
+
+					if (avgPos[61] != undefined && avgPos[63] != undefined) {
+						var dx = avgPos[61][0] - avgPos[63][0];
+						ref1 = dx/cardLen+0.001;
+
+						//console.log("ref 61 "+x);
+					}
+
+					if (avgPos[62] != undefined && avgPos[63] != undefined) {
+						var dx = avgPos[62][0] - avgPos[63][0];
+						ref2 = dx/cardLen+0.001;
+						//console.log("ref 62 "+x);
+					}
+
+					// 61 stand in for 62 for ref2 calculation
+					if (avgPos[61] != undefined && avgPos[62] == undefined && avgPos[63] != undefined) {
+						var dx = avgPos[61][0] - avgPos[63][0];
+						ref2 = (dx - cardLen)/cardLen+0.001;
+					}
+
+					// 62 stand in for 61 for ref1 calculation
+					if (avgPos[62] != undefined && avgPos[61] == undefined && avgPos[63] != undefined) {
+						var dx = avgPos[62][0] - avgPos[63][0];
+						ref1 = (dx + cardLen)/cardLen+0.001;
+					}
+
+
+
+
+
+					if (avgPos[60] != undefined && avgPos[62] != undefined) {
+						//console.log(avgPos[61]);
+						//console.log(avgPos[62]);	
+						var dx = avgPos[60][0] - avgPos[62][0];
+						var dy = avgPos[60][1] - avgPos[62][1];
+						cardLen = Math.sqrt(dx*dx + dy*dy);
+						//console.log(cardLen);
+					}
+
+					if (avgPos[60] != undefined && avgPos[63] != undefined) {
+						var dx = avgPos[60][0] - avgPos[63][0];
+						ref1 = dx/cardLen+0.001;
+
+						//console.log("ref 61 "+x);
+					}
+
+					if (avgPos[62] != undefined && avgPos[63] != undefined) {
+						var dx = avgPos[62][0] - avgPos[63][0];
+						ref2 = dx/cardLen+0.001;
+						//console.log("ref 62 "+x);
+					}
+
+					// 61 stand in for 62 for ref2 calculation
+					if (avgPos[60] != undefined && avgPos[62] == undefined && avgPos[63] != undefined) {
+						var dx = avgPos[60][0] - avgPos[63][0];
+						ref2 = (dx - cardLen)/cardLen+0.001;
+					}
+
+					// 62 stand in for 61 for ref1 calculation
+					if (avgPos[62] != undefined && avgPos[60] == undefined && avgPos[63] != undefined) {
+						var dx = avgPos[62][0] - avgPos[63][0];
+						ref1 = (dx + cardLen)/cardLen+0.001;
+					}
+				}
+				
+				screenTextDisplay(markerTracked);
+				//consoleDebug(markerTracked);
+				//console.log(markerTracked);
+				//console.log(avgPos);
+				printAvgPos();
+				
+				function consoleDebug(markerTracked) {
+					var keyList = Object.keys(markerTracked);
+					if (keyList.length > 0)
+						//console.log(keyList);
+						console.log(keyList.length);
+				}
+				
+				function drawMarkerOutline(vertex, pos, color, id) {
+					//if (id==-1) id = 99;
+					//if (id2==-1) id2 = 99;
+					ctx.strokeStyle = 'blue';
+
+					ctx.beginPath();
+					ctx.moveTo(vertex[0][0], vertex[0][1]);
+					ctx.lineTo(vertex[1][0], vertex[1][1]);
+					ctx.stroke();
+
+					ctx.beginPath();
+					ctx.moveTo(vertex[2][0], vertex[2][1]);
+					ctx.lineTo(vertex[3][0], vertex[3][1]);
+					ctx.stroke();
+
+					ctx.strokeStyle = 'green';
+					ctx.beginPath();
+					ctx.lineTo(vertex[1][0], vertex[1][1]);
+					ctx.lineTo(vertex[2][0], vertex[2][1]);
+					ctx.stroke();
+
+					ctx.beginPath();
+					ctx.moveTo(vertex[3][0], vertex[3][1]);
+					ctx.lineTo(vertex[0][0], vertex[0][1]);
+					ctx.stroke();
+
+					ctx.beginPath();
+					ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2);
+					ctx.fillStyle = color;
+					ctx.fill();
+
+					ctx.font = "25px Arial";
+					ctx.fillText(id,pos[0],pos[1]);
+				}
+
+				
+				
+				function screenTextDisplay(markerTracked) {
+					
+					function arrContains(ht, obj) {
+						//return (ht.indexOf(obj) != -1);
+						return (ht[obj] != undefined);
+					}
+					
+					function roundDecPlace(num, dec_place) {
+						var modifier = dec_place * 10;
+						return Math.round(num * modifier) / modifier;
+					}
+					
+					ctx.font = "25px Arial";
+					
+					/*
+					// combination detection
+					if (arrContains(markerTracked, 0) && 
+						arrContains(markerTracked, 1) &&
+						arrContains(markerTracked, 2)) 
+					{
+						ctx.fillText("biang2",5,30);
+					}*/
+					
+					// print position on screen for marker 0 and 2 (corresponds to notation marker and tail marker)
+					/*
+					if (avgPos[61] != null) {
+						ctx.fillText(
+						roundDecPlace(avgPos[61][0], 2) + "|" + 
+						roundDecPlace(avgPos[61][1], 2)
+						,5,65);
+					}
+					
+					if (avgPos[62] != null) {
+						ctx.fillText(
+						roundDecPlace(avgPos[62][0], 2) + "|" + 
+						roundDecPlace(avgPos[62][1], 2)
+						,5,95);
+					}
+
+					if (avgPos[63] != null) {
+						ctx.fillText(
+						roundDecPlace(avgPos[63][0], 2) + "|" + 
+						roundDecPlace(avgPos[63][1], 2)
+						,5,125);
+					}
+					*/
+					
+					/*
+					ctx.fillStyle = "green";
+					ctx.fillText(roundDecPlace(cardLen, 2),5,160);
+					ctx.fillText(roundDecPlace(ref1, 2),5,190);
+					ctx.fillText(roundDecPlace(ref2, 2),5,220);
+					*/
+					
+/*
+					if (ref1 > 0)
+						ctx.fillText("valid",5,250);
+					else 
+						ctx.fillText("invalid",5,250);
+*/
+
+			
+
+			//console.log(sortedYunmu);
+
+
+			// marker mapping
+			// [0 - 3] first 3 used for notation
+			// 
+			
+			
+			
+			
+			
+			
+			
+
+
+					var markerDetectedCount = 0;
+					if (avgPos[60] != undefined ) markerDetectedCount++;
+					if (avgPos[61] != undefined ) markerDetectedCount++;
+					if (avgPos[62] != undefined ) markerDetectedCount++;
+					if (avgPos[63] != undefined ) markerDetectedCount++;
+
+					if (markerDetectedCount >= 3) {
+						ctx.font = "60px Hypy";
+						ctx.fillStyle = "#ff0000";
+
+						var mytext = "ch"+ "\u00ED" + "ang";
+						//var mytext2 = "chi"+ "\u00E1" + "ng";
+						var mytext3a = "\u02C9";
+						var mytext3b = "\u02CA";
+						var mytext3 = "chiang";
+
+						var mytext4 = "j"+ "\u00ED" + "ang";
+						//var mytext5 = "ji"+ "\u00E1" + "ng";
+						var mytext6a = "\u02C9";
+						var mytext6b = "\u02CA";
+						var mytext6 = "jiang";
+
+						//ctx.fillText("chiang",216,100);
+						if (ref1 > 0) {
+							if (avgPos[61] != undefined) {
+								if (ref1 <= 0.45 && ref2 <= -0.55) {
+									ctx.fillText(mytext,215,100);
+								}
+								else if (ref1 < 0.65 && ref2 < -0.35) {
+									ctx.fillStyle = "#00ff00";
+									ctx.fillText(mytext3,215,100);
+									ctx.fillText(mytext3b,300,100);
+								}
+								else if (ref1 < 0.875 && ref2 < -0.125) {
+									ctx.fillText("chiang",215,100);
+								}
+								else {
+									ctx.fillText("chiang",215,100);
+								}
+							}
+							if (avgPos[60] != undefined) {
+								if (ref1 <= 0.45 && ref2 <= -0.55) {
+									ctx.fillText(mytext4,215,100);
+								}
+								else if (ref1 < 0.65 && ref2 < -0.35) {
+									ctx.fillStyle = "#00ff00";
+									ctx.fillText(mytext6,215,100);
+									ctx.fillText(mytext6b,250,100);
+								}
+								else if (ref1 < 0.875 && ref2 < -0.125) {
+									ctx.fillText("jiang",215,100);
+								}
+								else {
+									ctx.fillText("jiang",215,100);
+								}
+							}
+						}
+					}
+					// i 0.35 -0.65
+					// a 0.55 -0.45
+					// n 0.75 -0.25
+					// g 1 0
+
+				}
+			}
+		}
+	});
+
+	delete window.ARThreeOnLoad;
+};
+
+if (window.ARController && ARController.getUserMediaThreeScene) {
+	ARThreeOnLoad();
+}
+</script>
+
+</body>
+</html>
