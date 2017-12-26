@@ -466,8 +466,8 @@
         var success = (function(stream) {
             
             video2.addEventListener("loadedmetadata", initProgress, false);
-            video2.src = window.URL.createObjectURL(stream);
-
+            //video2.src = window.URL.createObjectURL(stream);
+            video2.srcObject = stream;
             //video2.src = video.src;
             readyToPlay = true;
             play()
