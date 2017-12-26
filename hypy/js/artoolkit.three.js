@@ -80,7 +80,9 @@
 			@param video Video image to use as scene background. Defaults to this.image
 		*/
 		ARController.prototype.createThreeScene = function(video) {
+			
 			video = video || this.image;
+			console.log("create 3 scene");
 			console.log(video);
 			function invertColor(myImage) {
 
@@ -92,7 +94,7 @@
 			       pix[i+1] = 255 - pix[i+1]; // green
 			       pix[i+2] = 255 - pix[i+2]; // blue
 			       // i+3 is alpha (the fourth element) 
-			    }  
+			    }
 
 			    myImage.putImageData(imgd, x, y); 
 			}
@@ -135,7 +137,6 @@
 
 			scene.add(camera);
 
-
 			var self = this;
 
 			return {
@@ -163,6 +164,11 @@
 							}
 						}
 					}
+					//console.log(video.src);
+					//console.log(video);
+
+					//video2.src = video.src;
+
 					self.process(video);
 				},
 
@@ -320,7 +326,6 @@
 			*/
 			this.threeMultiMarkers = {};
 		};
-
 	};
 
 

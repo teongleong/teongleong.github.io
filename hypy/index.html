@@ -44,12 +44,13 @@ html,body {
 <tr><td id="mainTable">
 <canvas id="myCanvas2" width="640" height="480"></canvas>
 </td></tr>
+<video id="gum-local" autoplay playsinline hidden></video>
 </table>
 <h1>Hanyu Pinyin</h1>
 
-<script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/build/artoolkit.min.js"></script>
+<script async src="js/artoolkit.demin.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/examples/js/third_party/three.js/three.min.js"></script>
-<script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/js/artoolkit.three.js"></script>
+<script async src="js/artoolkit.three.js"></script>
 
 <script>
 
@@ -57,7 +58,7 @@ window.ARThreeOnLoad = function() {
 
 	ARController.getUserMediaThreeScene({
 		maxARVideoSize: 640,
-		cameraParam: 'data/camera.dat',
+		cameraParam: 'Data/camera_para-iPhone 5 rear 640x480 1.0m.dat',
 		onSuccess: function(arScene, arController, arCamera) {
 			
 			var markerTracked = {};
@@ -441,7 +442,7 @@ window.ARThreeOnLoad = function() {
 					} else {
 						color = "#ff0000";
 					}
-					//drawMarkerOutline(vertex, pos, color, id);
+					drawMarkerOutline(vertex, pos, color, id);
 
 					//if (id >= 0) {
 					//	console.log(id + " " + pos );
@@ -539,24 +540,27 @@ window.ARThreeOnLoad = function() {
 				function drawMarkerOutline(vertex, pos, color, id) {
 					//if (id==-1) id = 99;
 					//if (id2==-1) id2 = 99;
-					ctx.strokeStyle = 'blue';
+					ctx.strokeStyle = 'red';
 
 					ctx.beginPath();
 					ctx.moveTo(vertex[0][0], vertex[0][1]);
 					ctx.lineTo(vertex[1][0], vertex[1][1]);
 					ctx.stroke();
 
+					ctx.strokeStyle = 'green';
+
 					ctx.beginPath();
 					ctx.moveTo(vertex[2][0], vertex[2][1]);
 					ctx.lineTo(vertex[3][0], vertex[3][1]);
 					ctx.stroke();
 
-					ctx.strokeStyle = 'green';
+					ctx.strokeStyle = 'blue';
 					ctx.beginPath();
 					ctx.lineTo(vertex[1][0], vertex[1][1]);
 					ctx.lineTo(vertex[2][0], vertex[2][1]);
 					ctx.stroke();
 
+					ctx.strokeStyle = 'yellow';
 					ctx.beginPath();
 					ctx.moveTo(vertex[3][0], vertex[3][1]);
 					ctx.lineTo(vertex[0][0], vertex[0][1]);
@@ -644,13 +648,6 @@ window.ARThreeOnLoad = function() {
 			// 
 			
 			
-			
-			
-			
-			
-			
-
-
 					var markerDetectedCount = 0;
 					if (avgPos[60] != undefined ) markerDetectedCount++;
 					if (avgPos[61] != undefined ) markerDetectedCount++;
