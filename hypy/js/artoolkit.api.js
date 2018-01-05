@@ -116,6 +116,8 @@
 		@param {HTMLImageElement|HTMLVideoElement} [image] The image to process [optional].
 	*/
 	ARController.prototype.process = function(image) {
+		console.log("test?");
+		var test = 1+1;
 		this.detectMarker(image);
 
 		var markerNum = this.getMarkerNum();

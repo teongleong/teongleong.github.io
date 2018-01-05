@@ -41,7 +41,11 @@
             this[t] = null
         }
     });
-    ARController.prototype.process = (function(image) {
+    //ARController.prototype.process = (function() {});
+    ARController.prototype.process = (function(image, obj3d) {
+        var test = 1+2 ;
+        //var fail = 1 / 0;
+
         this.detectMarker(image);
         var markerNum = this.getMarkerNum();
         var k, o;
@@ -79,6 +83,22 @@
             }
             visible.inCurrent = true;
             this.transMatToGLMat(visible.matrix, this.transform_mat);
+            
+            //console.log("sigh "+i);
+            //console.log(this.transform_mat);
+            //console.log(this);
+
+            //var m4 = Three.Matrix4();
+            //m4.elements = this.transform_mat;
+
+            /*if (markerInfo.idMatrix == 1) {
+
+                obj3d.matrixAutoUpdate = false;
+                console.log("here3 ");
+                console.log(obj3d);
+                obj3d.matrix.fromArray(this.transform_mat);
+            }*/
+
             this.dispatchEvent({
                 name: "getMarker",
                 target: this,
@@ -131,7 +151,7 @@
         if (this._bwpointer) {
             this.debugDraw()
         }
-    });
+    }); 
     ARController.prototype.trackPatternMarkerId = (function(id, markerWidth) {
         var obj = this.patternMarkers[id];
         if (!obj) {
