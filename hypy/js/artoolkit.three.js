@@ -35,8 +35,6 @@
 			@param {function} onSuccess - Called on successful initialization with an ThreeARScene object.
 			@param {function} onError - Called if the initialization fails with the error encountered.
 		*/
-
-		
 		ARController.getUserMediaThreeScene = function(configuration) {
 			var obj = {};
 			for (var i in configuration) {
@@ -84,6 +82,7 @@
 		ARController.prototype.createThreeScene = function(video) {
 			
 			video = video || this.image;
+			console.log("create 3 scene");
 			console.log(video);
 			function invertColor(myImage) {
 
@@ -123,7 +122,7 @@
 			// Create a camera and a scene for the video plane and
 			// add the camera and the video plane to the scene.
 			var videoCamera = new THREE.OrthographicCamera(-1, 1, -1, 1, -1, 1);
-			videoScene = new THREE.Scene();
+			var videoScene = new THREE.Scene();
 			videoScene.add(plane);
 			videoScene.add(videoCamera);
 
@@ -131,8 +130,8 @@
 				plane.rotation.z = Math.PI/2;
 			}
 
-			scene = new THREE.Scene();
-			camera = new THREE.Camera();
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
 			camera.matrixAutoUpdate = false;
 			camera.projectionMatrix.fromArray(this.getCameraMatrix());
 
@@ -150,9 +149,7 @@
 
 				video: video,
 
-				process: function(obj3d) {
-					//console.log("obj3d here");
-					//console.log(obj3d);
+				process: function() {
 					for (var i in self.threePatternMarkers) {
 						self.threePatternMarkers[i].visible = false;
 					}
@@ -171,11 +168,8 @@
 					//console.log(video);
 
 					//video2.src = video.src;
-					//console.log(this);
-					//console.log(self);
-					//console.log(self.process);
 
-					self.process(video, obj3d);
+					self.process(video);
 				},
 
 				renderOn: function(renderer) {
@@ -186,8 +180,6 @@
 					renderer.clear();
 					renderer.render(this.videoScene, this.videoCamera);
 					renderer.render(this.scene, this.camera);
-
-					//console.log(this.scene);
 					renderer.autoClear = ac;
 				}
 			};
@@ -334,15 +326,8 @@
 			*/
 			this.threeMultiMarkers = {};
 		};
-	}; // end of integrate
+	};
 
-	var test_tick = function () {
-		console.log("cammie");
-		//console.log(camera);
-		//console.log(scene);
-		console.log(videoScene);
-		setTimeout(test_tick, 1000);
-	}
 
 	var tick = function() {
 		if (window.ARController && window.THREE) {
@@ -350,13 +335,10 @@
 			if (window.ARThreeOnLoad) {
 				window.ARThreeOnLoad();
 			}
-			//setTimeout(test_tick, 1000);
 		} else {
 			setTimeout(tick, 50);
-		}
+		}			
 	};
-
-	
 
 	tick();
 
