@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 <style>
 html,body {
+
 	margin: 0;
 	padding: 0;
 	width: 100%;
@@ -22,31 +23,53 @@ html,body {
 	background: rgba(255,255,255,255);
 	position: absolute;
 	z-index: 1;
-	border: 1px solid black;
-	border-width: 2px;
-	border-style: groove;
+	border: 0.1px solid black;
 	transform: scale(1, 1);
 }
 
 #mainTable {
   position: relative;
-  padding: 8px;
+  padding: 0px;
+}
+
+::-moz-selection{
+    background-color:Transparent;
+    color:#000;
+}
+
+::selection {
+	background-color:Transparent;
+	color:#000;
+}
+
+#sound1 {
+	position: absolute;
+}
+
+#sound2 {
+	position: absolute;
 }
 
 @font-face { font-family: Hypy; src: url('fonts/Hypy.ttf'); }
 
-
-
 </style>
 </head>
 <body bgcolor="white">
-<table align="center">
-<tr><td id="mainTable">
-<canvas id="myCanvas2"></canvas>
-</td></tr>
-<video id="gum-local" autoplay playsinline hidden></video>
-</table>
-<h1>Hanyu Pinyin</h1>
+	<audio id="player"></audio>
+	<span>one</span>
+	<span>two</span>
+	<video id="gum-local" autoplay playsinline hidden></video>
+	<table align="center">
+		<tr>
+			<td id="mainTable">
+				<canvas id="myCanvas2"></canvas>
+			</td>
+		</tr>
+	</table>
+	<image src="images\sound_inactive.png" id="sound1" hidden> </image>
+	<image src="images\sound_active.png" id="sound2" hidden> </image>
+	<h1>Hanyu Pinyin</h1>
+</body>
 
 <script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/build/artoolkit.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/examples/js/third_party/three.js/three.min.js"></script>
@@ -55,6 +78,102 @@ html,body {
 <script>
 
 window.ARThreeOnLoad = function() {
+
+	var scaleX = 1;
+	var scaleY = 1;
+	var scaleAnchorX = 1;
+	var scaleAnchorY = 1;
+
+	var prevSoundName = "";
+	var soundName = "";
+
+	// in canvas ratio
+	var soundIconPosX = 0.5;
+	var soundIconPosY = 0.76;
+	var soundIconLength = 0.05;
+
+	var yunmuID = -1;
+	var shengmuID = -1;
+
+	var validHistory = [];
+
+	var playPromise;
+	var debugSoundList = ["cai1", "cai2", "cai3", "cai4", 
+						  "ji1", "ji2", "ji3", "ji4",
+						  "zhuang1", "zhuang3", "zhuang4",
+						  "guang1", "guang3", "guang4"];
+
+	var validButNoTone = ["zhuang2", "guang2"];
+
+	var stableTest = false;
+
+	function sizeCanvas(canvas, winWidth, winHeight) {
+		console.log(winWidth + " " + winHeight);
+		if ((winWidth / 640 * 480) > winHeight) {
+			
+			var finalHeight = winHeight;
+			var finalWidth = winHeight / 480 * 640;
+			scaleAnchorY = winHeight / 480;
+			scaleAnchorX = finalWidth / 640;
+			scaleY = 1;
+			scaleX = 1.0/480.0*640.0;
+			console.log("clamp height "+finalWidth + " " + finalHeight);
+			canvas.style.height = finalHeight;
+			canvas.style.width = finalWidth;
+			//canvas.width = finalWidth;
+			//canvas.height = finalHeight;
+		} else {
+			var finalWidth = winWidth;
+			var finalHeight = winWidth / 640 * 480;
+			scaleAnchorX = winWidth / 640;
+			scaleAnchorY = finalHeight / 480;
+			scaleX = 1;
+			scaleY = 1.0/640.0*480.0;
+
+			console.log("clamp width "+finalWidth + " " + finalHeight);
+			canvas.style.width = finalWidth;
+			canvas.style.height = finalHeight;
+		}
+	}
+
+	function playSound(soundName) {
+		if (debugSoundList.indexOf(soundName) == -1) return;
+		if (!stableTest) return; // only play when green (valid)
+		var player = document.getElementById("player");
+		player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
+
+		
+		player.load();
+		playPromise = player.play();
+ 
+		if (playPromise !== undefined) {
+		    playPromise.then(_ => {
+		      // Automatic playback started!
+		      // Show playing UI.
+		      // We can now safely pause video...
+		      //console.log("success play?");
+		      video.pause();
+		    })
+		    .catch(error => {
+		      // Auto-play was prevented
+		      // Show paused UI.
+		      //console.log("fail play..."+error);
+		    });
+		}
+
+		//console.log(soundName + " " + testSoundCounter);
+		
+		/*
+		if (player.playing) {
+			player.playing = false;
+			player.pause();
+		}
+		player.load();
+		player.playing = true;
+		player.play();
+		player.playing = false;
+	*/
+	}
 
 	ARController.getUserMediaThreeScene({
 		maxARVideoSize: 640,
@@ -68,29 +187,73 @@ window.ARThreeOnLoad = function() {
 			var avgPos = {};
 			var avgVertex = {};
 
-			
 			var renderer = new THREE.WebGLRenderer({antialias: true});
 
 			var cardLen = 1;
 			var ref1 = -88;
 			var ref2 = -99;
 		
-
 			arSetup(arController, renderer);
-			
-			const rendererCanvas = renderer.domElement;
-			const width = rendererCanvas.clientWidth;
-			const height = rendererCanvas.clientHeight;  
-			console.log(width + " " + height );
 
+			var rendererCanvas = renderer.domElement;
+			//const width = rendererCanvas.clientWidth;
+			//const height = rendererCanvas.clientHeight;  
+			//console.log(width + " " + height );
+			//console.log(rendererCanvas);
+
+			console.log(window.innerWidth + " " + window.innerHeight);
+
+			sizeCanvas(rendererCanvas, window.innerWidth, window.innerHeight);
+			
+			var mainTable = document.getElementById("realMainTable");
 			var overlay = document.getElementById("myCanvas2");
+
+			overlay.style.width = rendererCanvas.style.width;
+			overlay.style.height = rendererCanvas.style.height;
+
 			var ctx = overlay.getContext('2d');
 			//ctx.scale(0.5, 0.5);
 
+			
+			const width = rendererCanvas.clientWidth;
+			const height = rendererCanvas.clientHeight; 
+
+			
+			//const width = rendererCanvas.style.width;
+			//const height = rendererCanvas.style.height;  
+			//overlay.width = window.innerWidth;
+			//overlay.height = window.innerHeight;
+
 			overlay.width = width;
 			overlay.height = height;
+
+			console.log(width + " " + height);
+
 			var canvasWidth = width;
 			var canvasHeight = height;
+
+			//sizeCanvas(overlay, window.innerWidth, window.innerHeight);
+			//document.body.onclick = function (e) {console.log("clicked");}
+			overlay.onclick = function(e) {
+				var rect = overlay.getBoundingClientRect();
+				var canvasX = e.clientX - rect.left;
+				var canvasY = e.clientY - rect.top;
+				//console.log(rect);
+				//console.log(canvasX + " " + canvasY);
+
+				var soundIconTrueX = rect.width * soundIconPosX;
+				var soundIconTrueY = rect.height * soundIconPosY;
+				//console.log(soundIconTrueX + " " + soundIconTrueY);
+
+				var diffX = Math.abs(soundIconTrueX - canvasX);
+				var diffY = Math.abs(soundIconTrueY - canvasY);
+				var thresh = rect.width * soundIconLength * 0.5;
+				if (diffX < thresh && diffY < thresh) {
+					if (soundName == "") return;
+					console.log("clicked on sound");
+					playSound(soundName);
+				}
+			};
 
 			var seenMarker = {};
 			yunmuSlot = [];
@@ -116,20 +279,30 @@ window.ARThreeOnLoad = function() {
 
 			const markerMapping = ["tone1", "tone2", "tone3", "tone4",
 								"iang", "iong", "uang",
-								"ang", "eng", "ong", "uai", "uan", "ian", "iao", "ing", 
-								"ia", "ie", "in", "ai", "an", "ao", "ei", "en", "er", "iu",
-								"ou", "ua", "ue", "ui", "un", "uo", "ve", 
-								"a", "e", "i", "o", "u", "v", "g",
-								"B", "C", "Ch", "D", "F", "G", "H", "J", "K", "L",
-								"M", "N", "P", "Q", "R", "S", "Sh", "T", "W", "X",
-								"Y", "Z", "Zh"];
+								"ang", "eng", "ong", "uai", "uan", 
+								"ian", "iao", "ing", 
+								"ia", "ie", "in", "ai", "an", 
+								"ao", "ei", "en", "er", "iu",
+								"ou", "ua", "ue", "ui", "un", 
+								"uo", "ve",  
+								"a", "e", "i", "o", "u", "v", "g", // 39
+								"b", "c", "ch", "d", "f", "g", "h", "j", "k", "l",
+								"m", "n", "p", "q", "r", "s", "sh", "t", "w", "x",
+								"y", "z", "zh"];
 
-			const toneMarkerTarget = [-1, -1, -1, -1, 66.4, 66.1, 55.5,
-								77.6, 78.2, 78.2, 55.5, 55.5, 65.6, 65.5, 83.1, 
-								66.4, 66.1, 83.1, 77.6, 77.6, 77.6, 78.2, 78.2, 78.2, 66.2,
-								78.2, 55.5, 56.1, 61.1, 78.2, 78.2, 57.8, 
+			const toneMarkerTarget = [-1, -1, -1, -1, 
+								66.4, 66.1, 55.5,
+								77.6, 78.2, 78.2, 55.5, 55.5, 
+								65.6, 65.5, 83.1, 
+								66.4, 66.1, 83.1, 77.6, 77.6, 
+								77.6, 78.2, 78.2, 78.2, 66.2,
+								78.2, 55.5, 56.1, 61.1, 78.2, 
+								56.1, 57.8, 
 								77,6, 78.2, 83.1, 78.2, 78.2, 78.9, 78.6];
-
+			const yunmuVowelOnSecond = ["ia", "ie", "iu", "ua", 
+										"ue", "ui", "uo", "ve", "uai", 
+										"iao", "iong", "uan", "uang",
+										"ian", "iang"];
 			sceneSetup(arScene);
 			tick(ctx);
 			mappingFunction();
@@ -281,6 +454,22 @@ window.ARThreeOnLoad = function() {
 				return retval;
 			}
 
+			function shiftToLength(arr, len) {
+				while(arr.length > len) {
+					arr.shift();
+				}
+				return arr;
+			}
+
+			function percentValid(validHistory) {
+				if (validHistory.length == 0) return 0;
+				var validCount = 0;
+				validHistory.forEach(function(b) {if (b) validCount++});
+				var percent = validCount / validHistory.length;
+				//console.log((percent * 100)+ " percent valid here ");
+				return percent;
+			}
+
 			function retireOld(history) {
 				var stopFlag = false;
 				while (history.length > 0 && !stopFlag) {
@@ -314,38 +503,6 @@ window.ARThreeOnLoad = function() {
 			function lerp(a, b, f)
 			{
 			    return a + f * (b - a);
-			}
-
-			function printAvgPos() {
-
-				/*for (apos in avgPos) {
-        			ctx.beginPath();
-					ctx.arc(apos[0], apos[1], 8, 0, Math.PI * 2);
-					ctx.fillStyle = "#00ff00";
-					ctx.fill();
-					ctx.fillText(id,apos[0],apos[1])
-				}*/
-
-				Object.keys(avgPos).forEach(function(key) {
-			        var apos = avgPos[key];
-			        if (apos == undefined)
-			        	return;
-			        ctx.font = "25px Arial";
-			        ctx.beginPath();
-					ctx.arc(apos[0], apos[1], 8, 0, Math.PI * 2);
-					ctx.fillStyle = "#00ff00";
-					ctx.fill();
-					ctx.fillText(key,apos[0],apos[1]);
-			    });
-        		/*
-				avgPos.forEach(function(apos) {
-					//ctx.strokeStyle = 'green';
-					ctx.beginPath();
-					ctx.arc(apos[0], apos[1], 8, 0, Math.PI * 2);
-					ctx.fillStyle = "#00ff00";
-					ctx.fill();
-					ctx.fillText(id,apos[0],apos[1])
-				});*/
 			}
 
 			function toUTF16(codePoint) {
@@ -519,7 +676,10 @@ window.ARThreeOnLoad = function() {
 				if (avgPos[toneID] != undefined && avgPos[yunmuID] != undefined) {// && avgPos[62] != undefined && avgPos[63] != undefined) {
 					//console.log(avgVertex[61]);
 					var mw = markerWidth(yunmuID);
-					var cardWidth = (mw * 1.05) / 20 * 90;
+					var mw2 = markerWidth(toneID);
+
+					mw = (mw + mw2) / 2;
+					var cardWidth = (mw * 1.00) / 20 * 90;
 					var cardSixth = cardWidth / 6;
 					var markerX = avgPos[toneID][0];
 
@@ -531,38 +691,31 @@ window.ARThreeOnLoad = function() {
 					var cardproper = cardLeft + ((correctX/90) * cardWidth);
 					//var cardproper = cardLeft + ((56/90) * cardWidth);
 					var error = Math.abs(cardproper - markerX);
-					//console.log(mw);
-					//console.log(cardWidth) 
-					//console.log(correctX);
-					//console.log(cardproper);
-					//console.log(markerX)
-					const thresh = 3;
-					//console.log(error + " " + (error < thresh && error > 0));
-
-
-					/*
+					const thresh = 7;
+					
+					
 					ctx.strokeStyle = 'black';
 					ctx.lineWidth = 2;
 					ctx.beginPath();
-					ctx.moveTo(cardLeft, 0);
-					ctx.lineTo(cardLeft, 640);
+					ctx.moveTo(cardLeft * scaleAnchorX, 0);
+					ctx.lineTo(cardLeft * scaleAnchorX, 640);
 					ctx.stroke();
 
 					ctx.strokeStyle = 'red';
 					ctx.beginPath();
-					ctx.moveTo(cardproper, 0);
-					ctx.lineTo(cardproper, 640);
+					ctx.moveTo(cardproper * scaleAnchorX, 0);
+					ctx.lineTo(cardproper * scaleAnchorX, 640);
 					ctx.stroke();
 
 					ctx.strokeStyle = 'green';
 					ctx.lineWidth = 2;
 					ctx.beginPath();
-					ctx.moveTo(cardLeft + cardWidth, 0);
-					ctx.lineTo(cardLeft + cardWidth, 640);
+					ctx.moveTo((cardLeft + cardWidth) * scaleAnchorX, 0);
+					ctx.lineTo((cardLeft + cardWidth)  * scaleAnchorX, 640);
 					ctx.stroke();
-					*/
+					
 
-					//console.log(cardproper + " " + markerX + " " + error);
+					console.log(cardproper + " " + markerX + " " + error);
 					//console.log(cardLeft + " " + cardWidth);
 
 					/*if (error < 3) {
@@ -600,6 +753,46 @@ window.ARThreeOnLoad = function() {
 
 				const thresh = 6/20;
 				return (error <= thresh)
+			}
+
+
+
+			// pinyin is the string to change, vowelIndex 0 for first vowel, 1 for second, 2 for third
+			// tone 1 2 3 4
+			function markTheVowel(pinyin, vowelIndex, tone) {
+
+				//  a i o e u
+				const setA = "ABCDE";
+				const setB = "FGHIJ";
+				const setC = "KLMNO";
+				const setD = "PQRST";
+				const setE = "UVWXY";
+				const setF = "Z_^`~|";
+
+				var tokenized = [];
+				//var vowelFiltered = "";
+				tokenized = pinyin.split("");
+				var vowelFiltered = tokenized.filter(c => (c == "a" || c == "e" || c == "i" || c == "o" || c == "u" || c == "v"));
+
+				if (pinyin == "") return "";
+				//console.log(vowelFiltered + " " + vowelFiltered.length);
+				if (vowelIndex >= vowelFiltered.length) {
+					console.log("markTheVowel invalid vowelIndex");
+					return pinyin;
+				}
+
+				var targetVowel = vowelFiltered[vowelIndex];
+
+				var setChosen = "";
+				if (targetVowel == "a") setChosen = setA;
+				else if (targetVowel == "i") setChosen = setB;
+				else if (targetVowel == "o") setChosen = setC;
+				else if (targetVowel == "e") setChosen = setD;
+				else if (targetVowel == "u") setChosen = setE;
+
+				return pinyin.replace(targetVowel, setChosen[tone-1]);
+				//return setA + setB + setC + setD + setE + setF;
+
 			}
 
 			function threeDimensionAlternative(toneID, yunmuID) {
@@ -736,9 +929,9 @@ window.ARThreeOnLoad = function() {
 
 				// in the ratio of a card len
 				var error  = Math.abs(projection - cardproper);
-				var thresh = 3/90;
-
+				var thresh = 10/90;
 				//console.log(error);
+
 				//console.log("");
 				return (error < thresh);
 			}
@@ -750,9 +943,27 @@ window.ARThreeOnLoad = function() {
 					console.log(keyList.length);
 			}
 
+			function drawSoundIcon(cw, ch) {
+				var img=document.getElementById("sound1");
+				ctx.drawImage(img, 
+					cw * (soundIconPosX - soundIconLength*0.5), 
+					ch * (soundIconPosY - soundIconLength*0.5), 
+					cw*soundIconLength, 
+					cw*((soundIconLength / 70) * 53));
+			}
+
+			function drawSoundIcon2(cw, ch) {
+				var img=document.getElementById("sound2");
+				ctx.drawImage(img, 
+					cw * (soundIconPosX - soundIconLength*0.5), 
+					ch * (soundIconPosY - soundIconLength*0.5), 
+					cw*soundIconLength, 
+					cw*((soundIconLength / 70) * 53));
+			}
+
 			function drawCenterLine(cw, ch) {
-				ctx.strokeStyle = 'black';
-				ctx.lineWidth = 5;
+				ctx.strokeStyle = 'DimGrey';
+				ctx.lineWidth = 2;
 				ctx.beginPath();
 				ctx.moveTo(cw * 0.35, ch * 0.7);
 				ctx.lineTo(cw * 0.65, ch * 0.7);
@@ -763,7 +974,8 @@ window.ARThreeOnLoad = function() {
 				if (text == "") return;
 				//ctx.fillStyle = "#ff0000";
 				ctx.fillStyle = color;
-				ctx.font = "80px Hypy";
+				var fontSize = 75 * scaleAnchorX
+				ctx.font = fontSize+"px Hypy";
 				var setA = "ABCDE";
 				var setB = "FGHIJ";
 				var setC = "KLMNO";
@@ -778,33 +990,32 @@ window.ARThreeOnLoad = function() {
 			function drawMarkerOutline(vertex, pos, color, id) {
 				//if (id==-1) id = 99;
 				//if (id2==-1) id2 = 99;
-
+				//console.log(scaleX + " " + scaleY + " " + scaleAnchorX);
 				if (id == -1) return;
 				ctx.strokeStyle = 'red';
 				ctx.lineWidth = 1;
 				ctx.beginPath();
-				ctx.moveTo(vertex[0][0], vertex[0][1]);
-				ctx.lineTo(vertex[1][0], vertex[1][1]);
+				ctx.moveTo(vertex[0][0]*scaleAnchorX, vertex[0][1]*scaleAnchorY);
+				ctx.lineTo(vertex[1][0]*scaleAnchorX, vertex[1][1]*scaleAnchorY);
 				ctx.stroke();
 
 				ctx.strokeStyle = 'blue';
 				ctx.beginPath();
-				ctx.lineTo(vertex[1][0], vertex[1][1]);
-				ctx.lineTo(vertex[2][0], vertex[2][1]);
+				ctx.lineTo(vertex[1][0]*scaleAnchorX, vertex[1][1]*scaleAnchorY);
+				ctx.lineTo(vertex[2][0]*scaleAnchorX, vertex[2][1]*scaleAnchorY);
 				ctx.stroke();
 				ctx.strokeStyle = 'green';
 
 				ctx.beginPath();
-				ctx.moveTo(vertex[2][0], vertex[2][1]);
-				ctx.lineTo(vertex[3][0], vertex[3][1]);
+				ctx.moveTo(vertex[2][0]*scaleAnchorX, vertex[2][1]*scaleAnchorY);
+				ctx.lineTo(vertex[3][0]*scaleAnchorX, vertex[3][1]*scaleAnchorY);
 				ctx.stroke();
 
 				ctx.strokeStyle = 'yellow';
 				ctx.beginPath();
-				ctx.moveTo(vertex[3][0], vertex[3][1]);
-				ctx.lineTo(vertex[0][0], vertex[0][1]);
+				ctx.moveTo(vertex[3][0]*scaleAnchorX, vertex[3][1]*scaleAnchorY);
+				ctx.lineTo(vertex[0][0]*scaleAnchorX, vertex[0][1]*scaleAnchorY);
 				ctx.stroke();
-
 				/*
 				ctx.beginPath();
 				ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2);
@@ -814,129 +1025,7 @@ window.ARThreeOnLoad = function() {
 				ctx.font = "25px Arial";
 				ctx.fillText(id,pos[0],pos[1]);
 				*/
-			}
-			
-			function screenTextDisplay(markerTracked) {
-				
-				function arrContains(ht, obj) {
-					//return (ht.indexOf(obj) != -1);
-					return (ht[obj] != undefined);
-				}
-				
-				function roundDecPlace(num, dec_place) {
-					var modifier = dec_place * 10;
-					return Math.round(num * modifier) / modifier;
-				}
-				
-				ctx.font = "25px Arial";
-			
-			/*
-			// combination detection
-			if (arrContains(markerTracked, 0) && 
-				arrContains(markerTracked, 1) &&
-				arrContains(markerTracked, 2)) 
-			{
-				ctx.fillText("biang2",5,30);
-			}*/
-			
-			// print position on screen for marker 0 and 2 (corresponds to notation marker and tail marker)
-			/*
-			if (avgPos[61] != null) {
-				ctx.fillText(
-				roundDecPlace(avgPos[61][0], 2) + "|" + 
-				roundDecPlace(avgPos[61][1], 2)
-				,5,65);
-			}
-			
-			if (avgPos[62] != null) {
-				ctx.fillText(
-				roundDecPlace(avgPos[62][0], 2) + "|" + 
-				roundDecPlace(avgPos[62][1], 2)
-				,5,95);
-			}
-
-			if (avgPos[63] != null) {
-				ctx.fillText(
-				roundDecPlace(avgPos[63][0], 2) + "|" + 
-				roundDecPlace(avgPos[63][1], 2)
-				,5,125);
-			}
-			*/
-			}
-	
-
-	//console.log(sortedYunmu);
-
-
-	// marker mapping
-	// [0 - 3] first 3 used for notation
-	// 
-	
-	
-			/*var markerDetectedCount = 0;
-			if (avgPos[60] != undefined ) markerDetectedCount++;
-			if (avgPos[61] != undefined ) markerDetectedCount++;
-			if (avgPos[62] != undefined ) markerDetectedCount++;
-			if (avgPos[63] != undefined ) markerDetectedCount++;
-
-			if (markerDetectedCount >= 3) {
-				ctx.font = "60px Hypy";
-				ctx.fillStyle = "#ff0000";
-
-				var mytext = "ch"+ "\u00ED" + "ang";
-				//var mytext2 = "chi"+ "\u00E1" + "ng";
-				var mytext3a = "\u02C9";
-				var mytext3b = "\u02CA";
-				var mytext3 = "chiang";
-
-				var mytext4 = "j"+ "\u00ED" + "ang";
-				//var mytext5 = "ji"+ "\u00E1" + "ng";
-				var mytext6a = "\u02C9";
-				var mytext6b = "\u02CA";
-				var mytext6 = "jiang";
-
-				//ctx.fillText("chiang",216,100);
-				if (ref1 > 0) {
-					if (avgPos[61] != undefined) {
-						if (ref1 <= 0.45 && ref2 <= -0.55) {
-							ctx.fillText(mytext,215,100);
-						}
-						else if (ref1 < 0.65 && ref2 < -0.35) {
-							ctx.fillStyle = "#00ff00";
-							ctx.fillText(mytext3,215,100);
-							ctx.fillText(mytext3b,300,100);
-						}
-						else if (ref1 < 0.875 && ref2 < -0.125) {
-							ctx.fillText("chiang",215,100);
-						}
-						else {
-							ctx.fillText("chiang",215,100);
-						}
-					}
-					if (avgPos[60] != undefined) {
-						if (ref1 <= 0.45 && ref2 <= -0.55) {
-							ctx.fillText(mytext4,215,100);
-						}
-						else if (ref1 < 0.65 && ref2 < -0.35) {
-							ctx.fillStyle = "#00ff00";
-							ctx.fillText(mytext6,215,100);
-							ctx.fillText(mytext6b,250,100);
-						}
-						else if (ref1 < 0.875 && ref2 < -0.125) {
-							ctx.fillText("jiang",215,100);
-						}
-						else {
-							ctx.fillText("jiang",215,100);
-						}
-					}
-				}
-			}*/
-			// i 0.35 -0.65
-			// a 0.55 -0.45
-			// n 0.75 -0.25
-			// g 1 0
-			
-			
+			}			
 
 			function tick (ctx) {
 				arScene.process();
@@ -947,6 +1036,7 @@ window.ARThreeOnLoad = function() {
 				var markerNum = arController.getMarkerNum();
 				ctx.clearRect(0,0,canvasWidth,canvasHeight);
 				drawCenterLine(canvasWidth, canvasHeight);
+				drawSoundIcon(canvasWidth, canvasHeight);
 				//prevMarkerTracked = markerTracked;
 				markerTracked = {};
 
@@ -954,46 +1044,28 @@ window.ARThreeOnLoad = function() {
 				shengmuSlot.length = 0;
 				toneSlot.length = 0;
 
-				yunmuTextToDisplay = "";
-				shengmuTextToDisplay = "";
+				yunmuText = "";
+				shengmuText = "";
+				soundName = "";
 				
 				retireOld(history);
 				retireOld2(avgPos);
 
 				for (var i = 0; i<markerNum; i++) {
 					var markerInfo = arController.getMarker(i);
-					var vertexA = markerInfo.vertex;
+					var vertex = markerInfo.vertex;
 					var pos = markerInfo.pos;
-					var nativeID = markerInfo.id;
-					var id = -1;
+					var id = markerInfo.id;
 					var color = "blue";
 					var area = markerInfo.area;
 					var newMarkerRecord = null;
 
+					if (id != -1) {
+						newMarkerRecord = markerRecord(id, pos, vertex, Date.now(), area);
+						markerTracked[id] = newMarkerRecord;
 
-
-					// pattern marker
-					/*if (markerInfo.idPatt >= 0 || markerInfo.idMatrix < 0) {
-						//markerTracked[markerInfo.idPatt] = markerInfo;
-						id = markerInfo.idPatt;
-					}
-
-					// matrix marker
-					else if (markerInfo.idMatrix >= 0 && markerInfo.idPatt < 0) {
-						//markerTracked[markerInfo.idMatrix] = markerInfo;
-						id = markerInfo.idMatrix;
-					}*/
-
-					if (markerInfo.id >= 0) {
-						id = markerInfo.id;
-						//console.log(markerInfo);
-					}
-
-					if (markerInfo.area > 400 && id != -1) {
-						newMarkerRecord = markerRecord(id, pos, vertexA, Date.now(), area);
-						markerTracked[markerInfo.idMatrix] = newMarkerRecord;
-
-						if (avgPos[id] == undefined) {
+						// lerping position 
+						/*if (avgPos[id] == undefined) {
 							avgPos[id] = pos.slice();
 						} else {
 							var newPos = pos.slice();
@@ -1003,16 +1075,19 @@ window.ARThreeOnLoad = function() {
 							var lerpedPos = [newX, newY];
 							lerpedPos.timestamp = Date.now();
 							avgPos[id] = lerpedPos;
-						}
-						//avgVertex[id] = vertexA.slice();
-						avgVertex[id] = cloneObj(vertexA);
+						}*/
 
+						// TODO eventually i need to do some kind of moving window average
+						avgPos[id] = pos.slice();
+						avgVertex[id] = cloneObj(vertex);
+
+						// categorizing markers into 3 types
 						if (id >= 0 && id <= 3) {
-							toneSlot.push(markerMapping[id]);
+							toneSlot.push(id);
 						} else if (id >= 4 && id <= 38) {
-							yunmuSlot.push(markerMapping[id]);
+							yunmuSlot.push(id);
 						} else if (id >= 39 && id <= 61) {
-							shengmuSlot.push(markerMapping[id]);
+							shengmuSlot.push(id);
 						}
 					}
 
@@ -1021,68 +1096,95 @@ window.ARThreeOnLoad = function() {
 					} else {
 						color = "#ff0000";
 					}
-					drawMarkerOutline(vertexA, pos, color, id);
+					//drawMarkerOutline(vertex, pos, color, id);
 
-					//if (id >= 0) {
-					//	console.log(id + " " + pos );
-						//console.log(markerTracked);
-					//}
 					if (newMarkerRecord != null)
 						history.push(newMarkerRecord);
-
-					
 				}
 
-				var yunmuTextToDisplay = "";
-				var shengmuTextToDisplay = "";
-
-				
-				
-
-				if (yunmuSlot.length > 0) {
-					yunmuTextToDisplay = yunmuSlot[0];
-				}
-
-				if (shengmuSlot.length > 0) {
-					shengmuTextToDisplay = shengmuSlot[0];
-				}
-				var combined = shengmuTextToDisplay.toLowerCase() + yunmuTextToDisplay ;
-
-				var validCheckResult = validCombiCheck(shengmuTextToDisplay.toLowerCase(), yunmuTextToDisplay);
-				//console.log(validCheckResult);
-
-				//if (combined != "")
-				//	console.log(combined);
-
-				
-				//screenTextDisplay(markerTracked);
-				//printAvgPos();
-
-
-				var yunmuID = markerMapping.indexOf(yunmuTextToDisplay);
-				var toneID = markerMapping.indexOf(toneSlot[0]);
-
-				if (yunmuID == -1 || toneID == -1)
+				// exit if there are duplicate yunmu or shengmu or tone
+				if (yunmuSlot.length > 1) {
+					console.log("duplicate yunmu "+yunmuSlot);
 					return;
-
-				//console.log(yunmuID + " " + toneID);
-
-				if (validCheckResult && (screenSpaceCheck(toneID, yunmuID) || threeDimensionAlternative(toneID, yunmuID)) ) {
-					//console.log("correct");
-					//ctx.fillStyle = 'green';
-					//ctx.font = "50px Arial";
-					//ctx.fillText("correct",320,100);
-					drawCenterText(640, 480, 'green', combined);
-				} else {
-					//console.log("wrong");
-					//ctx.fillStyle = 'red';
-					//ctx.font = "50px Arial";
-					//ctx.fillText("wrong",320,100);
-
-					drawCenterText(640, 480, 'red', combined);
+				}
+				if (shengmuSlot.length > 1) {
+					console.log("duplicate shengmu "+shengmuSlot);
+					return;
+				}
+				if (toneSlot.length > 1) {
+					console.log("duplicate tone "+toneSlot);
+					return;	
 				}
 
-				//drawCenterText(640, 480, combined);
+				var shengmuText = (shengmuSlot.length > 0) ? markerMapping[shengmuSlot[0]] : "";
+				var yunmuText = (yunmuSlot.length > 0) ? markerMapping[yunmuSlot[0]] : "";
+
+				//yunmuID = markerMapping.indexOf(yunmuText);
+				//shengmuID = markerMapping.indexOf(shengmuText);;
+				shengmuID = (shengmuSlot.length > 0) ? shengmuSlot[0] : -1;
+				yunmuID = (yunmuSlot.length > 0) ? yunmuSlot[0] : -1;
+
+				var leftText = "";
+				var rightText = "";
+
+				if (yunmuID != -1 && shengmuID != -1) { // both components are there
+					var yposX = markerTracked[yunmuID].pos[0];
+					var sposX = markerTracked[shengmuID].pos[0];
+					leftText = (sposX < yposX) ? yunmuText : shengmuText;
+					rightText = (sposX < yposX) ? shengmuText : yunmuText;
+				} else { // either one of them missing or both
+					leftText = shengmuText;
+					rightText = yunmuText;
+				}
+
+				//for debug
+				//console.log(threeDimensionAlternative(toneID, yunmuID));
+				//console.log(screenSpaceCheck(toneID, yunmuID));
+
+				var combined = leftText + rightText ;
+				
+				var validCheckResult = validCombiCheck(shengmuText, yunmuText);
+
+				var toneID = toneSlot[0];
+
+				if (!validCheckResult || toneID == -1) {
+					drawCenterText(width, height, 'black', combined);
+					return;
+				}
+
+				// a small set of yunmu has notation on the second
+				var vowelIndex = (yunmuVowelOnSecond.indexOf(yunmuText) != -1) ? 1 : 0;
+				var markedPinyin = markTheVowel(combined, vowelIndex, toneID + 1);
+
+				//var simpleTest = screenSpaceCheck(toneID, yunmuID);
+				var complicatedTest = threeDimensionAlternative(toneID, yunmuID);
+				
+				validHistory.push(complicatedTest);
+				shiftToLength(validHistory, 60);
+				
+
+				stableTest = (percentValid(validHistory) > 0.5);
+				
+
+				//var tonePosCheck = (simpleTest || complicatedTest);
+
+				var toneName = (toneID + 1);
+				if (isNaN(toneName)) return;
+				soundName = combined + toneName;
+
+				var noToneTest = (validButNoTone.indexOf(soundName) != -1);
+
+				if (stableTest && !noToneTest) drawSoundIcon2(canvasWidth, canvasHeight);
+				if (prevSoundName != soundName  && stableTest && !noToneTest) {
+					console.log(soundName);
+					playSound(soundName);
+					prevSoundName = soundName;
+				}
+
+				var color = (stableTest && !noToneTest) ? 'green' : 'red';
+				var textDisplay = (stableTest && !noToneTest) ? markedPinyin : combined;
+				drawCenterText(width, height, color, textDisplay);
+
 			}
 		}
 	}); // end of get getUserMediaThreeScene
@@ -1094,6 +1196,4 @@ if (window.ARController && ARController.getUserMediaThreeScene) {
 	ARThreeOnLoad();
 }
 </script>
-
-</body>
 </html>
