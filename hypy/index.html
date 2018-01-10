@@ -56,8 +56,6 @@ html,body {
 </head>
 <body bgcolor="white">
 	<audio id="player"></audio>
-	<span>one</span>
-	<span>two</span>
 	<video id="gum-local" autoplay playsinline hidden></video>
 	<table align="center">
 		<tr>
@@ -137,15 +135,23 @@ window.ARThreeOnLoad = function() {
 	}
 
 	function playSound(soundName) {
-		if (debugSoundList.indexOf(soundName) == -1) return;
-		if (!stableTest) return; // only play when green (valid)
+		if (debugSoundList.indexOf(soundName) == -1) {
+			console.log("playSound: " + soundName + " not on debug list");
+			return;
+		}
+		if (!stableTest) {
+			console.log("playSound: not stable test");
+			return; // only play when green (valid)
+		}
 		var player = document.getElementById("player");
+		console.log(player);
 		player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
-
+		console.log("set innerHTML "+player.innerHTML);
 		
 		player.load();
+		console.log("player load");
 		playPromise = player.play();
- 
+ 		console.log("player promise");
 		if (playPromise !== undefined) {
 		    playPromise.then(_ => {
 		      // Automatic playback started!
@@ -250,7 +256,7 @@ window.ARThreeOnLoad = function() {
 				var thresh = rect.width * soundIconLength * 0.5;
 				if (diffX < thresh && diffY < thresh) {
 					if (soundName == "") return;
-					console.log("clicked on sound");
+					//console.log("clicked on sound");
 					playSound(soundName);
 				}
 			};
