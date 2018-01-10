@@ -136,22 +136,22 @@ window.ARThreeOnLoad = function() {
 
 	function playSound(soundName) {
 		if (debugSoundList.indexOf(soundName) == -1) {
-			console.log("playSound: " + soundName + " not on debug list");
+			//console.log("playSound: " + soundName + " not on debug list");
 			return;
 		}
 		if (!stableTest) {
-			console.log("playSound: not stable test");
+			//console.log("playSound: not stable test");
 			return; // only play when green (valid)
 		}
 		var player = document.getElementById("player");
-		console.log(player);
+		//console.log(player);
 		player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
-		console.log("set innerHTML "+player.innerHTML);
+		//console.log("set innerHTML "+player.innerHTML);
 		
 		player.load();
-		console.log("player load");
+		//console.log("player load");
 		playPromise = player.play();
- 		console.log("player promise");
+ 		//console.log("player promise");
 		if (playPromise !== undefined) {
 		    playPromise.then(_ => {
 		      // Automatic playback started!
@@ -1151,9 +1151,8 @@ window.ARThreeOnLoad = function() {
 				
 				var validCheckResult = validCombiCheck(shengmuText, yunmuText);
 
-				var toneID = toneSlot[0];
-
-				if (!validCheckResult || toneID == -1) {
+				var toneID = (toneSlot.length > 0) ? toneSlot[0] : -1;;
+				if (!validCheckResult || (toneID == -1)) {
 					drawCenterText(width, height, 'black', combined);
 					return;
 				}
