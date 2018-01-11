@@ -42,11 +42,7 @@ html,body {
 	color:#000;
 }
 
-#sound1 {
-	position: absolute;
-}
-
-#sound2 {
+#sound1 #sound2 {
 	position: absolute;
 }
 
@@ -101,7 +97,24 @@ window.ARThreeOnLoad = function() {
 						  "zhuang1", "zhuang3", "zhuang4",
 						  "guang1", "guang3", "guang4"];
 
-	var validButNoTone = ["zhuang2", "guang2"];
+	var validButNoTone = ["an2", "ang3", 
+						  "bang2", "ben2", "bian2", "biao2", "bin2", "bin3", "bing2",
+						  "ca2", "ca4", "cang3", "cang4", "ce1", "ce2", "ce3",  "cei1", "cei2", "cei3", 
+						  "cen3", "cen4", "ceng3", "che2", "chua2", "chua3", "chua4", "chui3", "chui4", "chun4", 
+						  "chuo2", "chuo3", "cong3", "cong4", "cou1", "cou2", "cou3", "cu3", "cuan3", "cui2",
+						  "dai2", "dan2", "dang2", "de3", "dei2", "dei4", "den1", "den2", "den3", "deng2", 
+						  "dia1",  "dia2",  "dia4", "dian2", "diao2", "die3", "die4", "ding2",
+						  "diu2", "diu3", "diu4", "dong2", "dou2", "duan2", "dui2", "dui3", "dun2", 
+						  "en2", "en3", "eng2",  "eng3",  "eng4",  "er1", 
+						  "fo1", "fo3", "fo4", "fou1", "fou2", "fou4", 
+						  "gai2", "gan2", "gang2", "gao2", "gei1", "gei2", "gei4", "geng2", "gong2", "gou2", 
+						  "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gui4", "ga1", 
+						  "ga2", "ga3", "gai2", "gan2", "gang2", "gao2", "gei1",  "gei2",  "gei4", "geng2", 
+						  "gong2", "gou2", "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gun1", "gun2",
+						  "hang3", "he3", "hei2", "hei3", "hei4", "hen1", "heng3", "hua3", "huai1", "huai3", "hun3", "jian2", "jiang2",
+						  "jin2", "jing2", "jiong2", "jiong4", "jiu2", "juan2", "jun2", "jun3",
+						  "ka2", "ka4", "kai2", "kan2", "kang3",
+						  "zhuang2"];
 
 	var stableTest = false;
 
@@ -135,17 +148,19 @@ window.ARThreeOnLoad = function() {
 	}
 
 	function playSound(soundName) {
-		if (debugSoundList.indexOf(soundName) == -1) {
+		/*if (debugSoundList.indexOf(soundName) == -1) {
 			//console.log("playSound: " + soundName + " not on debug list");
 			return;
-		}
+		}*/
 		if (!stableTest) {
 			//console.log("playSound: not stable test");
 			return; // only play when green (valid)
 		}
 		var player = document.getElementById("player");
 		//console.log(player);
-		player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
+		//player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
+		player.innerHTML = "<source src='https://yabla.vo.llnwd.net/media.yabla.com/chinese_static/audio/alicia/" + soundName + ".mp3' type='audio/mpeg'>";
+		//https://yabla.vo.llnwd.net/media.yabla.com/chinese_static/audio/alicia/pan1.mp3
 		//console.log("set innerHTML "+player.innerHTML);
 		
 		player.load();
@@ -165,6 +180,10 @@ window.ARThreeOnLoad = function() {
 		      // Show paused UI.
 		      //console.log("fail play..."+error);
 		    });
+		}
+
+		if (playPromise !== undefined ) {
+			playPromise.then().catch().finally();
 		}
 
 		//console.log(soundName + " " + testSoundCounter);
@@ -304,7 +323,7 @@ window.ARThreeOnLoad = function() {
 								77.6, 78.2, 78.2, 78.2, 66.2,
 								78.2, 55.5, 56.1, 61.1, 78.2, 
 								56.1, 57.8, 
-								77,6, 78.2, 83.1, 78.2, 78.2, 78.9, 78.6];
+								77.6, 78.2, 83.1, 78.2, 78.2, 78.9, 78.6];
 			const yunmuVowelOnSecond = ["ia", "ie", "iu", "ua", 
 										"ue", "ui", "uo", "ve", "uai", 
 										"iao", "iong", "uan", "uang",
@@ -691,7 +710,7 @@ window.ARThreeOnLoad = function() {
 
 					// dependent on orientation
 					var cardLeft = avgPos[yunmuID][0] - cardSixth;
-					
+					console.log(yunmuID);
 					var correctX = toneMarkerTarget[yunmuID];
 
 					var cardproper = cardLeft + ((correctX/90) * cardWidth);
@@ -836,9 +855,6 @@ window.ARThreeOnLoad = function() {
 				}
 
 				if (avgPos[toneID] == undefined || avgPos[yunmuID] == undefined) return;
-
-
-				
 				 
 				var scene = arScene.scene;
 				//var anchor = scene.children;
@@ -923,9 +939,12 @@ window.ARThreeOnLoad = function() {
 					projection = v.dot(dir);
 				}
 
+
 				var correctX = toneMarkerTarget[yunmuID];
 				var cardproper = (correctX/90);
 
+				//console.log(yunmuID);
+				//console.log(correctX)
 				//console.log(cardproper);
 				//console.log(projection);
 
@@ -1167,7 +1186,7 @@ window.ARThreeOnLoad = function() {
 				validHistory.push(complicatedTest);
 				shiftToLength(validHistory, 60);
 				
-
+				//console.log(complicatedTest);
 				stableTest = (percentValid(validHistory) > 0.5);
 				
 
@@ -1178,6 +1197,7 @@ window.ARThreeOnLoad = function() {
 				soundName = combined + toneName;
 
 				var noToneTest = (validButNoTone.indexOf(soundName) != -1);
+
 
 				if (stableTest && !noToneTest) drawSoundIcon2(canvasWidth, canvasHeight);
 				if (prevSoundName != soundName  && stableTest && !noToneTest) {
