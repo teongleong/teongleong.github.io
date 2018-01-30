@@ -51,7 +51,7 @@ html,body {
 
 </style>
 </head>
-<body bgcolor="white">
+<body bgcolor="white" onload=onload()>
 	<audio id="player"></audio>
 	<video id="gum-local" autoplay playsinline hidden></video>
 	<table align="center">
@@ -61,17 +61,6 @@ html,body {
 			</td>
 		</tr>
 	</table>
-	<image src="images\sound_inactive.png" id="sound1" hidden> </image>
-	<image src="images\sound_active.png" id="sound2" hidden> </image>
-
-	<svg visibility="hidden">
-		<image href="images\error0.svg" id="error0"  > </image>
-		<image href="images\error1.svg" id="error1"  > </image>
-		<image href="images\error2.svg" id="error2"  > </image>
-		<image href="images\error3.svg" id="error3"  > </image>
-		<image href="images\correct1.svg" id="correct0"  > </image>
-		<image href="images\correct2.svg" id="correct1"  > </image>
-	</svg>
 </body>
 
 <script async src="js/artoolkit.demin.js"></script>
@@ -92,7 +81,7 @@ window.ARThreeOnLoad = function() {
 
 	// in canvas ratio
 	var soundIconPosX = 0.5;
-	var soundIconPosY = 0.76;
+	var soundIconPosY = 0.8 + 0.06;
 	var soundIconLength = 0.05;
 	var soundIconActive = false;
 
@@ -663,12 +652,13 @@ window.ARThreeOnLoad = function() {
 					//console.log("scaling done2");
 				}
 				//console.log(canvas.width + " " + canvas.height);
-	    	}	    	
+	    	}
 
-	    	function bitmapErrorSetup1(stage) {
-	    		let scale = 2;
+	    	function bitmapErrorSetup1a(stage) {
+	    		let wScale = 0.6;
 	    		let container = new createjs.Container();
 	    		let bitmap = new createjs.Bitmap("images/new/wrong_big.svg");
+
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 	    			if (displayState === DisplayStates.ErrorCombi) {
 						container.visible = true;
@@ -686,17 +676,14 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container);
 				stage.update();
 
-				svgScaling(bitmap, stage.canvas);
-				container.scaleX *= scale;
-	    		container.scaleY *= scale;
+	    		container.scaleX *= wScale;
+	    		container.scaleY *= wScale;
 
-	    		container.x = stage.canvas.width * 0.5;
-	    		container.y = 0;
-
-	    		let sheng = new createjs.Text("ch", "45px Hypy", "#000000"); //人\u97f3
+	    		let scaleFontSize = 60 * scaleAnchorX / wScale;
+	    		let sheng = new createjs.Text("ch", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				let yun = new createjs.Text("eng", "45px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(sheng, yun);
@@ -708,21 +695,26 @@ window.ARThreeOnLoad = function() {
 						return;
 					}
 
-					bitmap.x = bounds.width * -0.5;
-					bitmap.y = bounds.height * 0.95;
+					let whRatio = bounds.width / bounds.height;
 
-					sheng.y = sheng.getMeasuredHeight() + bounds.height * 1;
-					yun.y = yun.getMeasuredHeight() + bounds.height * 1;
+					// assuming svg width is full canvas width (its true afaik)
+					bitmap.x = stage.canvas.width * -0.5 ;
+					//bitmap.y = (stage.canvas.width * -0.5) / whRatio; //stage.canvas.height * 0.5;
 
-					sheng.x =  -0.5 * sheng.getMeasuredWidth() - bounds.width * 0.25; 
-					yun.x = 0 + bounds.width * 0.03;	
+					container.x = stage.canvas.width * 0.5;
+					container.y = stage.canvas.height * 0.3;
+
+					sheng.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
+					yun.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
+
+					sheng.x = stage.canvas.width * -0.26  - sheng.getMeasuredWidth() * 0.5;
+					yun.x = stage.canvas.width * 0.03;	
 				}
 				setPos();
 	    	}
 
-	    	function bitmapErrorSetup2(stage) {
-	    		let scale = 1.5;
-	    		let scale2 = 1.15;
+	    	function bitmapErrorSetup2a(stage) {
+	    		let scale = 0.47;
 	    		let container = new createjs.Container();
 
 	    		//if (yunmuID == -1 || shengText == -1) return;
@@ -738,21 +730,18 @@ window.ARThreeOnLoad = function() {
 
 	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
 
-	    		let sheng = new createjs.Text("ch", "60px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = 60 * scaleAnchorX / scale;
+	    		let sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				let yun = new createjs.Text("eng", "60px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 
-	    			
-	    			//container.visible = (displayState == DisplayStates.Correct2);
 	    	 		if (displayState === DisplayStates.ErrorTonePos) {
-	    	 			//container.visible = false;
 	    	 			container.visible = true;
 	    	 			bitmap.visible = true;
-	    	 			//bitmap2.visible = true;
 	    	 			tones.forEach(function(e) {
 	    	 				e.visible = false;
 	    	 			});
@@ -764,23 +753,10 @@ window.ARThreeOnLoad = function() {
 						shengText = markerMapping[shengmuID];
 						sheng.text = shengText;
 	    	 			yun.text = yunText;
-	    	 			//if (tween1.paused)
-	    	 			//	tween1.pause(false);
 						 setPos();
 	    	 		} else {
-	    	//  			if (tween.paused) {
-						//     tween.paused = false;
-						//     tween.setPaused(false);
-						// } else {
-						//     tween.paused = true;
-						//     tween.setPaused(true);
-						// }
-						//if (!tween1.paused)
-						//	tween1.pause(true);
-						//container.visible = true;
 	    	 			container.visible = false;
 	    	 			bitmap.visible = false;
-	    	 			//bitmap2.visible = false;
 	    	 			tones.forEach(function(e) {
 	    	 				e.visible = false;
 	    	 			});
@@ -794,17 +770,23 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container);
 				stage.update();
             	
-				svgScaling(bitmap, stage.canvas);
+				//svgScaling(bitmap, stage.canvas);
 				//svgScaling(bitmap2, stage.canvas);
 				tones.forEach(function(e) {
-	 				svgScaling(e, stage.canvas, scale2);
+	 				//svgScaling(e, stage.canvas, scale2);
 	 			});
 
 				container.x = stage.canvas.width * 0.5;
-	    		container.y = 0;
+	    		container.y = stage.canvas.height * 0.3;
+	    		//container.y = stage.canvas.height * 0.5;
+
+				//container.scaleX *= scale;
+				//container.scaleY *= scale;
 
 				container.scaleX *= scale;
 				container.scaleY *= scale;
+
+				console.log(bitmap.scaleX);
 
 				var tween1 = null;
 				var tween2 = null;
@@ -812,76 +794,60 @@ window.ARThreeOnLoad = function() {
 				var tween4 = null;
 
 				function setPos() {
-					let bounds = bitmap.getBounds();
-					let bounds2 = bitmap2.getBounds();
-					
-					if (bounds === null || bounds2 === null) {
-						setTimeout(function() {setPos();}, 1000);
-						return;
-					}
 
-					bitmap.x = bounds.width * -0.5;
-					bitmap.y = bounds2.height * (0.38 + 0.48);
+					bitmap.x = -stage.canvas.width * 0.5;
+					bitmap.y = stage.canvas.height * 0.0;
 
-					//bitmap2.x = bounds2.width * -0.8;
-					//bitmap2.y = bounds2.width * 0.15;
 					tones.forEach(function(e) {
-						e.x = bounds.width * -0.35
-		 				//e.x = bounds2.width * -0.8;
-						e.y = bounds2.width * 0.15 + bounds2.height * 0.43;
+						e.x = -stage.canvas.width * 0.35;
+						e.y = stage.canvas.height * -0.28;
+						e.scaleX = 0.85;
+						e.scaleY = 0.85;
 		 			});
 
-					sheng.y = sheng.getMeasuredHeight() + bounds2.height * (0.42 + 0.48);
-					yun.y = yun.getMeasuredHeight() + bounds2.height * (0.42 + 0.48);
+		 			sheng.y = sheng.getMeasuredHeight() * 1.2;
+		 			yun.y = yun.getMeasuredHeight() * 1.2;
 
-					// if (shengText !== undefined) {
-					// 	if (shengText.length == 2)
-							
-					// 	else 
-					// 		sheng.x = - bounds.width * 0.12 - sheng.getMeasuredWidth();
-					// }
-					//sheng.x = -1 * sheng.getMeasuredWidth() - bounds2.height * 0.25;
-					sheng.x = - bounds.width * 0.12 - sheng.getMeasuredWidth();
-					yun.x = 0 - bounds2.height * 0.25;
+		 			sheng.x = -0.19 * stage.canvas.width - sheng.getMeasuredWidth() * 0.5;
+		 			yun.x = -0.12 * stage.canvas.width;
 				
 					if (tween1 === null) {
 						tween1 = createjs.Tween.get(bitmap2, { loop: true })
-						  .to({ x: bounds.width * 0.2 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * 0.2 }, 200)
-						  .to({ x: bounds.width * -0.35 }, 1000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * -0.35 }, 200);
+						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: +stage.canvas.width * 0.1 }, 200)
+						  .to({ x: -stage.canvas.width * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: -stage.canvas.width * 0.35 }, 200);
 					}
 					if (tween2 === null) {
 						tween2 = createjs.Tween.get(bitmap3, { loop: true })
-						  .to({ x: bounds.width * 0.2 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * 0.2 }, 200)
-						  .to({ x: bounds.width * -0.35 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * -0.35 }, 200);
+						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: +stage.canvas.width * 0.1 }, 200)
+						  .to({ x: -stage.canvas.width * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: -stage.canvas.width * 0.35 }, 200);
 					}
 					if (tween3 === null) {
 						tween3 = createjs.Tween.get(bitmap4, { loop: true })
-						  .to({ x: bounds.width * 0.2 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * 0.2 }, 200)
-						  .to({ x: bounds.width * -0.35 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * -0.35 }, 200);
+						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: +stage.canvas.width * 0.1 }, 200)
+						  .to({ x: -stage.canvas.width * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: -stage.canvas.width * 0.35 }, 200);
 					}
 					if (tween4 === null) {
 						tween4 = createjs.Tween.get(bitmap5, { loop: true })
-						  .to({ x: bounds.width * 0.2 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * 0.2 }, 200)
-						  .to({ x: bounds.width * -0.35 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: bounds.width * -0.35 }, 200);
+						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: +stage.canvas.width * 0.1 }, 200)
+						  .to({ x: -stage.canvas.width * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: -stage.canvas.width * 0.35 }, 200);
 					}
 				}
 
     			setPos();
-
 				stage.update();
 	    	}
 
-	    	function bitmapErrorSetup3(stage) {
+	    	function bitmapErrorSetup3a(stage) {
 
-	    		let scale = 2.2;
+	    		let scale = 0.46;
 
 	    		var bitmap1 = new createjs.Bitmap("images/new/tone_wrong1.svg");
 	    		var bitmap2 = new createjs.Bitmap("images/new/tone_wrong2.svg");
@@ -893,28 +859,34 @@ window.ARThreeOnLoad = function() {
 
 	    		choices.forEach(function(e) {
 	    			stage.addChild(e);
+	    			e.visible = false;
 	    			e.x = 0;
 	    			e.y = 0;
-	    			svgScaling(e, stage.canvas, scale);
+	    			//svgScaling(e, stage.canvas, scale);
+	    			e.scaleX = scale;
+	    			e.scaleY = scale;
 	    		});
+
+	    		console.log(bitmap1.scaleX);
 
 	    		stage.update();
 	    		
 	    		function setPos() {
-	    			//console.log("error 3 setpos");
-	    			if ( ! (choices.length > 0)) return;
-					let bounds = choices[0].getBounds();
+	    // 			console.log("error 3 setpos");
+	    // 			if ( ! (choices.length > 0)) return;
+					// let bounds = choices[0].getBounds();
 	    			
-					if (bounds === null) {
-						//console.log("error 3 restart");
-						setTimeout(function(){setPos();}, 1000);
-						return;
-					};
+					// if (bounds === null) {
+					// 	setTimeout(function(){setPos();}, 1000);
+					// 	return;
+					// };
+					// console.log(bounds);
 
+					// 57 150 (bounds)
+					let markerWidth = stage.canvas.height / 150 * 57 * scale;
 					choices.forEach(function(e) {
-						e.x = cwh - bounds.width * 0.5 * scale;
-						//e.x = cwh;
-						e.y = bounds.height * 0.5;
+						e.x = cwh - markerWidth * 0.5;
+						e.y = stage.canvas.height * 0.15;
 	    			});
 
 					choices.forEach(function(e) {
@@ -941,7 +913,7 @@ window.ARThreeOnLoad = function() {
 						stage.update(event);
 					});
 
-					console.log("error 3 setpos done "+bitmap1.scaleX + " " + bitmap1.scaleY);
+					//console.log("error 3 setpos done "+bitmap1.scaleX + " " + bitmap1.scaleY);
 					stage.update();
 	    		}
 
@@ -949,9 +921,9 @@ window.ARThreeOnLoad = function() {
 	    		stage.update();
 	    	}
 
-	    	function bitmapErrorSetup4(stage) {
-	    		let scale = 1.3;
-
+	    	function bitmapErrorSetup4a(stage) {
+	    		//let scale = 0.23;
+	    		let scale = 0.3;
 	    		let container = new createjs.Container();
 	    		let container2 = new createjs.Container();
 	    		let bitmap = new createjs.Bitmap("images/new/blank.svg");
@@ -979,23 +951,22 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container, container2);
 				stage.update();
 
-				svgScaling(bitmap, stage.canvas);
-				svgScaling(bitmap2, stage.canvas);
-				container.scaleX *= scale;
-	    		container.scaleY *= scale;
-				container2.scaleX *= scale;
-	    		container2.scaleY *= scale;
+	   			container.scaleX = scale;
+	   			container.scaleY = scale;
+	   			container2.scaleX = scale;
+	   			container2.scaleY = scale;
 
 	    		const canvasMid = stage.canvas.width * 0.5
 	    		container.x = canvasMid;
-	    		container.y = 0;
+	    		container.y = stage.canvas.height * 0.3;
 	    		container2.x = canvasMid;
-	    		container2.y = 0;
+	    		container2.y = stage.canvas.height * 0.3;
 
-	    		let sheng = new createjs.Text("ch", "69px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = 60 * scaleAnchorX / scale;
+	    		let sheng = new createjs.Text("ch", fontSize + "px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				let yun = new createjs.Text("eng", "69px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize + "px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(yun);
@@ -1008,37 +979,39 @@ window.ARThreeOnLoad = function() {
 						return;
 					}
 
-					bitmap.x = bounds.width * -1.05;
-					bitmap.y = bounds.height * 0.95;
+					bitmap.x = -stage.canvas.width * 1.1;
+					bitmap2.x = stage.canvas.width * 0.1;
+					 //bitmap.x = bounds.width * -1.05;
+					// bitmap.y = bounds.height * 0.95;
 
-					bitmap2.x = bounds.width * 0.05;
-					bitmap2.y = bounds.height * 0.95;
+					// bitmap2.x = bounds.width * 0.05;
+					// bitmap2.y = bounds.height * 0.95;
 
-					sheng.y = sheng.getMeasuredHeight() + bounds.height * 1;
-					yun.y = yun.getMeasuredHeight() + bounds.height * 1;
+					sheng.y = sheng.getMeasuredHeight() * 1.2;
+					yun.y = yun.getMeasuredHeight()  * 1.2;
 
-					const shengStart = bounds.width * 0.5 - sheng.getMeasuredWidth() * 0.5;
-					const yunStart =  bounds.width * -1.02;
+					const shengStart = stage.canvas.width * 0.6 - sheng.getMeasuredWidth() * 0.5;
+					const yunStart = -stage.canvas.width * 1.1;
 					sheng.x = shengStart;
 					yun.x = yunStart;
 
-					createjs.Tween.get(container, { loop: true })
-					  .to({ x: canvasMid + bounds.width * 1.5 }, 1000, createjs.Ease.getPowInOut(2))
-					  .to({ x: canvasMid + bounds.width * 1.5}, 200)
-					  .to({ x: canvasMid }, 1000, createjs.Ease.getPowInOut(2))
-					  .to({ x: canvasMid }, 200);
+					 createjs.Tween.get(container, { loop: true })
+					   .to({ x: canvasMid + stage.canvas.width * 1.2 * 0.3 }, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x: canvasMid + stage.canvas.width * 1.2 * 0.3 }, 200)
+					   .to({ x: canvasMid }, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x: canvasMid }, 200);
 
-					  createjs.Tween.get(container2, { loop: true })
-					  .to({ x: canvasMid - bounds.width * 1.5 }, 1000, createjs.Ease.getPowInOut(2))
-					  .to({ x: canvasMid - bounds.width * 1.5 }, 200)
-					  .to({ x: canvasMid }, 1000, createjs.Ease.getPowInOut(2))
-					  .to({ x: canvasMid }, 200);
+					   createjs.Tween.get(container2, { loop: true })
+					   .to({ x: canvasMid - stage.canvas.width * 1.2 * 0.3 }, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x: canvasMid - stage.canvas.width * 1.2 * 0.3 }, 200)
+					   .to({ x: canvasMid }, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x: canvasMid }, 200);
 	    		}
 	    		setPos();
 	    	}
 
-	    	function bitmapErrorSetup5(stage) {
-	    		let scale = 1.3;
+	    	function bitmapErrorSetup5a(stage) {
+	    		let scale = 0.3; //1.3
 
 	    		let container = new createjs.Container();
 	    		let container2 = new createjs.Container();
@@ -1069,10 +1042,10 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container, container2);
 				stage.update();
 
-				svgScaling(bitmap, stage.canvas);
+				//svgScaling(bitmap, stage.canvas, scale);
 				container.scaleX *= scale;
 	    		container.scaleY *= scale;
-	    		svgScaling(bitmap2, stage.canvas);
+	    		//svgScaling(bitmap2, stage.canvas, scale);
 				container2.scaleX *= scale;
 	    		container2.scaleY *= scale;
 
@@ -1082,10 +1055,11 @@ window.ARThreeOnLoad = function() {
 	    		container2.x = canvasMid;
 	    		container2.y = 0;
 
-	    		let sheng = new createjs.Text("h", "69px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = 60 * scaleAnchorX / scale;
+	    		let sheng = new createjs.Text("h", fontSize+"px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				let yun = new createjs.Text("eng", "69px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(sheng);
@@ -1094,82 +1068,54 @@ window.ARThreeOnLoad = function() {
 				let tween = undefined;
 				let bounds = bitmap.getBounds();
 
-				let setOnceRan = false;
 				function setOnce() {
-					bounds = bitmap.getBounds();
-					if (bounds === null) {
-						setTimeout(function() {setOnce();}, 1000);
-						return;
-					};
-					container.x = canvasMid + bounds.width * -1.1;
-	    			container.y = bounds.height * 1.25;
-	    			container2.x = canvasMid + bounds.width * -0.5;
-	    			container2.y = bounds.height * 1.25;
+	    			container.x = stage.canvas.width * 0.25;
+	    			container2.x = stage.canvas.width * 0.45;
+	    			container.y = stage.canvas.height * 0.3;
+	    			container2.y = stage.canvas.height * 0.3;
 
 	    			bitmap.x = 0;
 	    			bitmap.y = 0;
 	    			bitmap2.x = 0;
 	    			bitmap2.y = 0;
 
-	    			setOnceRan = true;
+	    			tween = createjs.Tween.get(container2, { loop: true })
+					   .to({ x:  stage.canvas.width * 0.4 }, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x:  stage.canvas.width * 0.4 }, 200)
+					   .to({ x:  stage.canvas.width * 0.45}, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x:  stage.canvas.width * 0.45}, 200);
 	    			setPos();
 				}
 
+				// update text position, text changes therefore their width height change as well
 				function setPos() {
-					
-					//bitmap.x = bounds.width * -1.05;
-					//bitmap.y = bounds.height * 0.45;
-
-					//bitmap2.x = bounds.width * -0.4;
-					//bitmap2.y = bounds.height * 0.45;
-
-					//sheng.y = sheng.getMeasuredHeight() + bounds.height * 0.5;
-					//yun.y = yun.getMeasuredHeight() + bounds.height * 0.5;
 					sheng.y = sheng.getMeasuredHeight() * 1.2;
 					yun.y = yun.getMeasuredHeight()  * 1.2;
 
-					sheng.x = bounds.width * 0.5 - sheng.getMeasuredWidth() * 0.5;
-					yun.x = bounds.width * 0.02;
-
-					//const shengStart = bounds.width * -0.525 - sheng.getMeasuredWidth() * 0.5;
-					//const yunStart = bounds.width * (0.0525 - 0.44);
-					//sheng.x = shengStart;
-					//yun.x = yunStart;
-
-					//container.x = canvasMid + bounds.width * 0.2;
-	    			//container2.x = canvasMid  + bounds.width * 0.2;
-
-	    			if (typeof tween === "undefined") {
-	    				//console.log("setup tween "+bounds);
-						tween = createjs.Tween.get(container2, { loop: true })
-						   .to({ x: canvasMid - bounds.width * 0.2 }, 1000, createjs.Ease.getPowInOut(2))
-						   .to({ x: canvasMid - bounds.width * 0.2 }, 200)
-						   .to({ x: canvasMid - bounds.width * 0.5}, 1000, createjs.Ease.getPowInOut(2))
-						   .to({ x: canvasMid - bounds.width * 0.5}, 200);
-    				}
+					sheng.x = stage.canvas.width * 0.5 - sheng.getMeasuredWidth() * 0.5;
+					yun.x = 0;
 				}
 				setOnce();
 	    	}
 
-	    	function bitmapCorrectSetup2(stage) {
+	    	function bitmapCorrectSetup2a(stage) {
 	    		let scale = 1.5;
+	    		let wScale = 0.31 * 1.5;
 	    		let container = new createjs.Container();
 
-	    		//if (yunmuID == -1 || shengText == -1) return;
-
 	    		let bitmap = new createjs.Bitmap("images/new/correct_big.svg");
-	    		bitmap.scaleX = 1;
+	    		//bitmap.scaleX = 1;
 	    		let bitmap2 = new createjs.Bitmap("images/new/tone_top1_correct.svg");
 	    		let bitmap3 = new createjs.Bitmap("images/new/tone_top2_correct.svg");
 	    		let bitmap4 = new createjs.Bitmap("images/new/tone_top3_correct.svg");
 	    		let bitmap5 = new createjs.Bitmap("images/new/tone_top4_correct.svg");
 
 	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
-
-	    		let sheng = new createjs.Text("ch", "60px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = (60 * scaleAnchorX) / wScale;
+	    		let sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				let yun = new createjs.Text("eng", "60px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
@@ -1179,14 +1125,11 @@ window.ARThreeOnLoad = function() {
 	    			if (displayState === DisplayStates.Correct1) {
 	    				container.visible = true;
 	    				bitmap.visible = true;
-	    				//bitmap2.visible = false;
 	    				tones.forEach(function(e) {
 	    					e.visible = false;
 	    				});
 	    				sheng.visible = true;
 	    				yun.visible = true;
-	    				//sheng.color = "green";
-	    				//yun.color = "green";
 	    				let yunText = markerMapping[yunmuID];
 						let shengText = markerMapping[shengmuID];
 	    				sheng.text = shengText;
@@ -1194,8 +1137,6 @@ window.ARThreeOnLoad = function() {
 	    			} else if (displayState === DisplayStates.Correct2) {
 	    				container.visible = true;
 	    				bitmap.visible = true;
-	    				//bitmap2.visible = true;
-
 	    				sheng.visible = true;
 	    				yun.visible = true;
 	    				tones.forEach(function(e) {
@@ -1204,8 +1145,6 @@ window.ARThreeOnLoad = function() {
 	    				if (toneID !== -1) {
 	    					tones[toneID].visible = true;
 	    				}
-	    				//sheng.color = "green";
-	    				//yun.color = "green";
 	    				let yunText = markerMapping[yunmuID];
 						let shengText = markerMapping[shengmuID];
 	    				sheng.text = shengText;
@@ -1213,15 +1152,12 @@ window.ARThreeOnLoad = function() {
 	    			} else {
 	    				container.visible = false;
 	    				bitmap.visible = false;
-	    				//bitmap2.visible = false;
 	    				tones.forEach(function(e) {
 	    					e.visible = false;
 	    				});
 	    				sheng.visible = false;
 	    				yun.visible = false;
 	    			}
-
-	    			//console.log(shengText + yunText + "hmm");
 
 	    			setPos();
 					stage.update(event);
@@ -1236,64 +1172,115 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container);
 				stage.update();
 
-				svgScaling(bitmap, stage.canvas);
+				//svgScaling(bitmap, stage.canvas);
+				//bitmap.scaleX *= wScale;
+				//bitmap.scaleY *= wScale;
 
-				//svgScaling(bitmap2, stage.canvas);
-				//bitmap2.scaleX *= 1.25;
-				//bitmap2.scaleY *= 1.25;
-				tones.forEach(function(e) {
+				/*tones.forEach(function(e) {
 					svgScaling(e, stage.canvas);
 					e.scaleX *= 1.25;
 					e.scaleY *= 1.25;
 				});
+				*/
+
+				//console.log(bitmap.scaleX);
+				//console.log(bitmap.scaleY);
 
 				container.x = stage.canvas.width * 0.5;
-	    		container.y = 0;
+	    		container.y = stage.canvas.height * 0.3;
 
-				container.scaleX *= scale;
-				container.scaleY *= scale;
-				
+				container.scaleX *= wScale;
+				container.scaleY *= wScale;
 
 				function setPos() {
-					let bounds = bitmap.getBounds();
-					let bounds2 = bitmap2.getBounds();
-					//console.log(bounds);
-					//console.log(bounds2);
-					if (bounds === null || bounds2 === null) {
-						setTimeout(function() {setPos();}, 1000);
-						return;
-					}
+					bitmap.x = -stage.canvas.width * 0.5;
+					bitmap.y = 0;
 
-					bitmap.x = bounds.width * -0.5;
-					bitmap.y = bounds2.height * (0.48 + 0.38); //0.38
+					sheng.y = sheng.getMeasuredHeight() * 1.2;
+					yun.y = yun.getMeasuredHeight() * 1.2;
 
-					// bitmap2.x = bounds2.width * -1.05; // position 1 
-					// bitmap2.x = bounds2.width * -0.35; // position 2
-					// bitmap2.y = 0;
+					sheng.x = -stage.canvas.width * 0.19 - sheng.getMeasuredWidth() * 0.5;
+					yun.x = -stage.canvas.width * 0.12;
 
 					tones.forEach(function(e) {
-
+						let ew = stage.canvas.height / 150 * 47;
+						ew = ew * wScale * 0.85;
+						e.y = -stage.canvas.height * 0.325;
 						let yunText = markerMapping[yunmuID];
+						e.scaleX = 0.85;
+						e.scaleY = 0.85;
+						// yun card left most 
+						//e.x = -ew + stage.canvas.width * (0.5 - 0.63);
 
+						// yun card right most 
+						//e.x = -ew + stage.canvas.width * (0.5 - 0);
 						if (yunmuVowelOnSecond.indexOf(yunText) !== -1) {
-							e.x = bounds2.width * -0.35; // position 2	
+							//e.x = bounds2.width * -0.35; // position 2	
+							e.x = -ew + stage.canvas.width * (0.5 - 0.46);
 						} else {
-							e.x = bounds2.width * -1.05; // position 1 
+							//e.x = bounds2.width * -1.05; // position 1 
+							//e.x = -stage.canvas.width * 0.15;
+							e.x = -ew + stage.canvas.width * (0.5 - 0.57);
 						}
-						
-						e.y = bounds2.height * 0.38;
 					});
 
-					sheng.y = sheng.getMeasuredHeight() + bounds2.height * (0.52 + 0.38); // 0.42
-					yun.y = yun.getMeasuredHeight() + bounds2.height * (0.52 + 0.38);
+					// 300, 126
+					// 47, 150
+					// stage.canvas.height => 150
+					// stage.canvas.width 0.1 => 47
+					// tones.forEach(function(e) {
+					// 	let ew = stage.canvas.height / 150 * 47;
+					// 	ew = ew * wScale;
 
-					sheng.x = -1 * sheng.getMeasuredWidth() - bounds2.height * 0.25;
-					yun.x = 0 - bounds2.height * 0.25;
-					//console.log("correct2 setpos done")	;
+					// 	// yun card left most 
+					// 	//e.x = -ew + stage.canvas.width * (0.5 - 0.63);
+
+					// 	// yun card right most 
+					// 	//e.x = -ew + stage.canvas.width * (0.5 - 0);
+
+					// 	// yun card target
+					// 	let vowelPos = 0;
+					// 	if (yunmuID !== -1) {
+					// 		vowelPos = toneMarkerTarget[yunmuID];
+					// 	}
+					// 	e.x = -ew + stage.canvas.width * (0.5 - 0.63 * (vowelPos / 90) * 1.04);
+					// 	e.y = -stage.canvas.height * 0.385;
+					// });
+
+					// let bounds = bitmap.getBounds();
+					// let bounds2 = bitmap2.getBounds();
+					// if (bounds === null || bounds2 === null) {
+					// 	setTimeout(function() {setPos();}, 1000);
+					// 	return;
+					// }
+
+					// console.log(bounds);
+					// console.log(bounds2);
+
+					// bitmap.x = bounds.width * -0.5;
+					// bitmap.y = bounds2.height * (0.48 + 0.38); //0.38
+
+					// tones.forEach(function(e) {
+
+					// 	let yunText = markerMapping[yunmuID];
+
+					// 	if (yunmuVowelOnSecond.indexOf(yunText) !== -1) {
+					// 		e.x = bounds2.width * -0.35; // position 2	
+					// 	} else {
+					// 		e.x = bounds2.width * -1.05; // position 1 
+					// 	}
+						
+					// 	e.y = bounds2.height * 0.38;
+					// });
+
+					// sheng.y = sheng.getMeasuredHeight() + bounds2.height * (0.52 + 0.38); // 0.42
+					// yun.y = yun.getMeasuredHeight() + bounds2.height * (0.52 + 0.38);
+
+					// sheng.x = -1 * sheng.getMeasuredWidth() - bounds2.height * 0.25;
+					// yun.x = 0 - bounds2.height * 0.25;
 				}
 
 				setPos();
-				
 				stage.update();
 	    	}
 
@@ -1302,15 +1289,9 @@ window.ARThreeOnLoad = function() {
 	    		let cw = stage.canvas.width;
 	    		let ch = stage.canvas.height;
 
-	   //  		ctx.strokeStyle = 'DimGrey';
-				// ctx.lineWidth = 2;
-				// ctx.beginPath();
-				// ctx.moveTo(cw * 0.3, ch * 0.7);
-				// ctx.lineTo(cw * 0.7, ch * 0.7);
-				// ctx.stroke();
 	    		var line = new createjs.Shape();
 
-            // Add this line shape to the canvas
+            	// Add this line shape to the canvas
 		        stage.addChild(line);
 
 		        // Set the 'brush stroke' style (basically the thickness of the line)
@@ -1319,10 +1300,10 @@ window.ARThreeOnLoad = function() {
 		        line.graphics.setStrokeStyle(2 * scaleAnchorX).beginStroke("DimGrey");
 
 		        // Tell EaselJS where to go to start drawing the line
-		        line.graphics.moveTo(cw * 0.3, ch * 0.7);
+		        line.graphics.moveTo(cw * 0.3, ch * 0.8);
 
 		        // Tell EaselJS where to draw the line to
-		        line.graphics.lineTo(cw * 0.7, ch * 0.7);
+		        line.graphics.lineTo(cw * 0.7, ch * 0.8);
 
 		        // Stop drawing this line
 		        line.graphics.endStroke();
@@ -1345,11 +1326,31 @@ window.ARThreeOnLoad = function() {
 		        stage.update();
 
 		        function setPos() {
-			        let bounds = soundInactiveBmp.getBounds();
-			    	soundInactiveBmp.x = canvasMid - bounds.width * 0.5;
-					soundInactiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5;
-					soundActiveBmp.x = canvasMid - bounds.width * 0.5;
-					soundActiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5 ;    
+			  //       let bounds = soundInactiveBmp.getBounds();
+			  //       if (bounds === null) {
+					// 	setTimeout(function() {setPos();}, 1000);
+					// 	return;
+					// };
+					// console.log("static");
+					// console.log(bounds);
+					// 70 53
+
+					let iconWidth = stage.canvas.width * soundIconLength;
+			  //   	soundInactiveBmp.x = canvasMid - bounds.width * 0.5;
+					// soundInactiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5;
+					// soundActiveBmp.x = canvasMid - bounds.width * 0.5;
+					// soundActiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5 ;    
+					soundInactiveBmp.x = canvasMid - iconWidth * 0.5;
+					soundInactiveBmp.y = stage.canvas.height * soundIconPosY - iconWidth * 0.5 / 70 * 53;
+					soundActiveBmp.x = canvasMid - iconWidth * 0.5;
+					soundActiveBmp.y = stage.canvas.height * soundIconPosY - iconWidth * 0.5 / 70 * 53;
+
+					let ratio = iconWidth / 70;
+
+					soundInactiveBmp.scaleX = ratio;
+					soundInactiveBmp.scaleY = ratio;
+					soundActiveBmp.scaleX = ratio;
+					soundActiveBmp.scaleY = ratio;
 			    }
 			    setPos();
 
@@ -1383,7 +1384,7 @@ window.ARThreeOnLoad = function() {
 			    	textObj.text = displayText;
 			    	let textWidth = textObj.getMeasuredWidth();
 					textObj.x = stage.canvas.width * 0.5 - textWidth * 0.5;
-					textObj.y = stage.canvas.height * 0.7;
+					textObj.y = stage.canvas.height * 0.8;
 
 					if (displayState === DisplayStates.Correct1 || displayState === DisplayStates.Correct2) {
 	    				textObj.color = "green";
@@ -1406,13 +1407,13 @@ window.ARThreeOnLoad = function() {
 				var stage = new createjs.Stage("myCanvas2");
 				//setupCard(stage);
 				//bitmapCorrectSetup1(stage);
-				bitmapCorrectSetup2(stage);
+				bitmapCorrectSetup2a(stage);
 				setupStatic(stage);
-				bitmapErrorSetup1(stage);
-				bitmapErrorSetup2(stage);
-				bitmapErrorSetup3(stage);
-				bitmapErrorSetup4(stage);
-				bitmapErrorSetup5(stage);
+				bitmapErrorSetup1a(stage);
+				bitmapErrorSetup2a(stage);
+				bitmapErrorSetup3a(stage);
+				bitmapErrorSetup4a(stage);
+				bitmapErrorSetup5a(stage);
 			}
 
 			function markerRecord(id, pos, vertex, timestamp, area) {
@@ -2283,8 +2284,10 @@ function toUTF16(codePoint) {
     return u(leadSurrogate) + u(tailSurrogate);
 }*/
 
-if (window.ARController && ARController.getUserMediaThreeScene) {
-	ARThreeOnLoad();
+function onload() {
+	if (window.ARController && ARController.getUserMediaThreeScene) {
+		window.ARThreeOnLoad();
+	}
 }
 </script>
 </html>
