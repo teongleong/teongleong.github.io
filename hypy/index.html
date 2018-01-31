@@ -94,7 +94,7 @@ window.ARThreeOnLoad = function() {
 	var ysSpaceCheckHistory = [];
 
 	var bufferSize = 120;
-	var debugMode = false;
+	var debugMode = true;
 
 	var errorCode = -1;
 	var feedbackCode = -1;
@@ -808,7 +808,7 @@ window.ARThreeOnLoad = function() {
 		 			sheng.y = sheng.getMeasuredHeight() * 1.2;
 		 			yun.y = yun.getMeasuredHeight() * 1.2;
 
-		 			sheng.x = -0.19 * stage.canvas.width - sheng.getMeasuredWidth() * 0.5;
+		 			sheng.x = -stage.canvas.width * 0.12 - sheng.getMeasuredWidth() ;
 		 			yun.x = -0.12 * stage.canvas.width;
 				
 					if (tween1 === null) {
@@ -1070,7 +1070,7 @@ window.ARThreeOnLoad = function() {
 
 				function setOnce() {
 	    			container.x = stage.canvas.width * 0.25;
-	    			container2.x = stage.canvas.width * 0.45;
+	    			container2.x = stage.canvas.width * 0.48;
 	    			container.y = stage.canvas.height * 0.3;
 	    			container2.y = stage.canvas.height * 0.3;
 
@@ -1082,8 +1082,8 @@ window.ARThreeOnLoad = function() {
 	    			tween = createjs.Tween.get(container2, { loop: true })
 					   .to({ x:  stage.canvas.width * 0.4 }, 1000, createjs.Ease.getPowInOut(2))
 					   .to({ x:  stage.canvas.width * 0.4 }, 200)
-					   .to({ x:  stage.canvas.width * 0.45}, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x:  stage.canvas.width * 0.45}, 200);
+					   .to({ x:  stage.canvas.width * 0.48}, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x:  stage.canvas.width * 0.48}, 200);
 	    			setPos();
 				}
 
@@ -1199,7 +1199,7 @@ window.ARThreeOnLoad = function() {
 					sheng.y = sheng.getMeasuredHeight() * 1.2;
 					yun.y = yun.getMeasuredHeight() * 1.2;
 
-					sheng.x = -stage.canvas.width * 0.19 - sheng.getMeasuredWidth() * 0.5;
+					sheng.x = -stage.canvas.width * 0.12 - sheng.getMeasuredWidth();
 					yun.x = -stage.canvas.width * 0.12;
 
 					tones.forEach(function(e) {
