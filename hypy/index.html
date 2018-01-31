@@ -699,8 +699,11 @@ window.ARThreeOnLoad = function() {
 				console.log(winWidth + " " + canvasWidth);
 
 				let mul = wScale * canvasFitRatio;
-				container.scaleX *= canvasFitRatio;
-	    		container.scaleY *= canvasFitRatio;
+				//container.scaleX *= canvasFitRatio;
+	    		//container.scaleY *= canvasFitRatio;
+
+	    		container.scaleX = 1;
+	    		container.scaleY = 1;
 
 				function setPos() {
 					// let bounds = bitmap.getBounds();
