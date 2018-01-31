@@ -11,7 +11,7 @@
 		width: 100%;
 		text-align: center;
 		overflow-x: hidden;
-		height: 150.1%;
+		height: 101%;
 	}
 	.portrait canvas {
 		transform-origin: 0 0;
@@ -62,7 +62,7 @@
 			</td>
 		</tr>
 	</table>
-	<image src="images/sound_inactive.png"> </image>
+	<img src="images/sound_inactive.png" style="display:none;"> </img>
 </body>
 
 <script async src="js/artoolkit.demin.js"></script>
@@ -2291,6 +2291,7 @@ function onload() {
 		window.ARThreeOnLoad();
 	}
 	window.scrollTo(0,50);
+	
 	window.document.body.ontouchstart = function() { 
 		window.scrollTo(0,50);
 		//alert(); 
