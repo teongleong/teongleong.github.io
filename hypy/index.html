@@ -692,9 +692,9 @@ window.ARThreeOnLoad = function() {
 					|| document.documentElement.clientWidth
 					|| document.body.clientWidth;
 
+				var leftOffset = stage.canvas.getBoundingClientRect().left;
 				var canvasWidth = stage.canvas.width;
-
-				var canvasFitRatio = (winWidth !== 0) ? (canvasWidth / winWidth) : 1;
+				var canvasFitRatio = (winWidth !== 0) ? (canvasWidth / (winWidth - leftOffset)) : 1;
 
 				console.log(winWidth + " " + canvasWidth);
 
