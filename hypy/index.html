@@ -675,8 +675,7 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container);
 				stage.update();
 
-	    		//container.scaleX *= wScale;
-	    		//container.scaleY *= wScale;
+	    		
 
 	    		let scaleFontSize = 60 * scaleAnchorX / wScale;
 	    		let sheng = new createjs.Text("ch", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
@@ -687,6 +686,21 @@ window.ARThreeOnLoad = function() {
 
 				container.addChild(sheng, yun);
 
+
+				var winWidth = window.innerWidth
+					|| document.documentElement.clientWidth
+					|| document.body.clientWidth;
+
+				var canvasWidth = stage.canvas.width;
+
+				var canvasFitRatio = (winWidth !== 0) ? (canvasWidth / winWidth) : 1;
+
+				console.log(winWidth + " " + canvasWidth);
+
+				let mul = wScale * canvasFitRatio;
+				container.scaleX *= mul;
+	    		container.scaleY *= mul;
+	    		
 				function setPos() {
 					// let bounds = bitmap.getBounds();
 					// if (bounds === null) {
@@ -703,6 +717,8 @@ window.ARThreeOnLoad = function() {
 
 					container.x = stage.canvas.width * 0.5;
 					container.y = stage.canvas.height * 0.3;
+
+					
 
 					sheng.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
 					yun.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
