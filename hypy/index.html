@@ -956,6 +956,8 @@ window.ARThreeOnLoad = function() {
 	    		let bitmap = new createjs.Bitmap("images/new/blank.svg");
 	    		let bitmap2 = new createjs.Bitmap("images/new/blank.svg");
 
+	    		let bitmap3 = new createjs.Bitmap("images/new/blank.svg");
+
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 					
 					if (displayState === DisplayStates.ErrorSwapped) {
@@ -976,6 +978,7 @@ window.ARThreeOnLoad = function() {
 				container.addChild(bitmap);
 				container2.addChild(bitmap2);
 				stage.addChild(container, container2);
+				stage.addChild(bitmap3);
 				stage.update();
 
 	   			//container.scaleX = scale;
