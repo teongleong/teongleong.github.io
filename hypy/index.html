@@ -712,16 +712,16 @@ window.ARThreeOnLoad = function() {
 					// 	return;
 					// }
 
-					//container.scaleX = 0.8; //* wScale
-	    			//container.scaleY = 0.8;
+					container.scaleX = 0.8 * wScale; //
+	    			container.scaleY = 0.8 * wScale;
 
-	    			container.scaleX = wScale
-	    			container.scaleY = wScale;
+	    			//container.scaleX = wScale
+	    			//container.scaleY = wScale;
 
 					// let whRatio = bounds.width / bounds.height;
 
 					// assuming svg width is full canvas width (its true afaik)
-					bitmap.x = -stage.canvas.width * (0.5); // / 0.8
+					bitmap.x = -stage.canvas.width * (0.5 / 0.8); // 
 					//bitmap.x = stage.canvas.width * (-0.5 / canvasFitRatio ) ;
 					//bitmap.x = 0;
 					bitmap.y = 0;
@@ -730,8 +730,6 @@ window.ARThreeOnLoad = function() {
 					//container.x = 0;
 					container.x = stage.canvas.width * 0.5;
 					container.y = stage.canvas.height * 0.3;
-
-					
 
 					sheng.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
 					yun.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
@@ -980,10 +978,10 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container, container2);
 				stage.update();
 
-	   			container.scaleX = scale;
-	   			container.scaleY = scale;
-	   			container2.scaleX = scale;
-	   			container2.scaleY = scale;
+	   			//container.scaleX = scale;
+	   			//container.scaleY = scale;
+	   			//container2.scaleX = scale;
+	   			//container2.scaleY = scale;
 
 	    		const canvasMid = stage.canvas.width * 0.5
 	    		container.x = canvasMid;
