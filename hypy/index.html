@@ -654,8 +654,8 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapErrorSetup1a(stage) {
-	    		//let wScale = 0.6;
-	    		let wScale = 1;
+	    		let wScale = 0.6;
+	    		
 	    		let container = new createjs.Container();
 	    		let bitmap = new createjs.Bitmap("images/new/wrong_big.svg");
 
@@ -694,9 +694,9 @@ window.ARThreeOnLoad = function() {
 
 				var leftOffset = stage.canvas.getBoundingClientRect().left;
 				var canvasWidth = stage.canvas.width;
-				var canvasFitRatio = (winWidth !== 0) ? ((canvasWidth + leftOffset)/ winWidth ) : 1;
+				//var canvasFitRatio = (winWidth !== 0) ? ((canvasWidth + leftOffset)/ winWidth ) : 1;
 
-				console.log([winWidth, canvasWidth,leftOffset]);
+				//console.log([winWidth, canvasWidth,leftOffset]);
 
 				let mul = wScale * canvasFitRatio;
 				//container.scaleX *= canvasFitRatio;
@@ -712,8 +712,8 @@ window.ARThreeOnLoad = function() {
 					// 	return;
 					// }
 
-					container.scaleX = 0.78;
-	    			container.scaleY = 0.78;
+					container.scaleX = 0.8 * wScale;
+	    			container.scaleY = 0.8 * wScale;
 
 					// let whRatio = bounds.width / bounds.height;
 
