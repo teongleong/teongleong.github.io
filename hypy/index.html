@@ -700,7 +700,7 @@ window.ARThreeOnLoad = function() {
 				let mul = wScale * canvasFitRatio;
 				container.scaleX *= mul;
 	    		container.scaleY *= mul;
-	    		
+
 				function setPos() {
 					// let bounds = bitmap.getBounds();
 					// if (bounds === null) {
@@ -711,7 +711,7 @@ window.ARThreeOnLoad = function() {
 					// let whRatio = bounds.width / bounds.height;
 
 					// assuming svg width is full canvas width (its true afaik)
-					bitmap.x = stage.canvas.width * -0.5 ;
+					bitmap.x = stage.canvas.width * (-0.5 / canvasFitRatio ) ;
 					bitmap.y = 0;
 					//bitmap.y = (stage.canvas.width * -0.5) / whRatio; //stage.canvas.height * 0.5;
 
