@@ -654,7 +654,8 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapErrorSetup1a(stage) {
-	    		let wScale = 0.6;
+	    		//let wScale = 0.6;
+	    		let wScale = 1;
 	    		let container = new createjs.Container();
 	    		let bitmap = new createjs.Bitmap("images/new/wrong_big.svg");
 
@@ -698,8 +699,8 @@ window.ARThreeOnLoad = function() {
 				console.log(winWidth + " " + canvasWidth);
 
 				let mul = wScale * canvasFitRatio;
-				container.scaleX *= mul;
-	    		container.scaleY *= mul;
+				container.scaleX *= canvasFitRatio;
+	    		container.scaleY *= canvasFitRatio;
 
 				function setPos() {
 					// let bounds = bitmap.getBounds();
