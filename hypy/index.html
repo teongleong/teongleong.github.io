@@ -1,58 +1,55 @@
 <html>
 <head>
-<title>HYPY </title>
-<link rel="shortcut icon" href="#" />
-<link rel="manifest" href="/manifest.json">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<style>
-html,body {
+	<title>HYPY </title>
+	<link rel="shortcut icon" href="#" />
+	<link rel="manifest" href="/manifest.json">
+	<style>
+	html,body {
 
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	text-align: center;
-	overflow-x: hidden;
-}
-.portrait canvas {
-	transform-origin: 0 0;
-	transform: rotate(-90deg) translateX(-100%);
-}
-.desktop canvas {
- 	transform: scale(1, 1);
-}
-#myCanvas2 {
-	background: rgba(255,255,255,255);
-	position: absolute;
-	z-index: 1;
-	border: 0.1px solid white;
-	transform: scale(1, 1);
-}
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		text-align: center;
+		overflow-x: hidden;
+	}
+	.portrait canvas {
+		transform-origin: 0 0;
+		transform: rotate(-90deg) translateX(-100%);
+	}
+	.desktop canvas {
+		transform: scale(1, 1);
+	}
+	#myCanvas2 {
+		background: rgba(255,255,255,255);
+		position: absolute;
+		z-index: 1;
+		border: 0.1px solid white;
+		transform: scale(1, 1);
+	}
 
-#mainTable {
-  position: relative;
-  padding: 0px;
-}
+	#mainTable {
+	  position: relative;
+	  padding: 0px;
+	}
 
-::-moz-selection{
-    background-color:Transparent;
-    color:#000;
-}
+	::-moz-selection{
+		background-color:Transparent;
+		color:#000;
+	}
 
-::selection {
-	background-color:Transparent;
-	color:#000;
-}
+	::selection {
+		background-color:Transparent;
+		color:#000;
+	}
 
-#sound1 #sound2 {
-	position: absolute;
-}
+	#sound1 #sound2 {
+		position: absolute;
+	}
 
-@font-face { font-family: Hypy; src: url('fonts/Hypy.ttf'); }
-@font-face { font-family: kaiti; src: url('fonts/simkai.ttf'); }
+	@font-face { font-family: Hypy; src: url('fonts/Hypy.ttf'); }
+	@font-face { font-family: kaiti; src: url('fonts/simkai.ttf'); }
 
-</style>
+	</style>
 </head>
 <body bgcolor="white" onload=onload()>
 	<audio id="player"></audio>
