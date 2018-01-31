@@ -694,16 +694,16 @@ window.ARThreeOnLoad = function() {
 
 				var leftOffset = stage.canvas.getBoundingClientRect().left;
 				var canvasWidth = stage.canvas.width;
-				var canvasFitRatio = (winWidth !== 0) ? (canvasWidth / (winWidth - leftOffset)) : 1;
+				var canvasFitRatio = (winWidth !== 0) ? ((canvasWidth + leftOffset)/ winWidth ) : 1;
 
-				console.log(winWidth + " " + canvasWidth);
+				console.log([winWidth, canvasWidth,leftOffset]);
 
 				let mul = wScale * canvasFitRatio;
 				//container.scaleX *= canvasFitRatio;
 	    		//container.scaleY *= canvasFitRatio;
 
-	    		container.scaleX = 1;
-	    		container.scaleY = 1;
+	    		//var rect = bitmap.getClientRects();
+	    		//console.log(rect);
 
 				function setPos() {
 					// let bounds = bitmap.getBounds();
@@ -711,6 +711,9 @@ window.ARThreeOnLoad = function() {
 					// 	setTimeout(function() {setPos();}, 1000);
 					// 	return;
 					// }
+
+					container.scaleX = canvasFitRatio;
+	    			container.scaleY = canvasFitRatio;
 
 					// let whRatio = bounds.width / bounds.height;
 
@@ -2317,5 +2320,6 @@ function onload() {
 		//alert(); 
 	//}
 }
+
 </script>
 </html>
