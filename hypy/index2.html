@@ -675,8 +675,8 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container);
 				stage.update();
 
-	    		//container.scaleX *= wScale;
-	    		//container.scaleY *= wScale;
+	    		container.scaleX *= wScale;
+	    		container.scaleY *= wScale;
 
 	    		let scaleFontSize = 60 * scaleAnchorX / wScale;
 	    		let sheng = new createjs.Text("ch", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
@@ -698,7 +698,6 @@ window.ARThreeOnLoad = function() {
 
 					// assuming svg width is full canvas width (its true afaik)
 					bitmap.x = stage.canvas.width * -0.5 ;
-					bitmap.y = 0;
 					//bitmap.y = (stage.canvas.width * -0.5) / whRatio; //stage.canvas.height * 0.5;
 
 					container.x = stage.canvas.width * 0.5;
