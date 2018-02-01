@@ -1183,7 +1183,7 @@ window.ARThreeOnLoad = function() {
 	    		var bitmap4 = new createjs.Bitmap("images/new/tone_wrong4.png");
 	    		
 	    		let choices = [bitmap1, bitmap2, bitmap3, bitmap4];
-	    		let cwh = stage.canvas.width * 0.5;
+	    		let canvasMid = stage.canvas.width * 0.5;
 
 	    		choices.forEach(function(e) {
 	    			container.addChild(e);
@@ -1199,6 +1199,13 @@ window.ARThreeOnLoad = function() {
 
 	    		stage.addChild(container);
 	    		stage.update();
+
+
+	    		let markerWidth = (stage.canvas.height * scale) / 1000 * 377;
+
+	    		container.x = stage.canvas.width * 0.5 - markerWidth * 0.5;
+	    		container.y = stage.canvas.height * 0.15
+
 	    		function setPos() {
 	    // 			if ( ! (choices.length > 0)) return;
 					// let bounds = choices[0].getBounds();
@@ -1210,10 +1217,11 @@ window.ARThreeOnLoad = function() {
 					// console.log(bounds);
 
 					// 57 150 (bounds)
-					let markerWidth = (stage.canvas.height * scale) / 1000 * 377 / scale2;
+					
+
 					choices.forEach(function(e) {
-						e.x = cwh - markerWidth * 0.5;
-						e.y = stage.canvas.height * 0.15;
+						//e.x = canvasMid;// - markerWidth * 0.5;
+						//e.y = stage.canvas.height * 0.15;
 	    			});
 
 					choices.forEach(function(e) {
