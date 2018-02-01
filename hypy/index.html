@@ -1191,11 +1191,8 @@ window.ARThreeOnLoad = function() {
 	    			e.scaleX = scale;
 	    			e.scaleY = scale;
 	    		});
-
-	    		console.log(bitmap1.scaleX);
 	    		stage.update();
 	    		function setPos() {
-	    // 			console.log("error 3 setpos");
 	    // 			if ( ! (choices.length > 0)) return;
 					// let bounds = choices[0].getBounds();
 	    			
@@ -1206,7 +1203,7 @@ window.ARThreeOnLoad = function() {
 					// console.log(bounds);
 
 					// 57 150 (bounds)
-					let markerWidth = stage.canvas.height * scale / 1000 * 377;
+					let markerWidth = (stage.canvas.height * scale) / 1000 * 377;
 					choices.forEach(function(e) {
 						e.x = cwh - markerWidth * 0.5;
 						e.y = stage.canvas.height * 0.15;
