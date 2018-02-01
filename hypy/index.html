@@ -721,7 +721,7 @@ window.ARThreeOnLoad = function() {
 					// let whRatio = bounds.width / bounds.height;
 
 					// assuming svg width is full canvas width (its true afaik)
-					bitmap.x = -stage.canvas.width * (0.5 / (0.8 * wScale)); //
+					//bitmap.x = -stage.canvas.width * (0.5 / (0.8 * wScale)); //
 					bitmap.x = -stage.canvas.width * (0.5 / 0.8);
 					//bitmap.x = -stage.canvas.width * 0.5;
 					//bitmap.x = stage.canvas.width * (-0.5 / canvasFitRatio ) ;
@@ -736,7 +736,7 @@ window.ARThreeOnLoad = function() {
 					sheng.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
 					yun.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
 
-					sheng.x = stage.canvas.width * -0.26  - sheng.getMeasuredWidth() * 0.5;
+					sheng.x = stage.canvas.width * -0.25  - sheng.getMeasuredWidth() * 0.5;
 					yun.x = stage.canvas.width * 0.03;	
 				}
 				setPos();
@@ -1021,8 +1021,8 @@ window.ARThreeOnLoad = function() {
 					// bitmap2.x = bounds.width * 0.05;
 					// bitmap2.y = bounds.height * 0.95;
 
-					sheng.y = sheng.getMeasuredHeight() * (1.2 / 1.5);
-					yun.y = yun.getMeasuredHeight()  * (1.2 / 1.5);
+					sheng.y = sheng.getMeasuredHeight() * (1.25 / 1.5);
+					yun.y = yun.getMeasuredHeight()  * (1.25 / 1.5);
 
 					const shengStart = stage.canvas.width * (0.6 / 1.5) - sheng.getMeasuredWidth() * 0.5;
 					const yunStart = -stage.canvas.width * (1.1 / 1.5);
