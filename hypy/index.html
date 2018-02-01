@@ -4,6 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	<link rel="shortcut icon" href="#" />
 	<link rel="manifest" href="/manifest.json">
+	<meta name="mobile-web-app-capable" content="yes">
 	<style>
 	html,body {
 		margin: 0;
@@ -1174,6 +1175,8 @@ window.ARThreeOnLoad = function() {
 
 	    		let scale = 0.46;
 
+	    		let container = new createjs.Container();
+
 	    		var bitmap1 = new createjs.Bitmap("images/new/tone_wrong1.png");
 	    		var bitmap2 = new createjs.Bitmap("images/new/tone_wrong2.png");
 	    		var bitmap3 = new createjs.Bitmap("images/new/tone_wrong3.png");
@@ -1183,14 +1186,18 @@ window.ARThreeOnLoad = function() {
 	    		let cwh = stage.canvas.width * 0.5;
 
 	    		choices.forEach(function(e) {
-	    			stage.addChild(e);
+	    			container.addChild(e);
 	    			e.visible = false;
-	    			e.x = 0;
-	    			e.y = 0;
 	    			//svgScaling(e, stage.canvas, scale);
-	    			e.scaleX = scale;
-	    			e.scaleY = scale;
 	    		});
+
+	    		let pngHeight = 1000;
+	    		let scale2 = stage.canvas.height * 0.46 / pngHeight;
+
+	    		container.scaleX = scale2;
+	    		container.scaleY = scale2;
+
+	    		stage.addChild(container);
 	    		stage.update();
 	    		function setPos() {
 	    // 			if ( ! (choices.length > 0)) return;
@@ -1203,7 +1210,7 @@ window.ARThreeOnLoad = function() {
 					// console.log(bounds);
 
 					// 57 150 (bounds)
-					let markerWidth = (stage.canvas.height * scale) / 1000 * 377;
+					let markerWidth = (stage.canvas.height * scale) / 1000 * 377 / scale2;
 					choices.forEach(function(e) {
 						e.x = cwh - markerWidth * 0.5;
 						e.y = stage.canvas.height * 0.15;
