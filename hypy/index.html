@@ -983,12 +983,15 @@ window.ARThreeOnLoad = function() {
 				//stage.addChild(bitmap3);
 				stage.update();
 
+
 	   			container.scaleX = 1.5 * scale;
 	   			container.scaleY = 1.5 * scale;
 	   			container2.scaleX = 1.5 * scale;
 	   			container2.scaleY = 1.5 * scale;
 	   			//bitmap3.scaleX = 1.5;
 	   			//bitmap3.scaleY = 1.5;
+
+	   			let scale2 = 1.5 * scale;
 
 	    		const canvasMid = stage.canvas.width * 0.5
 	    		container.x = canvasMid;
@@ -1013,22 +1016,22 @@ window.ARThreeOnLoad = function() {
 						return;
 					}
 
-					bitmap.x = -stage.canvas.width * (1.1 / 1.5);
-					bitmap2.x = stage.canvas.width * (0.1 / 1.5);
+					bitmap.x = -stage.canvas.width * (1.1 / scale2 );
+					bitmap2.x = stage.canvas.width * (0.1 / scale2);
 					 //bitmap.x = bounds.width * -1.05;
 					// bitmap.y = bounds.height * 0.95;
 
 					// bitmap2.x = bounds.width * 0.05;
 					// bitmap2.y = bounds.height * 0.95;
 
-					sheng.y = sheng.getMeasuredHeight() * (1.0 / 1.5);
-					yun.y = yun.getMeasuredHeight()  * (1.0 / 1.5);
+					sheng.y = sheng.getMeasuredHeight() * (1.2 / scale2);
+					yun.y = yun.getMeasuredHeight()  * (1.2 / scale2);
 
 					//sheng.y = sheng.getMeasuredHeight() * (1.25 / 1.5);
 					//yun.y = yun.getMeasuredHeight()  * (1.25 / 1.5);
 
-					const shengStart = stage.canvas.width * (0.6 / 1.5) - sheng.getMeasuredWidth() * 0.5;
-					const yunStart = -stage.canvas.width * (1.1 / 1.5);
+					const shengStart = stage.canvas.width * (0.6 / scale2) - sheng.getMeasuredWidth() * 0.5;
+					const yunStart = -stage.canvas.width * (1.1 / scale2);
 					sheng.x = shengStart;
 					yun.x = yunStart;
 
