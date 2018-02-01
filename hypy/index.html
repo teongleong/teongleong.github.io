@@ -722,7 +722,8 @@ window.ARThreeOnLoad = function() {
 
 					// assuming svg width is full canvas width (its true afaik)
 					bitmap.x = -stage.canvas.width * (0.5 / (0.8 * wScale)); //
-					bitmap.x = -stage.canvas.width * 0.5;
+					bitmap.x = -stage.canvas.width * (0.5 / 0.8);
+					//bitmap.x = -stage.canvas.width * 0.5;
 					//bitmap.x = stage.canvas.width * (-0.5 / canvasFitRatio ) ;
 					//bitmap.x = 0;
 					bitmap.y = 0;
