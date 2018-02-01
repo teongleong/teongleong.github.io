@@ -721,7 +721,8 @@ window.ARThreeOnLoad = function() {
 					// let whRatio = bounds.width / bounds.height;
 
 					// assuming svg width is full canvas width (its true afaik)
-					bitmap.x = -stage.canvas.width * (0.5 / 0.8); // 
+					bitmap.x = -stage.canvas.width * (0.5 / 0.8); //
+					bitmap.x = -stage.canvas.width * 0.5;
 					//bitmap.x = stage.canvas.width * (-0.5 / canvasFitRatio ) ;
 					//bitmap.x = 0;
 					bitmap.y = 0;
@@ -735,7 +736,7 @@ window.ARThreeOnLoad = function() {
 					yun.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
 
 					sheng.x = stage.canvas.width * -0.26  - sheng.getMeasuredWidth() * 0.5;
-					yun.x = stage.canvas.width * (0.03 / 0.8);	
+					yun.x = stage.canvas.width * 0.03;	
 				}
 				setPos();
 	    	}
