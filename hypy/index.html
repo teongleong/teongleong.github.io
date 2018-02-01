@@ -963,6 +963,7 @@ window.ARThreeOnLoad = function() {
 	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
 
 	    		let bWidth = 1000;
+	    		let bHeight = 708;
 
 				let scale3 = ( stage.canvas.width * scale ) / bWidth;
 				let scale4 = ( stage.canvas.height * scale2 ) / bWidth;
@@ -1061,7 +1062,31 @@ window.ARThreeOnLoad = function() {
 		 			yun.x = -0.12 * bWidth;
 
 		 			let cardWidth = stage.canvas.width * scale / scale4;
-		 			let toneWidth = stage.canvas.width * scale2 / scale4; // tone marker is 708 x 1000 dimension
+		 			//let toneWidth = stage.canvas.width * scale2 / scale4; // tone marker is 708 x 1000 dimension\
+		 			let toneWidth = scale2 / bWidth * bHeight * stage.canvas.height / scale4;
+
+		 			//bitmap3.x = cardWidth * 0.5 - toneWidth;
+		 			//bitmap3.x = cardWidth * 0.5 - toneWidth * 0.5;
+
+
+		 			// bitmap2.x = cardWidth * 0.5 - toneWidth;
+		 			// bitmap3.x = cardWidth * 0.5;
+		 			// bitmap5.x = cardWidth * 0.5 - toneWidth * 0.5;
+
+		 			// bitmap2.x = -cardWidth * 0.5 - toneWidth;
+		 			// bitmap3.x = -cardWidth * 0.5;
+		 			// bitmap5.x = -cardWidth * 0.5 - toneWidth * 0.5;
+
+		 		// 	bitmap3.x = - cardWidth * 0.5 - toneWidth / scale4 ;
+					// bitmap4.x = - cardWidth * 0.5 - toneWidth / scale4 / 2;
+					// bitmap5.x = - cardWidth * 0.5;
+
+		 			//bitmap3.x = cardWidth * 0.5 - toneWidth * 0.5;
+
+		 			console.log([stage.canvas.width , scale , scale4]);
+					//console.log(cardWidth);
+		 			//console.log([stage.canvas.width, stage.canvas.height, toneWidth]);
+		 			//console.log( [scale2 , bHeight , bWidth , stage.canvas.height, toneWidth]);
 				
 					if (tween1 === null) {
 						tween1 = createjs.Tween.get(bitmap2, { loop: true })
@@ -1074,8 +1099,8 @@ window.ARThreeOnLoad = function() {
 						tween2 = createjs.Tween.get(bitmap3, { loop: true })
 						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
 						  .to({ x: +stage.canvas.width * 0.1 }, 200)
-						  .to({ x: -bWidth * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: -bWidth * 0.35 }, 200);
+						  .to({ x: cardWidth * 0.5 - toneWidth * 0.5}, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * 0.5 - toneWidth * 0.5 }, 200);
 					}
 					if (tween3 === null) {
 						tween3 = createjs.Tween.get(bitmap4, { loop: true })
