@@ -1047,14 +1047,7 @@ window.ARThreeOnLoad = function() {
 					bitmap.x = -bWidth * 0.5;
 					bitmap.y = stage.canvas.height * 0.0;
 
-					tones.forEach(function(e) {
-						//e.scaleX = scale4;
-						//e.scaleY = scale4;
-						//e.x = -bWidth * 0.35;
-						e.x = 0;
-						//e.y = stage.canvas.height * -0.28;
-		 			});
-
+					
 		 			sheng.y = sheng.getMeasuredHeight() * 1.2;
 		 			yun.y = yun.getMeasuredHeight() * 1.2;
 
@@ -1065,56 +1058,37 @@ window.ARThreeOnLoad = function() {
 		 			//let toneWidth = stage.canvas.width * scale2 / scale4; // tone marker is 708 x 1000 dimension\
 		 			let toneWidth = scale2 / bWidth * bHeight * stage.canvas.height / scale4;
 
-		 			//bitmap3.x = cardWidth * 0.5 - toneWidth;
-		 			//bitmap3.x = cardWidth * 0.5 - toneWidth * 0.5;
-
-
-		 			// bitmap2.x = cardWidth * 0.5 - toneWidth;
-		 			// bitmap3.x = cardWidth * 0.5;
-		 			// bitmap5.x = cardWidth * 0.5 - toneWidth * 0.5;
-
-		 			// bitmap2.x = -cardWidth * 0.5 - toneWidth;
-		 			// bitmap3.x = -cardWidth * 0.5;
-		 			// bitmap5.x = -cardWidth * 0.5 - toneWidth * 0.5;
-
-		 		// 	bitmap3.x = - cardWidth * 0.5 - toneWidth / scale4 ;
-					// bitmap4.x = - cardWidth * 0.5 - toneWidth / scale4 / 2;
-					// bitmap5.x = - cardWidth * 0.5;
-
-		 			//bitmap3.x = cardWidth * 0.5 - toneWidth * 0.5;
-
-		 			console.log([stage.canvas.width , scale , scale4]);
-					//console.log(cardWidth);
-		 			//console.log([stage.canvas.width, stage.canvas.height, toneWidth]);
-		 			//console.log( [scale2 , bHeight , bWidth , stage.canvas.height, toneWidth]);
+		 			tones.forEach(function(e) {
+						e.x = cardWidth * 0.12;
+		 			});
 				
 					if (tween1 === null) {
 						tween1 = createjs.Tween.get(bitmap2, { loop: true })
-						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: +stage.canvas.width * 0.1 }, 200)
-						  .to({ x: -bWidth * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: -bWidth * 0.35 }, 200);
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
+						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * 0.12 }, 200);
 					}
 					if (tween2 === null) {
 						tween2 = createjs.Tween.get(bitmap3, { loop: true })
-						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: +stage.canvas.width * 0.1 }, 200)
-						  .to({ x: cardWidth * 0.5 - toneWidth * 0.5}, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * 0.5 - toneWidth * 0.5 }, 200);
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
+						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * 0.12 }, 200);
 					}
 					if (tween3 === null) {
 						tween3 = createjs.Tween.get(bitmap4, { loop: true })
-						  .to({ x: 0 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: 0 }, 200)
-						  .to({ x: cardWidth * 0.5 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * 0.5 }, 200);
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
+						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * 0.12 }, 200);
 					}
 					if (tween4 === null) {
 						tween4 = createjs.Tween.get(bitmap5, { loop: true })
-						  .to({ x: +stage.canvas.width * 0.1 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: +stage.canvas.width * 0.1 }, 200)
-						  .to({ x: -bWidth * 0.35 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: -bWidth * 0.35 }, 200);
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
+						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
+						  .to({ x: cardWidth * 0.12 }, 200);
 					}
 				}
 
@@ -1130,6 +1104,80 @@ window.ARThreeOnLoad = function() {
 	    		var bitmap2 = new createjs.Bitmap("images/new/tone_wrong2.svg");
 	    		var bitmap3 = new createjs.Bitmap("images/new/tone_wrong3.svg");
 	    		var bitmap4 = new createjs.Bitmap("images/new/tone_wrong4.svg");
+	    		
+	    		let choices = [bitmap1, bitmap2, bitmap3, bitmap4];
+	    		let cwh = stage.canvas.width * 0.5;
+
+	    		choices.forEach(function(e) {
+	    			stage.addChild(e);
+	    			e.visible = false;
+	    			e.x = 0;
+	    			e.y = 0;
+	    			//svgScaling(e, stage.canvas, scale);
+	    			e.scaleX = scale;
+	    			e.scaleY = scale;
+	    		});
+
+	    		console.log(bitmap1.scaleX);
+	    		stage.update();
+	    		function setPos() {
+	    // 			console.log("error 3 setpos");
+	    // 			if ( ! (choices.length > 0)) return;
+					// let bounds = choices[0].getBounds();
+	    			
+					// if (bounds === null) {
+					// 	setTimeout(function(){setPos();}, 1000);
+					// 	return;
+					// };
+					// console.log(bounds);
+
+					// 57 150 (bounds)
+					let markerWidth = stage.canvas.height / 150 * 57 * scale;
+					choices.forEach(function(e) {
+						e.x = cwh - markerWidth * 0.5;
+						e.y = stage.canvas.height * 0.15;
+	    			});
+
+					choices.forEach(function(e) {
+		    			e.visible = false;
+		    		});
+
+		    		createjs.Ticker.addEventListener("tick", function(event) {
+
+		    			if (displayState === DisplayStates.ErrorNoTone) {
+			    			if (toneID === -1 ) {
+			    			 	return;
+			    			}
+			    			var bitmap = choices[toneID];
+			    			choices.forEach(function(e) {
+			    				e.visible = false;
+			    			});
+			    			bitmap.visible = true;
+							
+						} else {
+							choices.forEach(function(e) {
+			    				e.visible = false;
+			    			});
+						}
+						stage.update(event);
+					});
+
+					//console.log("error 3 setpos done "+bitmap1.scaleX + " " + bitmap1.scaleY);
+					stage.update();
+	    		}
+
+	    		setPos();
+	    		stage.update();
+	    	}
+
+	    	function bitmapErrorSetup3b(stage) {
+
+	    		let scale = 0.46;
+
+	    		var bitmap1 = new createjs.Bitmap("images/new/tone_wrong1.png");
+	    		var bitmap2 = new createjs.Bitmap("images/new/tone_wrong2.png");
+	    		var bitmap3 = new createjs.Bitmap("images/new/tone_wrong3.png");
+	    		var bitmap4 = new createjs.Bitmap("images/new/tone_wrong4.png");
 	    		
 	    		let choices = [bitmap1, bitmap2, bitmap3, bitmap4];
 	    		let cwh = stage.canvas.width * 0.5;
@@ -1793,7 +1841,9 @@ window.ARThreeOnLoad = function() {
 	    		//let wScale = 0.31 * 1.5;
 
 	    		let scale = 0.47;
+	    		let scale2 = 0.2;
 	    		let container = new createjs.Container();
+	    		let container2 = new createjs.Container();
 
 	    		let bitmap = new createjs.Bitmap("images/new/correct_big.png");
 	    		//bitmap.scaleX = 1;
@@ -1808,9 +1858,12 @@ window.ARThreeOnLoad = function() {
 	    		let bHeight = 708;
 
 				let scale3 = ( stage.canvas.width * scale ) / bWidth;
+				let scale4 = ( stage.canvas.height * scale2 ) / bWidth;
 
 				container.scaleX = scale3;
 				container.scaleY = scale3;
+				container2.scaleX = scale4;
+				container2.scaleY = scale4;
 
 	    		let fontSize = (60 * scaleAnchorX) / scale3;
 
@@ -1867,22 +1920,28 @@ window.ARThreeOnLoad = function() {
 
 				container.addChild(bitmap);
 				tones.forEach(function(e) {
-					container.addChild(e);
+					container2.addChild(e);
 				});
 				container.addChild(sheng, yun);
 
-				stage.addChild(container);
+				stage.addChild(container, container2);
 				stage.update();
 
 				container.x = stage.canvas.width * 0.5;
 	    		container.y = stage.canvas.height * 0.3;
+	    		container2.x = stage.canvas.width * 0.5;
+	    		container2.y = stage.canvas.height * 0.3;
 
 				//container.scaleX *= wScale;
 				//container.scaleY *= wScale;
 
-				let scale4 = ( stage.canvas.height * 0.28 ) / bWidth;
+				//let toneWidth = bHeight * 0.28;
+				//let toneHeight = scale4 / bWidth;
 
-				let toneWidth = bHeight * 0.28;
+				let toneHeight = ( stage.canvas.height * scale2) / scale4;
+				let cardWidth = stage.canvas.width * scale / scale4;
+
+				console.log(["toneHeight", toneHeight]);
 
 				function setPos() {
 					bitmap.x = -bWidth * 0.5;
@@ -1899,10 +1958,13 @@ window.ARThreeOnLoad = function() {
 						//ew = ew * wScale * 0.85;
 
 						//e.y = -stage.canvas.height * 0.325;
-						e.y = - bWidth * 0.32;
+						//e.y = - bWidth * 0.32;
+						//e.y = -toneHeight;
+						e.x = 0;
+						e.y = -toneHeight;
 						let yunText = markerMapping[yunmuID];
-						e.scaleX = scale4;
-						e.scaleY = scale4;
+						//e.scaleX = scale4;
+						//e.scaleY = scale4;
 						// yun card left most 
 						//e.x = -ew + stage.canvas.width * (0.5 - 0.63);
 
@@ -1911,12 +1973,12 @@ window.ARThreeOnLoad = function() {
 						if (yunmuVowelOnSecond.indexOf(yunText) !== -1) {
 							//e.x = bounds2.width * -0.35; // position 2	
 							//e.x = -ew + stage.canvas.width * (0.5 - 0.46);
-							e.x = -toneWidth * 0.5 + toneWidth * 0.2;
+							e.x = cardWidth * -0.07;
 						} else {
 							//e.x = bounds2.width * -1.05; // position 1 
 							//e.x = -stage.canvas.width * 0.15;
 							//e.x = -ew + stage.canvas.width * (0.5 - 0.57);
-							e.x = -toneWidth * 0.5 - toneWidth * 0.45;
+							e.x = cardWidth * -0.18;
 						}
 					});
 
@@ -2056,7 +2118,7 @@ window.ARThreeOnLoad = function() {
 				setupStatic(stage);
 				bitmapErrorSetup1b(stage);
 				bitmapErrorSetup2b(stage);
-				bitmapErrorSetup3a(stage);
+				bitmapErrorSetup3b(stage);
 				bitmapErrorSetup4b(stage);
 				bitmapErrorSetup5b(stage);
 			}
