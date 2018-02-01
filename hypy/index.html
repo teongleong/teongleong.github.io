@@ -1123,9 +1123,6 @@ window.ARThreeOnLoad = function() {
 				container.addChild(yun);
 				container2.addChild(sheng);
 
-
-				
-
 				container.x = canvasMid;
 				container.y = stage.canvas.height * 0.3;
 				container2.x = canvasMid;
@@ -1267,6 +1264,96 @@ window.ARThreeOnLoad = function() {
 					yun.y = yun.getMeasuredHeight()  * 1.2;
 
 					sheng.x = stage.canvas.width * 0.5 - sheng.getMeasuredWidth() * 0.5;
+					yun.x = 0;
+				}
+				setOnce();
+	    	}
+
+	    	function bitmapErrorSetup5b(stage) {
+	    		let scale = 0.3; //1.3
+
+	    		let container = new createjs.Container();
+	    		let container2 = new createjs.Container();
+	    		let bitmap = new createjs.Bitmap("images/new/blank.png");
+	    		let bitmap2 = new createjs.Bitmap("images/new/blank.png");
+
+	    		createjs.Ticker.addEventListener("tick", function(event) {
+
+	    			if (displayState === DisplayStates.ErrorTooNear) {
+	    				container.visible = true;
+	    				container2.visible = true;
+	    				var yunText = markerMapping[yunmuID];
+						var shengText = markerMapping[shengmuID];
+						//console.log(yunText);
+						sheng.text = shengText;
+	    	 			yun.text = yunText;
+						setPos();
+	    			} else {
+	    				container.visible = false;
+	    				container2.visible = false;
+	    			}
+					//bitmap.visibility = (displayState == DisplayStates.Correct1);
+					stage.update(event);
+				});
+
+				container.addChild(bitmap);
+				container2.addChild(bitmap2);
+				stage.addChild(container, container2);
+				stage.update();
+
+				let bWidth = 1000;
+
+				let scale3 = ( stage.canvas.width * scale ) / bWidth;
+
+				container.scaleX = scale3;
+				container.scaleY = scale3;
+				container2.scaleX = scale3;
+				container2.scaleY = scale3;
+
+	    		const canvasMid = stage.canvas.width * 0.5
+	    		container.x = canvasMid ;
+	    		container.y = 0;
+	    		container2.x = canvasMid;
+	    		container2.y = 0;
+
+	    		let fontSize = 60 * scaleAnchorX / scale3;
+	    		let sheng = new createjs.Text("h", fontSize+"px Hypy", "#000000"); //人\u97f3
+				sheng.textBaseline = "alphabetic";
+
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
+				yun.textBaseline = "alphabetic";
+
+				container.addChild(sheng);
+				container2.addChild(yun);
+
+				let tween = undefined;
+				let bounds = bitmap.getBounds();
+
+				function setOnce() {
+	    			container.x = stage.canvas.width * 0.25;
+	    			container2.x = stage.canvas.width * 0.48;
+	    			container.y = stage.canvas.height * 0.3;
+	    			container2.y = stage.canvas.height * 0.3;
+
+	    			bitmap.x = 0;
+	    			bitmap.y = 0;
+	    			bitmap2.x = 0;
+	    			bitmap2.y = 0;
+
+	    			tween = createjs.Tween.get(container2, { loop: true })
+					   .to({ x:  stage.canvas.width * 0.40 }, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x:  stage.canvas.width * 0.40 }, 200)
+					   .to({ x:  stage.canvas.width * 0.48}, 1000, createjs.Ease.getPowInOut(2))
+					   .to({ x:  stage.canvas.width * 0.48}, 200);
+	    			setPos();
+				}
+
+				// update text position, text changes therefore their width height change as well
+				function setPos() {
+					sheng.y = sheng.getMeasuredHeight() * 1.2;
+					yun.y = yun.getMeasuredHeight()  * 1.2;
+
+					sheng.x =  - sheng.getMeasuredWidth() * 0.5 + bWidth * 0.5;//stage.canvas.width * 0.5;
 					yun.x = 0;
 				}
 				setOnce();
@@ -1587,7 +1674,7 @@ window.ARThreeOnLoad = function() {
 				bitmapErrorSetup2a(stage);
 				bitmapErrorSetup3a(stage);
 				bitmapErrorSetup4b(stage);
-				bitmapErrorSetup5a(stage);
+				bitmapErrorSetup5b(stage);
 			}
 
 			function markerRecord(id, pos, vertex, timestamp, area) {
