@@ -1098,13 +1098,22 @@ window.ARThreeOnLoad = function() {
 
 	   			//let scale2 = 1.8 * scale;
 
+	   			let bWidth = 1000;
+
+				let scale3 = ( stage.canvas.width * scale ) / bWidth;
+
+				container.scaleX = scale3;
+				container.scaleY = scale3;
+				container2.scaleX = scale3;
+				container2.scaleY = scale3;
+
 	    		const canvasMid = stage.canvas.width * 0.5
 	    		//container.x = canvasMid;
 	    		//container.y = stage.canvas.height * 0.3;
 	    		//container2.x = canvasMid;
 	    		//container2.y = stage.canvas.height * 0.3;
 
-	    		let fontSize = 60 * scaleAnchorX / (scale * 1.5);
+	    		let fontSize = 60 * scaleAnchorX / scale3;
 	    		let sheng = new createjs.Text("ch", fontSize + "px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
@@ -1115,14 +1124,7 @@ window.ARThreeOnLoad = function() {
 				container2.addChild(sheng);
 
 
-				let bWidth = 1000;
-
-				let scale3 = ( stage.canvas.width * scale ) / bWidth;
-
-				container.scaleX = scale3;
-				container.scaleY = scale3;
-				container2.scaleX = scale3;
-				container2.scaleY = scale3;
+				
 
 				container.x = canvasMid;
 				container.y = stage.canvas.height * 0.3;
