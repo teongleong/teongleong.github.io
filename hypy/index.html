@@ -54,7 +54,6 @@ window.ARThreeOnLoad = function() {
 	var debugMode = false;
 
 	var errorCode = -1;
-	var feedbackCode = -1;
 
 	var yunmuSlot = [];
 	var shengmuSlot = [];
@@ -98,7 +97,6 @@ window.ARThreeOnLoad = function() {
 		"", "b", "c", "ch", "d", "f", "g", "h", "j", "k", "l", "m", 
 		"n", "p", "q", "r", "s", "sh", "t", "w", "x", "y", "z", "zh"
 	];
-	//var validCombiAlt = [];
 
 	const markerMapping = ["tone1", "tone2", "tone3", "tone4",
 						"iang", "iong", "uang",
@@ -1916,9 +1914,6 @@ window.ARThreeOnLoad = function() {
 						var mycanvas2 = document.getElementById("myCanvas2");
 						mycanvas2.style.backgroundColor = 'rgba(255,255,255,0)';
 					}
-
-					//if (newMarkerRecord != null)
-					//	history.push(newMarkerRecord);
 				}
 
 				// exit if there are duplicate yunmu or shengmu or tone
