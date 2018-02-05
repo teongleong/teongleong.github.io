@@ -1,13 +1,6 @@
 /* THREE.js ARToolKit integration */
 
 ;(function() {
-
-	var img = null;
-	var img2 = null;
-	var he_tmp = [];
-
-	var processCount = 0;
-
 	var integrate = function() {
 		/**
 			Helper for setting up a Three.js AR scene using the device camera as input.
@@ -91,63 +84,10 @@
 		ARController.prototype.createThreeScene = function(video) {
 			
 			video = video || this.image;
-			console.log("this iamge");
-			console.log(this.image);
-			console.log("vid here");
 			console.log(video);
-			console.log(video.width);
-			console.log(video.height);
-
-			function grayScale(pixels) {
-		         var d = pixels.data;
-
-
-		         for (var i=0; i<d.length; i+=4) {
-		            var r = d[i];
-		            var g = d[i+1];
-		            var b = d[i+2];
-		            var v = 0.2126*r + 0.7152*g + 0.0722*b;
-		            d[i] = d[i+1] = d[i+2] = v
-		          }
-		        return pixels;
-		     }
-
-		     function grayScale2(imgd) {
-		     	var data = imgd.data;
-
-		        for(var i = 0; i < data.length; i += 4) {
-		          var brightness = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
-		          // red
-		          data[i] = brightness;
-		          // green
-		          data[i + 1] = brightness;
-		          // blue
-		          data[i + 2] = brightness;
-		        }
-		        return imgd;
-		     }
-
-		    function extractData(img) {
-		    	var imgd = img.getImageData(0, 0, 640, 480); 
-			    //var pix = imgd.data;  
-			    return imgd;
-		    }
-
-		    function dataToImg(data, ctx) {
-		    	ctx.putImageData(data, 0, 0); 
-
-			    if (img == null)
-			    	img = document.createElement("img");
-        		img.src = ctx.canvas.toDataURL();
-			    return img;
-		    }
-
 			function invertColor(myImage) {
 
-				var w = myImage.width || myImage.naturalWidth;
-				var h = myImage.height || myImage.naturalHeight;
-
-			    var imgd = myImage.getImageData(0, 0, 640, 480); 
+			    var imgd = myImage.getImageData(0, 0, myImage.width, myImage.height); 
 			    var pix = imgd.data;  
 
 			    for (var i = 0, n = pix.length; i < n; i += 4) {
@@ -155,126 +95,12 @@
 			       pix[i+1] = 255 - pix[i+1]; // green
 			       pix[i+2] = 255 - pix[i+2]; // blue
 			       // i+3 is alpha (the fourth element) 
-			   }
-
-			    myImage.putImageData(imgd, 0, 0); 
-
-			    if (img == null)
-			    	img = document.createElement("img");
-        		img.src = myImage.canvas.toDataURL();
-			    return img;
-			}
-
-			//he_tmp
-
-			function normalizePixel(imgd) {
-
-			    var min = 255;
-			    var max = 0;
-
-			    var data = imgd.data;
-
-			    // find max and min
-				for (var i=0; i<data.length; i++) {
-					//data[i] = Math.log( data[i]);
-			       if (data[i] > max) {
-			       	max = data[i];
-			       }
-
-			       if (data[i] < min) {
-			       	min = data[i];
-			       }
 			    }
 
-			    //console.log(min + " " + max);
-
-			    for (var i = 0; i < data.length; i ++) {
-			    	data[i] = ((data[i] - min) / (max - min)) * 255;
-			    }
-
-			    imgd.data = data;
-			    return imgd;
+			    myImage.putImageData(imgd, x, y); 
 			}
 
-			function equalizeHistogram(imgd) {
-
-				if (he_tmp.length == 0) {
-					for (var i=0; i<256; i++) {
-						he_tmp.push(0);
-					}
-				}
-
-				// use he_tmp obj to calculate
-				var data = imgd.data;
-				for (var i=0; i<data.length; i++) {
-					he_tmp[data[i]] ++;
-				}
-
-				for (var i=0; i<256; i++) {
-				    he_tmp[i] /= data.length;
-				}
-
-				var cumulative = 0;
-				for (var i=0; i<256; i++) {
-					var val = he_tmp[i];
-					he_tmp[i] += cumulative;
-					cumulative += val;
-				}
-
-				// scale to 255
-				for (var i=0; i<256; i++) {
-					he_tmp[i] = Math.floor(he_tmp[i] * 255);
-				}
-
-				for (var i=0; i<data.length; i++) {
-					data[i] = he_tmp[data[i]];
-				}
-
-				//console.log(he_tmp);
-				imgd.data = data;
-				return imgd;
-			}
-
-			async function doEqualizeHistogram(imgd, obj, ctx) {
-				img2 = dataToImg(imgd, ctx);
-				obj.process(img2);
-			}
-
-			function captureImage(video) {
-
-				var tmp_canvas = document.getElementById("tmp_canvas");
-
-				if (tmp_canvas == null) {
-
-			        var canvas = document.createElement("canvas");
-			        canvas.width = video.videoWidth ;
-			        canvas.height = video.videoHeight;
-			        //console.log("capture image");
-			        //console.log(canvas.width + " " + canvas.height);
-			        var ctx = canvas.getContext('2d')
-			        
-			        canvas.id = "tmp_canvas";
-			        canvas.hidden = "true";
-			        document.body.appendChild(canvas);
-
-			        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-			        return ctx;
-			    } else {
-			    	var ctx = tmp_canvas.getContext('2d')
-			        //document.body.appendChild(canvas);
-			        ctx.drawImage(video, 0, 0, tmp_canvas.width, tmp_canvas.height);
-			        return ctx;
-			    }
-		 
-		        //var img = document.createElement("img");
-		        //img.src = canvas.toDataURL();
-		        //console.log("img here");
-		        //console.log(img);
-		        //return img;
-		    }
-
-			//var img2 = invertColor(captureImage(this.image));
-			//var img2 = invertColor(captureImage(video));
+			//invertColor(this.image);
 
 			this.setupThree();
 
@@ -309,8 +135,6 @@
 			camera = new THREE.Camera();
 			camera.matrixAutoUpdate = false;
 			camera.projectionMatrix.fromArray(this.getCameraMatrix());
-			console.log("cam proj");
-			console.log(camera.projectionMatrix);
 
 			scene.add(camera);
 
@@ -326,7 +150,7 @@
 
 				video: video,
 
-				process: function(ctx) {
+				process: function(obj3d) {
 					//console.log("obj3d here");
 					//console.log(obj3d);
 					for (var i in self.threePatternMarkers) {
@@ -343,7 +167,6 @@
 							}
 						}
 					}
-
 					//console.log(video.src);
 					//console.log(video);
 
@@ -352,40 +175,7 @@
 					//console.log(self);
 					//console.log(self.process);
 
-					//console.log(ctx);
-					//ctx.clearRect(0,0,500,500);
-					//console.log("here1");
-					
-					//img = invertColor(captureImage(video));
-					//console.log(img);
-					//ctx.drawImage(img, 0, 0, 640, 480 );
-					//console.log("here3");
-					//	video = img;
-					//console.log(img);
-					//self.process(img);
-
-					
-					/*
-					processCount++;
-
-					if (processCount % 100 == 0) {
-						var ctx2 = captureImage(video);
-						var imgd = extractData(ctx2);
-						imgd = grayScale(imgd);
-						imgd = normalizePixel(imgd);
-						imgd = equalizeHistogram(imgd);
-
-						doEqualizeHistogram(imgd, self, ctx2);
-						//console.log(imgd);
-						
-					} else {
-						self.process(video);
-					}*/
-
-					self.process(video);
-
-					//if (img2 != null)
-					//	ctx.drawImage(img2, 0, 0, 960, 720 );
+					self.process(video, obj3d);
 				},
 
 				renderOn: function(renderer) {
@@ -562,7 +352,7 @@
 			}
 			//setTimeout(test_tick, 1000);
 		} else {
-			setTimeout(tick, 20); //50
+			setTimeout(tick, 50);
 		}
 	};
 
