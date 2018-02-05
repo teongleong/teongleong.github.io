@@ -3,9 +3,9 @@
 	<title>HYPY </title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	<link rel="shortcut icon" href="#" />
-	<link rel="manifest" href="manifest.json">
+	<link rel="manifest" href="/manifest.json">
 	<meta name="mobile-web-app-capable" content="yes">
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="/style.css">
 </head>
 
 <body bgcolor="white" onload=onload()>
@@ -63,8 +63,6 @@ window.ARThreeOnLoad = function() {
 
 	var markerTracked = {};
 	var history = [];
-
-	var imageDir = "images/";
 
 	const validButNoTone = ["an2", "ang3", 
 						  "bang2", "ben2", "bian2", "biao2", "bin2", "bin3", "bing2",
@@ -498,7 +496,7 @@ window.ARThreeOnLoad = function() {
 	    		let scale = 0.6;
 	    		
 	    		let container = new createjs.Container();
-	    		let bitmap = new createjs.Bitmap(imageDir+"wrong_big.png");
+	    		let bitmap = new createjs.Bitmap("images/new/wrong_big.png");
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 	    			if (displayState === DisplayStates.ErrorCombi) {
@@ -567,11 +565,11 @@ window.ARThreeOnLoad = function() {
 	    		var yunText = markerMapping[yunmuID];
 				var shengText = markerMapping[shengmuID];
 
-	    		let bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"tone_top1.png");
-	    		let bitmap3 = new createjs.Bitmap(imageDir+"tone_top2.png");
-	    		let bitmap4 = new createjs.Bitmap(imageDir+"tone_top3.png");
-	    		let bitmap5 = new createjs.Bitmap(imageDir+"tone_top4.png");
+	    		let bitmap = new createjs.Bitmap("images/new/correct_big.png");
+	    		let bitmap2 = new createjs.Bitmap("images/new/tone_top1.png");
+	    		let bitmap3 = new createjs.Bitmap("images/new/tone_top2.png");
+	    		let bitmap4 = new createjs.Bitmap("images/new/tone_top3.png");
+	    		let bitmap5 = new createjs.Bitmap("images/new/tone_top4.png");
 
 	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
 
@@ -717,10 +715,10 @@ window.ARThreeOnLoad = function() {
 
 	    		let container = new createjs.Container();
 
-	    		var bitmap1 = new createjs.Bitmap(imageDir+"tone_wrong1.png");
-	    		var bitmap2 = new createjs.Bitmap(imageDir+"tone_wrong2.png");
-	    		var bitmap3 = new createjs.Bitmap(imageDir+"tone_wrong3.png");
-	    		var bitmap4 = new createjs.Bitmap(imageDir+"tone_wrong4.png");
+	    		var bitmap1 = new createjs.Bitmap("images/new/tone_wrong1.png");
+	    		var bitmap2 = new createjs.Bitmap("images/new/tone_wrong2.png");
+	    		var bitmap3 = new createjs.Bitmap("images/new/tone_wrong3.png");
+	    		var bitmap4 = new createjs.Bitmap("images/new/tone_wrong4.png");
 	    		
 	    		let choices = [bitmap1, bitmap2, bitmap3, bitmap4];
 	    		let canvasMid = stage.canvas.width * 0.5;
@@ -801,8 +799,8 @@ window.ARThreeOnLoad = function() {
 	    		let scale = 0.3;
 	    		let container = new createjs.Container();
 	    		let container2 = new createjs.Container();
-	    		let bitmap = new createjs.Bitmap(imageDir+"blank.png");
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
+	    		let bitmap = new createjs.Bitmap("images/new/blank.png");
+	    		let bitmap2 = new createjs.Bitmap("images/new/blank.png");
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 					
@@ -923,8 +921,8 @@ window.ARThreeOnLoad = function() {
 
 	    		let container = new createjs.Container();
 	    		let container2 = new createjs.Container();
-	    		let bitmap = new createjs.Bitmap(imageDir+"blank.png");
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
+	    		let bitmap = new createjs.Bitmap("images/new/blank.png");
+	    		let bitmap2 = new createjs.Bitmap("images/new/blank.png");
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 
@@ -1017,12 +1015,12 @@ window.ARThreeOnLoad = function() {
 	    		let container = new createjs.Container();
 	    		let container2 = new createjs.Container();
 
-	    		let bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
+	    		let bitmap = new createjs.Bitmap("images/new/correct_big.png");
 	    		//bitmap.scaleX = 1;
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"tone_top1_correct.png");
-	    		let bitmap3 = new createjs.Bitmap(imageDir+"tone_top2_correct.png");
-	    		let bitmap4 = new createjs.Bitmap(imageDir+"tone_top3_correct.png");
-	    		let bitmap5 = new createjs.Bitmap(imageDir+"tone_top4_correct.png");
+	    		let bitmap2 = new createjs.Bitmap("images/new/tone_top1_correct.png");
+	    		let bitmap3 = new createjs.Bitmap("images/new/tone_top2_correct.png");
+	    		let bitmap4 = new createjs.Bitmap("images/new/tone_top3_correct.png");
+	    		let bitmap5 = new createjs.Bitmap("images/new/tone_top4_correct.png");
 
 	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
 
@@ -1196,8 +1194,8 @@ window.ARThreeOnLoad = function() {
 		// 	ch * (soundIconPosY - soundIconLength*0.5), 
 		// 	cw*soundIconLength, 
 		// 	cw*((soundIconLength / 70) * 53));
-				let soundInactiveBmp = new createjs.Bitmap(imageDir+"sound_inactive.png"); //sound_inactive
-				let soundActiveBmp = new createjs.Bitmap(imageDir+"sound_active.png"); //sound_inactive
+				let soundInactiveBmp = new createjs.Bitmap("images/sound_inactive.png"); //sound_inactive
+				let soundActiveBmp = new createjs.Bitmap("images/sound_active.png"); //sound_inactive
 
 				stage.addChild(soundInactiveBmp, soundActiveBmp);
 
