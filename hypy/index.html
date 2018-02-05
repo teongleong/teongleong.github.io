@@ -1663,7 +1663,14 @@ window.ARThreeOnLoad = function() {
 				var tokenized = [];
 				//var vowelFiltered = "";
 				tokenized = pinyin.split("");
-				var vowelFiltered = tokenized.filter(c => (c === "a" || c === "e" || c === "i" || c === "o" || c === "u" || c === "v"));
+				//var vowelFiltered = tokenized.filter(c => (c === "a" || c === "e" || c === "i" || c === "o" || c === "u" || c === "v"));
+				var vowelFiltered = [];
+				for (var i=0; i<tokenized.length; i++) {
+					var curr = tokenized[i];
+					if(curr == "a" || curr == "e" || curr == "i" || curr == "o" || curr == "u" || curr == "v") {
+						vowelFiltered.push(curr);
+					}
+				}
 
 				if (pinyin === "") return "";
 				//console.log(vowelFiltered + " " + vowelFiltered.length);
@@ -2089,7 +2096,7 @@ window.ARThreeOnLoad = function() {
 		}
 	}); // end of get getUserMediaThreeScene
 
-	devare window.ARThreeOnLoad;
+	delete window.ARThreeOnLoad;
 };
 
 function onload() {
