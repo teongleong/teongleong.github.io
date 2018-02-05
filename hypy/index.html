@@ -345,20 +345,20 @@ window.ARThreeOnLoad = function() {
 		
 		player.load();
 		var playPromise = player.play();
-		if (playPromise !== undefined) {
-		    playPromise.then(_ => {
-		      // Automatic playback started!
-		      // Show playing UI.
-		      // We can now safely pause video...
-		      //console.log("success play?");
-		      video.pause();
-		    })
-		    .catch(error => {
-		      // Auto-play was prevented
-		      // Show paused UI.
-		      //console.log("fail play..."+error);
-		    });
-		}
+		// if (playPromise !== undefined) {
+		//     playPromise.then(_ => {
+		//       // Automatic playback started!
+		//       // Show playing UI.
+		//       // We can now safely pause video...
+		//       //console.log("success play?");
+		//       video.pause();
+		//     })
+		//     .catch(error => {
+		//       // Auto-play was prevented
+		//       // Show paused UI.
+		//       //console.log("fail play..."+error);
+		//     });
+		// }
 	}
 
 	ARController.getUserMediaThreeScene({
