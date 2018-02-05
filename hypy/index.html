@@ -1,12 +1,14 @@
 <html>
 <head>
 	<title>HYPY </title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<link rel="shortcut icon" href="#">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+	<link rel="shortcut icon" href="#" />
+	<link rel="manifest" href="manifest.json">
+	<meta name="mobile-web-app-capable" content="yes">
 	<link rel="stylesheet" href="style.css">
 </head>
 
-<body bgcolor="white">
+<body bgcolor="white" onload=onload()>
 	<audio id="player"></audio>
 	<video id="gum-local" autoplay playsinline hidden></video>
 	<table align="center">
@@ -20,7 +22,7 @@
 
 <script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/build/artoolkit.min.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/examples/js/third_party/three.js/three.min.js"></script>
-<script async src="https://cdn.jsdelivr.net/npm/jsartoolkit@0.0.0/js/artoolkit.three.js"></script>
+<script async src="js/artoolkit.three.js"></script>
 <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
 <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
 
@@ -345,20 +347,20 @@ window.ARThreeOnLoad = function() {
 		
 		player.load();
 		var playPromise = player.play();
-		// if (playPromise !== undefined) {
-		//     playPromise.then(_ => {
-		//       // Automatic playback started!
-		//       // Show playing UI.
-		//       // We can now safely pause video...
-		//       //console.log("success play?");
-		//       video.pause();
-		//     })
-		//     .catch(error => {
-		//       // Auto-play was prevented
-		//       // Show paused UI.
-		//       //console.log("fail play..."+error);
-		//     });
-		// }
+		if (playPromise !== undefined) {
+		    playPromise.then(_ => {
+		      // Automatic playback started!
+		      // Show playing UI.
+		      // We can now safely pause video...
+		      //console.log("success play?");
+		      video.pause();
+		    })
+		    .catch(error => {
+		      // Auto-play was prevented
+		      // Show paused UI.
+		      //console.log("fail play..."+error);
+		    });
+		}
 	}
 
 	ARController.getUserMediaThreeScene({
@@ -472,7 +474,7 @@ window.ARThreeOnLoad = function() {
 			}
 
 			function svgScaling(bitmap, canvas, scale) {
-	    		var bounds = bitmap.getBounds();
+	    		let bounds = bitmap.getBounds();
 	            if (bounds === null) {
 	            	console.log("svg scaling exited: bounds null");
 	            	setTimeout(function() {svgScaling(bitmap, canvas);}, 1000);
@@ -493,10 +495,10 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapErrorSetup1b(stage) {
-	    		var scale = 0.6;
+	    		let scale = 0.6;
 	    		
-	    		var container = new createjs.Container();
-	    		var bitmap = new createjs.Bitmap(imageDir+"wrong_big.png");
+	    		let container = new createjs.Container();
+	    		let bitmap = new createjs.Bitmap(imageDir+"wrong_big.png");
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 	    			if (displayState === DisplayStates.ErrorCombi) {
@@ -515,9 +517,9 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container);
 				stage.update();
 	    		
-	    		var bWidth = 1000;
+	    		let bWidth = 1000;
 
-				var scale3 = ( stage.canvas.width * scale ) / bWidth;
+				let scale3 = ( stage.canvas.width * scale ) / bWidth;
 
 				container.scaleX = scale3;
 				container.scaleY = scale3;
@@ -525,11 +527,11 @@ window.ARThreeOnLoad = function() {
 				container.x = stage.canvas.width * 0.5;
 				container.y = stage.canvas.height * 0.3;
 
-	    		var scaleFontSize = 60 * scaleAnchorX / scale3;
-	    		var sheng = new createjs.Text("ch", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
+	    		let scaleFontSize = 60 * scaleAnchorX / scale3;
+	    		let sheng = new createjs.Text("ch", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				var yun = new createjs.Text("eng", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(sheng, yun);
@@ -555,38 +557,38 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapErrorSetup2b(stage) {
-	    		var scale = 0.47;
-	    		var scale2 = 0.2;
-	    		var container = new createjs.Container();
-	    		var container2 = new createjs.Container();
+	    		let scale = 0.47;
+	    		let scale2 = 0.2;
+	    		let container = new createjs.Container();
+	    		let container2 = new createjs.Container();
 
 	    		//if (yunmuID == -1 || shengText == -1) return;
 
 	    		var yunText = markerMapping[yunmuID];
 				var shengText = markerMapping[shengmuID];
 
-	    		var bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
-	    		var bitmap2 = new createjs.Bitmap(imageDir+"tone_top1.png");
-	    		var bitmap3 = new createjs.Bitmap(imageDir+"tone_top2.png");
-	    		var bitmap4 = new createjs.Bitmap(imageDir+"tone_top3.png");
-	    		var bitmap5 = new createjs.Bitmap(imageDir+"tone_top4.png");
+	    		let bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
+	    		let bitmap2 = new createjs.Bitmap(imageDir+"tone_top1.png");
+	    		let bitmap3 = new createjs.Bitmap(imageDir+"tone_top2.png");
+	    		let bitmap4 = new createjs.Bitmap(imageDir+"tone_top3.png");
+	    		let bitmap5 = new createjs.Bitmap(imageDir+"tone_top4.png");
 
-	    		var tones = [bitmap2, bitmap3, bitmap4, bitmap5];
+	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
 
-	    		var rawCardWidth = 1000;
+	    		let rawCardWidth = 1000;
 
-	    		var toneCardHeight = 1000;
-	    		var toneCardWidth = 708;
+	    		let toneCardHeight = 1000;
+	    		let toneCardWidth = 708;
 
-				var scale3 = ( stage.canvas.width * scale ) / rawCardWidth;
-				var scale4 = ( stage.canvas.height * scale2 ) / toneCardHeight;
+				let scale3 = ( stage.canvas.width * scale ) / rawCardWidth;
+				let scale4 = ( stage.canvas.height * scale2 ) / toneCardHeight;
 				
 
-	    		var fontSize = 60 * scaleAnchorX / scale3;
-	    		var sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = 60 * scaleAnchorX / scale3;
+	    		let sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				var yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(bitmap);
@@ -667,9 +669,9 @@ window.ARThreeOnLoad = function() {
 		 			sheng.x = -rawCardWidth * 0.12 - sheng.getMeasuredWidth() ;
 		 			yun.x = -0.12 * rawCardWidth;
 
-		 			var cardWidth = stage.canvas.width * scale / scale4;
-		 			//var toneWidth = stage.canvas.width * scale2 / scale4; // tone marker is 708 x 1000 dimension\
-		 			var toneWidth = scale2 / toneCardHeight * toneCardWidth * stage.canvas.height / scale4;
+		 			let cardWidth = stage.canvas.width * scale / scale4;
+		 			//let toneWidth = stage.canvas.width * scale2 / scale4; // tone marker is 708 x 1000 dimension\
+		 			let toneWidth = scale2 / toneCardHeight * toneCardWidth * stage.canvas.height / scale4;
 
 		 			tones.forEach(function(e) {
 						e.x = cardWidth * 0.12;
@@ -711,17 +713,17 @@ window.ARThreeOnLoad = function() {
 
 	    	function bitmapErrorSetup3b(stage) {
 
-	    		var scale = 0.46;
+	    		let scale = 0.46;
 
-	    		var container = new createjs.Container();
+	    		let container = new createjs.Container();
 
 	    		var bitmap1 = new createjs.Bitmap(imageDir+"tone_wrong1.png");
 	    		var bitmap2 = new createjs.Bitmap(imageDir+"tone_wrong2.png");
 	    		var bitmap3 = new createjs.Bitmap(imageDir+"tone_wrong3.png");
 	    		var bitmap4 = new createjs.Bitmap(imageDir+"tone_wrong4.png");
 	    		
-	    		var choices = [bitmap1, bitmap2, bitmap3, bitmap4];
-	    		var canvasMid = stage.canvas.width * 0.5;
+	    		let choices = [bitmap1, bitmap2, bitmap3, bitmap4];
+	    		let canvasMid = stage.canvas.width * 0.5;
 
 	    		choices.forEach(function(e) {
 	    			container.addChild(e);
@@ -729,8 +731,8 @@ window.ARThreeOnLoad = function() {
 	    			//svgScaling(e, stage.canvas, scale);
 	    		});
 
-	    		var pngHeight = 1000;
-	    		var scale2 = stage.canvas.height * 0.46 / pngHeight;
+	    		let pngHeight = 1000;
+	    		let scale2 = stage.canvas.height * 0.46 / pngHeight;
 
 	    		container.scaleX = scale2;
 	    		container.scaleY = scale2;
@@ -739,14 +741,14 @@ window.ARThreeOnLoad = function() {
 	    		stage.update();
 
 
-	    		var markerWidth = (stage.canvas.height * scale) / 1000 * 377;
+	    		let markerWidth = (stage.canvas.height * scale) / 1000 * 377;
 
 	    		container.x = stage.canvas.width * 0.5 - markerWidth * 0.5;
 	    		container.y = stage.canvas.height * 0.15
 
 	    		function setPos() {
 	    // 			if ( ! (choices.length > 0)) return;
-					// var bounds = choices[0].getBounds();
+					// let bounds = choices[0].getBounds();
 	    			
 					// if (bounds === null) {
 					// 	setTimeout(function(){setPos();}, 1000);
@@ -795,12 +797,12 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapErrorSetup4b(stage) {
-	    		//var scale = 0.23;
-	    		var scale = 0.3;
-	    		var container = new createjs.Container();
-	    		var container2 = new createjs.Container();
-	    		var bitmap = new createjs.Bitmap(imageDir+"blank.png");
-	    		var bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
+	    		//let scale = 0.23;
+	    		let scale = 0.3;
+	    		let container = new createjs.Container();
+	    		let container2 = new createjs.Container();
+	    		let bitmap = new createjs.Bitmap(imageDir+"blank.png");
+	    		let bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 					
@@ -834,11 +836,11 @@ window.ARThreeOnLoad = function() {
 	   			//bitmap3.scaleX = 1.5;
 	   			//bitmap3.scaleY = 1.5;
 
-	   			//var scale2 = 1.8 * scale;
+	   			//let scale2 = 1.8 * scale;
 
-	   			var bWidth = 1000;
+	   			let bWidth = 1000;
 
-				var scale3 = ( stage.canvas.width * scale ) / bWidth;
+				let scale3 = ( stage.canvas.width * scale ) / bWidth;
 
 				container.scaleX = scale3;
 				container.scaleY = scale3;
@@ -851,11 +853,11 @@ window.ARThreeOnLoad = function() {
 	    		//container2.x = canvasMid;
 	    		//container2.y = stage.canvas.height * 0.3;
 
-	    		var fontSize = 60 * scaleAnchorX / scale3;
-	    		var sheng = new createjs.Text("ch", fontSize + "px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = 60 * scaleAnchorX / scale3;
+	    		let sheng = new createjs.Text("ch", fontSize + "px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				var yun = new createjs.Text("eng", fontSize + "px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize + "px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(yun);
@@ -867,7 +869,7 @@ window.ARThreeOnLoad = function() {
 				container2.y = stage.canvas.height * 0.3;
 
 	    		function setPos() {
-	    			var bounds = bitmap.getBounds();
+	    			let bounds = bitmap.getBounds();
 					if (bounds === null) {
 						setTimeout(function() {setPos();}, 1000);
 						return;
@@ -917,12 +919,12 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapErrorSetup5b(stage) {
-	    		var scale = 0.3; //1.3
+	    		let scale = 0.3; //1.3
 
-	    		var container = new createjs.Container();
-	    		var container2 = new createjs.Container();
-	    		var bitmap = new createjs.Bitmap(imageDir+"blank.png");
-	    		var bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
+	    		let container = new createjs.Container();
+	    		let container2 = new createjs.Container();
+	    		let bitmap = new createjs.Bitmap(imageDir+"blank.png");
+	    		let bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
 
@@ -948,9 +950,9 @@ window.ARThreeOnLoad = function() {
 				stage.addChild(container, container2);
 				stage.update();
 
-				var bWidth = 1000;
+				let bWidth = 1000;
 
-				var scale3 = ( stage.canvas.width * scale ) / bWidth;
+				let scale3 = ( stage.canvas.width * scale ) / bWidth;
 
 				container.scaleX = scale3;
 				container.scaleY = scale3;
@@ -963,18 +965,18 @@ window.ARThreeOnLoad = function() {
 	    		container2.x = canvasMid;
 	    		container2.y = 0;
 
-	    		var fontSize = 60 * scaleAnchorX / scale3;
-	    		var sheng = new createjs.Text("h", fontSize+"px Hypy", "#000000"); //人\u97f3
+	    		let fontSize = 60 * scaleAnchorX / scale3;
+	    		let sheng = new createjs.Text("h", fontSize+"px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				var yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 				container.addChild(sheng);
 				container2.addChild(yun);
 
-				var tween = undefined;
-				var bounds = bitmap.getBounds();
+				let tween = undefined;
+				let bounds = bitmap.getBounds();
 
 				function setOnce() {
 	    			container.x = stage.canvas.width * 0.25;
@@ -1007,40 +1009,40 @@ window.ARThreeOnLoad = function() {
 	    	}
 
 	    	function bitmapCorrectSetup2b(stage) {
-	    		//var scale = 1.5;
-	    		//var wScale = 0.31 * 1.5;
+	    		//let scale = 1.5;
+	    		//let wScale = 0.31 * 1.5;
 
-	    		var scale = 0.47;
-	    		var scale2 = 0.2;
-	    		var container = new createjs.Container();
-	    		var container2 = new createjs.Container();
+	    		let scale = 0.47;
+	    		let scale2 = 0.2;
+	    		let container = new createjs.Container();
+	    		let container2 = new createjs.Container();
 
-	    		var bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
+	    		let bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
 	    		//bitmap.scaleX = 1;
-	    		var bitmap2 = new createjs.Bitmap(imageDir+"tone_top1_correct.png");
-	    		var bitmap3 = new createjs.Bitmap(imageDir+"tone_top2_correct.png");
-	    		var bitmap4 = new createjs.Bitmap(imageDir+"tone_top3_correct.png");
-	    		var bitmap5 = new createjs.Bitmap(imageDir+"tone_top4_correct.png");
+	    		let bitmap2 = new createjs.Bitmap(imageDir+"tone_top1_correct.png");
+	    		let bitmap3 = new createjs.Bitmap(imageDir+"tone_top2_correct.png");
+	    		let bitmap4 = new createjs.Bitmap(imageDir+"tone_top3_correct.png");
+	    		let bitmap5 = new createjs.Bitmap(imageDir+"tone_top4_correct.png");
 
-	    		var tones = [bitmap2, bitmap3, bitmap4, bitmap5];
+	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
 
-	    		var bWidth = 1000;
-	    		var bHeight = 708;
+	    		let bWidth = 1000;
+	    		let bHeight = 708;
 
-				var scale3 = ( stage.canvas.width * scale ) / bWidth;
-				var scale4 = ( stage.canvas.height * scale2 ) / bWidth;
+				let scale3 = ( stage.canvas.width * scale ) / bWidth;
+				let scale4 = ( stage.canvas.height * scale2 ) / bWidth;
 
 				container.scaleX = scale3;
 				container.scaleY = scale3;
 				container2.scaleX = scale4;
 				container2.scaleY = scale4;
 
-	    		var fontSize = (60 * scaleAnchorX) / scale3;
+	    		let fontSize = (60 * scaleAnchorX) / scale3;
 
-	    		var sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
+	    		let sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
 				sheng.textBaseline = "alphabetic";
 
-				var yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
+				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
 				yun.textBaseline = "alphabetic";
 
 	    		createjs.Ticker.addEventListener("tick", function(event) {
@@ -1055,8 +1057,8 @@ window.ARThreeOnLoad = function() {
 	    				});
 	    				sheng.visible = true;
 	    				yun.visible = true;
-	    				var yunText = markerMapping[yunmuID];
-						var shengText = markerMapping[shengmuID];
+	    				let yunText = markerMapping[yunmuID];
+						let shengText = markerMapping[shengmuID];
 	    				sheng.text = shengText;
 	    				yun.text = yunText;
 	    			} else if (displayState === DisplayStates.Correct2) {
@@ -1070,8 +1072,8 @@ window.ARThreeOnLoad = function() {
 	    				if (toneID !== -1) {
 	    					tones[toneID].visible = true;
 	    				}
-	    				var yunText = markerMapping[yunmuID];
-						var shengText = markerMapping[shengmuID];
+	    				let yunText = markerMapping[yunmuID];
+						let shengText = markerMapping[shengmuID];
 	    				sheng.text = shengText;
 	    				yun.text = yunText;
 	    			} else {
@@ -1105,11 +1107,11 @@ window.ARThreeOnLoad = function() {
 				//container.scaleX *= wScale;
 				//container.scaleY *= wScale;
 
-				//var toneWidth = bHeight * 0.28;
-				//var toneHeight = scale4 / bWidth;
+				//let toneWidth = bHeight * 0.28;
+				//let toneHeight = scale4 / bWidth;
 
-				var toneHeight = ( stage.canvas.height * scale2) / scale4;
-				var cardWidth = stage.canvas.width * scale / scale4;
+				let toneHeight = ( stage.canvas.height * scale2) / scale4;
+				let cardWidth = stage.canvas.width * scale / scale4;
 
 				console.log(["toneHeight", toneHeight]);
 
@@ -1124,7 +1126,7 @@ window.ARThreeOnLoad = function() {
 					yun.x = -bWidth * 0.12;
 
 					tones.forEach(function(e) {
-						//var ew = stage.canvas.height / 150 * 47;
+						//let ew = stage.canvas.height / 150 * 47;
 						//ew = ew * wScale * 0.85;
 
 						//e.y = -stage.canvas.height * 0.325;
@@ -1132,7 +1134,7 @@ window.ARThreeOnLoad = function() {
 						//e.y = -toneHeight;
 						e.x = 0;
 						e.y = -toneHeight;
-						var yunText = markerMapping[yunmuID];
+						let yunText = markerMapping[yunmuID];
 						//e.scaleX = scale4;
 						//e.scaleY = scale4;
 						// yun card left most 
@@ -1163,8 +1165,8 @@ window.ARThreeOnLoad = function() {
 
 	    	function setupStatic(stage) {
 
-	    		var cw = stage.canvas.width;
-	    		var ch = stage.canvas.height;
+	    		let cw = stage.canvas.width;
+	    		let ch = stage.canvas.height;
 
 	    		var line = new createjs.Shape();
 
@@ -1194,16 +1196,16 @@ window.ARThreeOnLoad = function() {
 		// 	ch * (soundIconPosY - soundIconLength*0.5), 
 		// 	cw*soundIconLength, 
 		// 	cw*((soundIconLength / 70) * 53));
-				var soundInactiveBmp = new createjs.Bitmap(imageDir+"sound_inactive.png"); //sound_inactive
-				var soundActiveBmp = new createjs.Bitmap(imageDir+"sound_active.png"); //sound_inactive
+				let soundInactiveBmp = new createjs.Bitmap(imageDir+"sound_inactive.png"); //sound_inactive
+				let soundActiveBmp = new createjs.Bitmap(imageDir+"sound_active.png"); //sound_inactive
 
 				stage.addChild(soundInactiveBmp, soundActiveBmp);
 
-				var canvasMid = stage.canvas.width * 0.5;
+				let canvasMid = stage.canvas.width * 0.5;
 		        stage.update();
 
 		        function setPos() {
-			  //       var bounds = soundInactiveBmp.getBounds();
+			  //       let bounds = soundInactiveBmp.getBounds();
 			  //       if (bounds === null) {
 					// 	setTimeout(function() {setPos();}, 1000);
 					// 	return;
@@ -1212,7 +1214,7 @@ window.ARThreeOnLoad = function() {
 					// console.log(bounds);
 					// 70 53
 
-					var iconWidth = stage.canvas.width * soundIconLength;
+					let iconWidth = stage.canvas.width * soundIconLength;
 			  //   	soundInactiveBmp.x = canvasMid - bounds.width * 0.5;
 					// soundInactiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5;
 					// soundActiveBmp.x = canvasMid - bounds.width * 0.5;
@@ -1222,7 +1224,7 @@ window.ARThreeOnLoad = function() {
 					soundActiveBmp.x = canvasMid - iconWidth * 0.5;
 					soundActiveBmp.y = stage.canvas.height * soundIconPosY - iconWidth * 0.5 / 70 * 53;
 
-					var ratio = iconWidth / 70;
+					let ratio = iconWidth / 70;
 
 					soundInactiveBmp.scaleX = ratio;
 					soundInactiveBmp.scaleY = ratio;
@@ -1249,7 +1251,7 @@ window.ARThreeOnLoad = function() {
 				// ctx.fillText(text, cw * 0.5 - textWidth * 0.5, ch * 0.7);
 
 				var fontSize = 75 * scaleAnchorX;
-				var textObj = new createjs.Text(displayText, fontSize+"px Hypy", "#000000"); //人\u97f3
+				let textObj = new createjs.Text(displayText, fontSize+"px Hypy", "#000000"); //人\u97f3
 				textObj.textBaseline = "alphabetic";
 				//textObj.text = "heheh";
 				
@@ -1259,7 +1261,7 @@ window.ARThreeOnLoad = function() {
 	    			soundInactiveBmp.visible = !soundIconActive;
 			    	soundActiveBmp.visible = soundIconActive;
 			    	textObj.text = displayText;
-			    	var textWidth = textObj.getMeasuredWidth();
+			    	let textWidth = textObj.getMeasuredWidth();
 					textObj.x = stage.canvas.width * 0.5 - textWidth * 0.5;
 					textObj.y = stage.canvas.height * 0.8;
 
@@ -1663,14 +1665,7 @@ window.ARThreeOnLoad = function() {
 				var tokenized = [];
 				//var vowelFiltered = "";
 				tokenized = pinyin.split("");
-				//var vowelFiltered = tokenized.filter(c => (c === "a" || c === "e" || c === "i" || c === "o" || c === "u" || c === "v"));
-				var vowelFiltered = [];
-				for (var i=0; i<tokenized.length; i++) {
-					var curr = tokenized[i];
-					if(curr == "a" || curr == "e" || curr == "i" || curr == "o" || curr == "u" || curr == "v") {
-						vowelFiltered.push(curr);
-					}
-				}
+				var vowelFiltered = tokenized.filter(c => (c === "a" || c === "e" || c === "i" || c === "o" || c === "u" || c === "v"));
 
 				if (pinyin === "") return "";
 				//console.log(vowelFiltered + " " + vowelFiltered.length);
@@ -2065,26 +2060,26 @@ window.ARThreeOnLoad = function() {
 				}
 
 				var markedPinyin = markTheVowel(combined, vowelIndex, toneID + 1);
-				var simpvarest = screenSpaceCheck(toneID, yunmuID);
+				var simpleTest = screenSpaceCheck(toneID, yunmuID);
 				
 				//var complicatedTest = threeDimensionAlternative(toneID, yunmuID);
 				
 				//var horiResult = horiTest (toneID, yunmuID, shengmuID);
 				
-				tonePosCheckHistory.push(simpvarest);
+				tonePosCheckHistory.push(simpleTest);
 				shiftToLength(tonePosCheckHistory, bufferSize);
 				
-				var stabvarest = (percentValid(tonePosCheckHistory) > 0.5);
-				//var tonePosCheck = (simpvarest || complicatedTest);
+				var stableTest = (percentValid(tonePosCheckHistory) > 0.5);
+				//var tonePosCheck = (simpleTest || complicatedTest);
 
-				if (!stabvarest) {
+				if (!stableTest) {
 					errorCode = 1;
 					displayState = DisplayStates.ErrorTonePos;
 					displayText = combined;
 					return;
 				}
 
-				if (stabvarest && !noToneTest) {
+				if (stableTest && !noToneTest) {
 					displayState = DisplayStates.Correct2;
 					displayText = markedPinyin;
 					if (prevSoundName !== soundName) {
@@ -2097,15 +2092,12 @@ window.ARThreeOnLoad = function() {
 	}); // end of get getUserMediaThreeScene
 
 	delete window.ARThreeOnLoad;
-	
 };
 
 function onload() {
-	
-}
-
-if (window.ARController && ARController.getUserMediaThreeScene) {
-	window.ARThreeOnLoad();
+	if (window.ARController && ARController.getUserMediaThreeScene) {
+		window.ARThreeOnLoad();
+	}
 }
 
 </script>
