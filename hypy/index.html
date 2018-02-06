@@ -2,7 +2,7 @@
 <head>
 	<title>HYPY </title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-	<link rel="shortcut icon" href="#" />
+	<link rel="shortcut icon" href="#" >
 	<link rel="manifest" href="manifest.json">
 	<meta name="mobile-web-app-capable" content="yes">
 	<link rel="stylesheet" href="style.css">
@@ -2095,9 +2095,11 @@ window.ARThreeOnLoad = function() {
 };
 
 function onload() {
-	if (window.ARController && ARController.getUserMediaThreeScene) {
-		window.ARThreeOnLoad();
-	}
+
+}
+
+if (window.ARController && ARController.getUserMediaThreeScene) {
+	window.ARThreeOnLoad();	
 }
 
 </script>
