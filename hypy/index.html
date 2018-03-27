@@ -51,7 +51,7 @@ window.ARThreeOnLoad = function() {
 	var ysSpaceCheckHistory = [];
 
 	var bufferSize = 120;
-	var debugMode = false;
+	var debugMode = true;
 
 	var errorCode = -1;
 
@@ -1573,7 +1573,7 @@ window.ARThreeOnLoad = function() {
 					correction2 = 0;
 
 					var markerX = markerTracked[toneID].pos[0] + correction2;
-
+					console.log("markerX "+markerX);
 					// dependent on orientation
 					var cardLeft = markerTracked[yunmuID].pos[0] - cardSixth + correction;
 					var correctX = toneMarkerTarget[yunmuID] * 1.05; // hack that works well
@@ -1849,7 +1849,6 @@ window.ARThreeOnLoad = function() {
 
 
 			function tick(ctx) {
-				
 				//ctx.fillStyle = 'white';
 				//ctx.clearRect(0,0,canvasWidth,canvasHeight);
 				//printFeedback(ctx, canvasWidth, canvasHeight);
@@ -1997,22 +1996,42 @@ window.ARThreeOnLoad = function() {
 				
 
 				var shengYunDist = shengYunDistance(shengmuID, yunmuID);
-
+				
+				//debug
+				ctx.font = 50 + "px Arial";
+				ctx.fillStyle = "#00ff00";
+				ctx.fillText(shengYunDist, canvasWidth * 0.0 - 0 * 0.5, canvasHeight * 0.5);
+				
 				var ysSpaceCheck = false;
+				//if (shengmuText.length == 2) {
+				//	if (shengYunDist < 1.36 || shengYunDist > 1.47) {
+				//		ysSpaceCheck = true;
+				//	}
+				//} else {
+				//	if (shengYunDist < 1.24 || shengYunDist > 1.36) {
+				//		ysSpaceCheck = true;
+				//	}
+				//}
+
+				// hardcoding jiang
 				if (shengmuText.length == 2) {
 					if (shengYunDist < 1.36 || shengYunDist > 1.47) {
 						ysSpaceCheck = true;
 					}
 				} else {
-					if (shengYunDist < 1.24 || shengYunDist > 1.36) {
+					if (shengYunDist < 1.7 || shengYunDist > 2.4) {
 						ysSpaceCheck = true;
 					}
 				}
+
 				//ysSpaceCheck = true;
 				//ysSpaceCheckHistory
 				ysSpaceCheckHistory.push(ysSpaceCheck);
 				shiftToLength(ysSpaceCheckHistory, bufferSize);
 				var ysCheckRatio = percentValid(ysSpaceCheckHistory, false, false);
+
+				console.log(ysCheckRatio);
+
 				//console.log(shengYunDist + " " + ysCheckRatio + " " + ysSpaceCheck);
 				if (ysCheckRatio > 0.7) {
 					displayState = DisplayStates.ErrorTooNear;
@@ -2020,6 +2039,8 @@ window.ARThreeOnLoad = function() {
 					//console.log("s2 "+ shengYunDist + " " + displayText);
 					return;
 				}
+
+
 
 				var validCheckResult = validCombiCheck(shengmuText, yunmuText);
 				//console.log(validCheckResult);
