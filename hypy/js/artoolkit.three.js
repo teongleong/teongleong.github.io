@@ -4,13 +4,9 @@
 
 	var img = null;
 	var img2 = null;
-	var cropImage = null;
 	var he_tmp = [];
 
 	var processCount = 0;
-
-	var tmp_canvas;
-	var buffer;
 
 	var integrate = function() {
 		/**
@@ -56,7 +52,6 @@
 			var onSuccess = configuration.onSuccess;
 
 			obj.onSuccess = function(arController, arCameraParam) {
-				console.log("on sucess herer");
 				var scenes = arController.createThreeScene();
 				onSuccess(scenes, arController, arCameraParam);
 			};
@@ -94,8 +89,7 @@
 			@param video Video image to use as scene background. Defaults to this.image
 		*/
 		ARController.prototype.createThreeScene = function(video) {
-
-			console.log("create three scene");
+			
 			video = video || this.image;
 			console.log("this iamge");
 			console.log(this.image);
@@ -106,7 +100,7 @@
 
 			function grayScale(pixels) {
 		         var d = pixels.data;
-		         //console.log("in gray scale "+pixels);
+
 
 		         for (var i=0; i<d.length; i+=4) {
 		            var r = d[i];
@@ -115,8 +109,6 @@
 		            var v = 0.2126*r + 0.7152*g + 0.0722*b;
 		            d[i] = d[i+1] = d[i+2] = v
 		          }
-
-		          //console.log("in gray scale2 "+pixels);
 		        return pixels;
 		     }
 
@@ -133,10 +125,10 @@
 		          data[i + 2] = brightness;
 		        }
 		        return imgd;
-		    }
+		     }
 
-		    function extractData(ctx) {
-		    	var imgd = ctx.getImageData(0, 0, 640, 480); 
+		    function extractData(img) {
+		    	var imgd = img.getImageData(0, 0, 640, 480); 
 			    //var pix = imgd.data;  
 			    return imgd;
 		    }
@@ -150,12 +142,12 @@
 			    return img;
 		    }
 
-			function invertColor(ctx) {
+			function invertColor(myImage) {
 
-				var w = ctx.width || ctx.naturalWidth;
-				var h = ctx.height || ctx.naturalHeight;
+				var w = myImage.width || myImage.naturalWidth;
+				var h = myImage.height || myImage.naturalHeight;
 
-			    var imgd = ctx.getImageData(0, 0, 640, 480); 
+			    var imgd = myImage.getImageData(0, 0, 640, 480); 
 			    var pix = imgd.data;  
 
 			    for (var i = 0, n = pix.length; i < n; i += 4) {
@@ -164,45 +156,13 @@
 			       pix[i+2] = 255 - pix[i+2]; // blue
 			       // i+3 is alpha (the fourth element) 
 			   }
-			   return imgd;
-			   //return dataToImg(imgd, ctx);
-			}
 
-			function avgVal(imgd) {
-				var pix = imgd.data;  
-				//console.log(pix.length / 4);
-				var total = 0;
+			    myImage.putImageData(imgd, 0, 0); 
 
-				for (var i = 0, n = pix.length; i < n; i ++) {
-			    	total += pix[i]
-			    }
-
-			    if (pix.length != 0)
-			    	return total / (pix.length /4 )
-			    return 0;
-			}
-
-			function thresh(imgd) {
-
-				//var w = ctx.width || ctx.naturalWidth;
-				//var h = ctx.height || ctx.naturalHeight;
-
-			    //var imgd = ctx.getImageData(0, 0, 640, 480); 
-
-			    var pix = imgd.data;  
-			    var avg = avgVal(imgd);// * 0.5;
-			    //console.log("avg "+avg);
-
-			    for (var i = 0, n = pix.length; i < n; i ++) {
-			    	var curr = pix[i]
-			    	if (curr > avg)
-			       		pix[i] = 255;
-			       	else 
-			       		pix[i] = 0;
-			   }
-
-			   return imgd;
-			   //return dataToImg(imgd, ctx);
+			    if (img == null)
+			    	img = document.createElement("img");
+        		img.src = myImage.canvas.toDataURL();
+			    return img;
 			}
 
 			//he_tmp
@@ -280,72 +240,31 @@
 				obj.process(img2);
 			}
 
-			function loadPixels(imgd, mat) {
-				console.log("mat " + mat.cols + " " + mat.rows);
-			}
+			function captureImage(video) {
 
-			function videoToImage(video) {
-				tmp_canvas = document.getElementById("tmp_canvas");
-				if (tmp_canvas == null) {
-			        tmp_canvas = document.createElement("canvas");
-			        tmp_canvas.width = video.videoWidth ;
-			        tmp_canvas.height = video.videoHeight;
-			        //console.log(canvas.width + " " + canvas.height);
-			        var ctx = tmp_canvas.getContext('2d');
-			        
-			        tmp_canvas.id = "tmp_canvas";
-			        tmp_canvas.hidden = "true";
-
-			        //tmp_canvas.style = "width: 640; height: 480;";
-
-			        var table = document.getElementById("mainTable");
-			        console.log("table "+table);
-			        if (table != null)
-			        	table.appendChild(tmp_canvas);
-			        else 
-			        	document.body.appendChild(canvas);
-			    }
-
-			    ctx.drawImage(video, 0, 0, tmp_canvas.width, tmp_canvas.height);
-		        var img = document.createElement("img");
- 			    img.src = tmp_canvas.toDataURL();
- 			    return img;
-		    }
-
-			function videoToCtx(video) {
-
-				tmp_canvas = document.getElementById("tmp_canvas");
+				var tmp_canvas = document.getElementById("tmp_canvas");
 
 				if (tmp_canvas == null) {
 
-			        tmp_canvas = document.createElement("canvas");
-
-			        tmp_canvas.width = video.videoWidth ;
-			        tmp_canvas.height = video.videoHeight;
+			        var canvas = document.createElement("canvas");
+			        canvas.width = video.videoWidth ;
+			        canvas.height = video.videoHeight;
 			        //console.log("capture image");
 			        //console.log(canvas.width + " " + canvas.height);
-			        var ctx = tmp_canvas.getContext('2d')
+			        var ctx = canvas.getContext('2d')
 			        
-			        tmp_canvas.id = "tmp_canvas";
-			        //tmp_canvas.hidden = "true";
+			        canvas.id = "tmp_canvas";
+			        canvas.hidden = "true";
+			        document.body.appendChild(canvas);
 
-			        //tmp_canvas.style = "width:640; height: 480; ";
-
-			        var table = document.getElementById("mainTable");
-			        console.log("table "+table);
-			        if (table != null)
-			        	table.appendChild(tmp_canvas);
-			        else 
-			        	document.body.appendChild(canvas);
+			        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 			        return ctx;
 			    } else {
-			    	
-			    }
-
-			    var ctx = tmp_canvas.getContext('2d');
+			    	var ctx = tmp_canvas.getContext('2d')
 			        //document.body.appendChild(canvas);
 			        ctx.drawImage(video, 0, 0, tmp_canvas.width, tmp_canvas.height);
 			        return ctx;
+			    }
 		 
 		        //var img = document.createElement("img");
 		        //img.src = canvas.toDataURL();
@@ -353,33 +272,6 @@
 		        //console.log(img);
 		        //return img;
 		    }
-
-		    function crop (img2, offsetX, offsetY, width, height) {
-			  // create an in-memory canvas
-			  if (buffer == null)
-			  	buffer = document.createElement('canvas');
-			  var b_ctx = buffer.getContext('2d');
-
-			  // set its width/height to the required ones
-			  buffer.width = width;
-			  buffer.height = height;
-
-			  //console.log(buffer.width + " " + buffer.height);
-			  // draw the main canvas on our buffer one
-			  // drawImage(source, source_X, source_Y, source_Width, source_Height, 
-			  //  dest_X, dest_Y, dest_Width, dest_Height)
-			  b_ctx.drawImage(img2, offsetX, offsetY, width, height,
-			                  0, 0, buffer.width, buffer.height);
-			  //b_ctx.drawImage(canvas, offsetX, offsetY, width, height);
-			  // now call the callback with the dataURL of our buffer canvas
-			  if (cropImage == null)
-			    	cropImage = document.createElement("img");
-        	  cropImage.src = buffer.toDataURL();
-			  return cropImage;
-			  //callback(buffer.toDataURL());
-			};
-
-
 
 			//var img2 = invertColor(captureImage(this.image));
 			//var img2 = invertColor(captureImage(video));
@@ -431,10 +323,12 @@
 				videoCamera: videoCamera,
 
 				arController: this,
+
 				video: video,
 
 				process: function(ctx) {
-
+					//console.log("obj3d here");
+					//console.log(obj3d);
 					for (var i in self.threePatternMarkers) {
 						self.threePatternMarkers[i].visible = false;
 					}
@@ -450,18 +344,48 @@
 						}
 					}
 
-					var img3 = crop (video, 0, 160, 640, 240);
-					//var img3 = crop( video, 0, 0, 640, 480 );
+					//console.log(video.src);
+					//console.log(video);
 
-					if (tmp_canvas == null)
-						tmp_canvas = document.createElement('canvas');
-					var ctx3 = tmp_canvas.getContext('2d');
+					//video2.src = video.src;
+					//console.log(this);
+					//console.log(self);
+					//console.log(self.process);
+
+					//console.log(ctx);
+					//ctx.clearRect(0,0,500,500);
+					//console.log("here1");
 					
-					ctx3.drawImage( img3, 0, 0, 640, 240 );
-
+					//img = invertColor(captureImage(video));
+					//console.log(img);
+					//ctx.drawImage(img, 0, 0, 640, 480 );
+					//console.log("here3");
+					//	video = img;
+					//console.log(img);
 					//self.process(img);
-					//self.process(img3);
+
+					
+					/*
+					processCount++;
+
+					if (processCount % 100 == 0) {
+						var ctx2 = captureImage(video);
+						var imgd = extractData(ctx2);
+						imgd = grayScale(imgd);
+						imgd = normalizePixel(imgd);
+						imgd = equalizeHistogram(imgd);
+
+						doEqualizeHistogram(imgd, self, ctx2);
+						//console.log(imgd);
+						
+					} else {
+						self.process(video);
+					}*/
+
 					self.process(video);
+
+					//if (img2 != null)
+					//	ctx.drawImage(img2, 0, 0, 960, 720 );
 				},
 
 				renderOn: function(renderer) {
@@ -643,7 +567,7 @@
 	};
 
 	
+
 	tick();
-	//test_tick();
 
 })();
