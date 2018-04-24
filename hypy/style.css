@@ -26,6 +26,12 @@ html,body {
   padding: 0px;
 }
 
+#tmp_canvas {
+  z-index: 2;
+  width: 640;
+  height: 480;
+}
+
 ::-moz-selection{
 	background-color:Transparent;
 	color:#000;
