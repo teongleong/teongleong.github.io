@@ -90,7 +90,7 @@ visible.inCurrent=true;
     this.transMatToGLMat(visible.matrix, this.transform_mat);
     this.dispatchEvent( {
     name: "getMarker", target:this, data: {
-    index: i, type:markerType, marker:markerInfo, matrix:this.transform_mat;
+    index: i, type:markerType, marker:markerInfo, matrix:this.transform_mat
 }
 });
 }var multiMarkerCount=this.getMultiMarkerCount();
