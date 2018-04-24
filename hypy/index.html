@@ -17,14 +17,20 @@
 				<canvas id="myCanvas2"></canvas>
 			</td>
 		</tr>
+		<tr>
+			<td id="mainTable2">
+				<canvas id="tmp_canvas"></canvas>
+			</td>
+		</tr>
 	</table>
+
 </body>
 
 <script async src="js/artoolkit.my.min.js"></script>
 <script async src="js/three.min.js"></script>
-<script async src="js/artoolkit.three.js"></script>
-<script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
-<script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+<script async src="js/artoolkit.three.js"></script> 
+<script async src="js/easeljs-0.8.2.min.js"></script>
+<script async src="js/tweenjs-0.6.2.min.js"></script>
 
 <script>
 
@@ -51,7 +57,7 @@ window.ARThreeOnLoad = function() {
 	var ysSpaceCheckHistory = [];
 
 	var bufferSize = 120;
-	var debugMode = true;
+	var debugMode = false;
 
 	var errorCode = -1;
 
@@ -82,7 +88,8 @@ window.ARThreeOnLoad = function() {
 						  "gong2", "gou2", "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gun1", "gun2",
 						  "hang3", "he3", "hei2", "hei3", "hei4", "hen1", "heng3", "hua3", "huai1", "huai3", "hun3", "jian2", "jiang2",
 						  "jin2", "jing2", "jiong2", "jiong4", "jiu2", "juan2", "jun2", "jun3",
-						  "ka2", "ka4", "kai2", "kan2", "kang3",
+						  "ka2", "ka4", "kai2", "kan2", "kang3", 
+						  "zhuan2",
 						  "zhuang2"];
 	
 	const yunmu = [
@@ -115,13 +122,13 @@ window.ARThreeOnLoad = function() {
 
 	const toneMarkerTarget = [-1, -1, -1, -1, 
 						66.4, 66.1, 55.5,//55.5,
-						77.6, 78.2, 78.2, 55.5, 55.5, 
+						76.00, 78.2, 78.2, 55.5, 55.5, 
 						65.6, 65.5, 83.1, 
 						66.4, 66.1, 83.1, 77.6, 77.6, 
 						77.6, 78.2, 78.2, 78.2, 66.2,
 						78.2, 55.5, 56.1, 61.1, 78.2, 
 						56.1, 57.8, 
-						77.6, 78.2, 83.1, 78.2, 78.2, 78.9, 78.6];
+						77.6, 78.2, 82.00, 78.2, 77.00, 78.9, 78.6];
 	const yunmuVowelOnSecond = ["ia", "ie", "iu", "ua", 
 								"ue", "ui", "uo", "ve", "uai", 
 								"iao", "iong", "uan", "uang",
@@ -142,6 +149,15 @@ window.ARThreeOnLoad = function() {
 
 	var displayState = DisplayStates.Neutral;
 	var displayText = "";
+
+	// window.onkeyup = function(e) {
+	//    var key = e.keyCode ? e.keyCode : e.which;
+	//    console.log("key "+key);
+	//    if (key == 81) {
+	//    		console.log("toggle debug");
+	//        debugMode = !debugMode;
+	//    }
+	// }
 
 	function sizeCanvas(canvas, winWidth, winHeight) {
 		//console.log(winWidth + " " + winHeight);
@@ -342,8 +358,8 @@ window.ARThreeOnLoad = function() {
 	function playSound(soundName) {
 
 		var player = document.getElementById("player");
-		//player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
-		player.innerHTML = "<source src='https://yabla.vo.llnwd.net/media.yabla.com/chinese_static/audio/alicia/" + soundName + ".mp3' type='audio/mpeg'>";
+		player.innerHTML = "<source src='sounds/" + soundName + ".mp3' type='audio/mpeg'>";
+		//player.innerHTML = "<source src='https://yabla.vo.llnwd.net/media.yabla.com/chinese_static/audio/alicia/" + soundName + ".mp3' type='audio/mpeg'>";
 		
 		player.load();
 		var playPromise = player.play();
@@ -739,7 +755,6 @@ window.ARThreeOnLoad = function() {
 
 	    		stage.addChild(container);
 	    		stage.update();
-
 
 	    		let markerWidth = (stage.canvas.height * scale) / 1000 * 377;
 
@@ -1305,7 +1320,6 @@ window.ARThreeOnLoad = function() {
 				return retval;
 			}
 
-
 			// trim arr that is longer than length len to len
 			function shiftToLength(arr, len) {
 				while(arr.length > len) {
@@ -1385,7 +1399,7 @@ window.ARThreeOnLoad = function() {
 				validCombi["h"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
 				validCombi["sh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
 				validCombi["t"] = ["ai", "an", "ang", "ao", "a", "e", "eng", "i", "ian", "iao", "ie", "ing", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi["zh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "ua", "uai", "uang", "ui", "un", "uo"];
+				validCombi["zh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
 				validCombi["m"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "iu", "o", "ou", "u"];
 				validCombi["k"] = ["ai", "an", "ang", "ao", "a", "e", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
 				validCombi["ch"] = ["ai", "an", "ang", "ao", "a", "e", "eng", "i", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
@@ -1481,8 +1495,8 @@ window.ARThreeOnLoad = function() {
 
 				//console.log([d1, d2, d3, d4]);
 			
-				var dx_max = Math.max(d1, d2, d3, d4);
-				return Math.sqrt(dx_max);
+				var d_max = Math.max(d1, d2, d3, d4);
+				return Math.sqrt(d_max);
 			}
 
 			function leftMostVectex(id) {
@@ -1515,17 +1529,21 @@ window.ARThreeOnLoad = function() {
 				//console.log(newObj.position);
 			}
 
+			
+			
 			function shengYunDistance(shengmuID, yunmuID) {
 				if (markerTracked[shengmuID] !== undefined && markerTracked[yunmuID] !== undefined) {
-					var mw = markerWidth2(yunmuID);
-					var mw2 = markerWidth2(shengmuID);
-
+					var mw = markerWidth2 (yunmuID);
+					var mw2 = markerWidth2 (shengmuID);
+					var rawMarkerWidth = 10;
 					mw = (mw + mw2) / 2;
-					var cardWidth = mw / 20 * 90;
-					var cardSixth = cardWidth / 6;
+					
+					//var cardWidth = mw / 20 * 90;
+					var cardWidth = mw / rawMarkerWidth * 89;
+					//var cardSixth = cardWidth / 6;
 
-					const canvasWidth = 640;
-					var maxOffset = mw / 6;
+					//const canvasWidth = 640;
+					var maxOffset = mw / rawMarkerWidth;
 
 					var shengX = markerTracked[shengmuID].pos[0] ;
 					var yunX = markerTracked[yunmuID].pos[0] ;
@@ -1546,15 +1564,88 @@ window.ARThreeOnLoad = function() {
 				}
 			}
 
+			function screenSpaceCheck2(toneID, yunmuID) {
+
+				if (markerTracked[toneID] !== undefined && markerTracked[yunmuID] !== undefined) {
+
+					var mw = markerWidth2(yunmuID);
+					var mw2 = markerWidth2(toneID);
+					var cardWidthMM = 89
+					var markerWidthMM = 10; //20
+					var markerToBorder = 10; //6
+
+					mw = (mw + mw2) / 2;
+
+					//console.log("mw "+mw);
+					var sizeScale = (mw / markerWidthMM);
+					
+					// Due to the frequent underestimate of the marker width in screen space ( mw and mw2 )
+					// a raw multiplier is added in as a last resort to this problem.
+					var cardWidth = sizeScale * cardWidthMM * 1.1;//  * 0.9 ; //20 //
+
+					//console.log("Cw "+cardWidth);
+
+					//var cardSixth = cardWidth / 6;
+					var cardLeftRatio = markerToBorder / cardWidthMM;
+					
+
+					var markerX = markerTracked[toneID].pos[0] ;
+					 
+					
+					// dependent on orientation
+					//var cardLeft = markerTracked[yunmuID].pos[0] - (cardLeftRatio * cardWidth);
+					var cardLeft  = markerTracked[yunmuID].pos[0] - sizeScale * markerToBorder;
+					 
+					var correctX = toneMarkerTarget[yunmuID];// * 1.05; // hack that works well
+
+					var cardproper = cardLeft + ((correctX/cardWidthMM) * cardWidth);
+					//var cardproper = cardLeft + ((56/90) * cardWidth);
+					var error = Math.abs(cardproper - markerX);
+
+					//const thresh = 10;
+					thresh = ( mw / markerWidthMM ) * 12 ; // 8 mm tolerance
+					//console.log("sa "+scaleAnchorX + " " + scaleAnchorY);
+
+					if (debugMode) {
+						ctx.strokeStyle = 'blue';
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.moveTo((cardLeft ) * scaleAnchorX, 0);
+						ctx.lineTo((cardLeft ) * scaleAnchorX, 4000);
+						ctx.stroke();
+
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.moveTo((cardLeft + cardWidth ) * scaleAnchorX, 0);
+						ctx.lineTo((cardLeft + cardWidth ) * scaleAnchorX, 4000);
+						ctx.stroke();
+
+						ctx.strokeStyle = 'green';
+						ctx.beginPath();
+						ctx.moveTo(cardproper * scaleAnchorX, 0);
+						ctx.lineTo(cardproper * scaleAnchorX, 4000);
+						ctx.stroke();
+
+						ctx.strokeStyle = 'red';
+						ctx.beginPath();
+						ctx.moveTo(markerX * scaleAnchorX, 0);
+						ctx.lineTo(markerX * scaleAnchorX, 4000);
+						ctx.stroke();
+					}
+
+					return (error < thresh && error > 0);
+				} else return false;
+			}
+
 			function screenSpaceCheck(toneID, yunmuID) {
 
 				if (markerTracked[toneID] !== undefined && markerTracked[yunmuID] !== undefined) {
 
 					var mw = markerWidth2(yunmuID);
 					var mw2 = markerWidth2(toneID);
-
+					var markerWidthMM = 10;
 					mw = (mw + mw2) / 2;
-					var cardWidth = mw / 20 * 90;
+					var cardWidth = mw / markerWidthMM * 90; //20
 					var cardSixth = cardWidth / 6;
 					
 
@@ -1769,21 +1860,7 @@ window.ARThreeOnLoad = function() {
 				v0 = new THREE.Vector2(v0raw[0], v0raw[1]);
 				v1 = new THREE.Vector2(v1raw[0], v1raw[1]);
 				v2 = new THREE.Vector2(v2raw[0], v2raw[1]);
-				v3 = new THREE.Vector2(v3raw[0], v3raw[1]);
-
-/*
-				console.log(62 + " " + "here");
-				console.log(v0raw);
-				console.log(v1raw);
-				console.log(v2raw);
-				console.log(v3raw);
-
-				console.log(63 + " " + "here");
-				console.log( avgVertex[63][0]);
-				console.log( avgVertex[63][1]);
-				console.log( avgVertex[63][2]);
-				console.log( avgVertex[63][3]);
-*/							
+				v3 = new THREE.Vector2(v3raw[0], v3raw[1]);					
 
 				// do not change the order of if else condition check,
 				// (if rotVal > 90 not checked first, rotVal >=0 will need another && rotVal <= 90)
@@ -1839,21 +1916,13 @@ window.ARThreeOnLoad = function() {
 				//console.log("");
 				return (error < thresh);
 			}
-			
-			function consoleDebug(markerTracked) {
-				var keyList = Object.keys(markerTracked);
-				if (keyList.length > 0)
-					//console.log(keyList);
-					console.log(keyList.length);
-			}
-
 
 			function tick(ctx) {
 				//ctx.fillStyle = 'white';
 				//ctx.clearRect(0,0,canvasWidth,canvasHeight);
 				//printFeedback(ctx, canvasWidth, canvasHeight);
 				//printError(ctx, canvasWidth, canvasHeight, displayState);
-
+				//console.log(arScene);
 				arScene.process(ctx);
 				arScene.renderOn(renderer);
 				requestAnimationFrame(function () {
@@ -1885,6 +1954,7 @@ window.ARThreeOnLoad = function() {
 
 				for (var i = 0; i<markerNum ; i++) {
 					var markerInfo = arController.getMarker(i);
+					//console.log(markerInfo);
 					var vertex = markerInfo.vertex;
 					var pos = markerInfo.pos;
 					var id = markerInfo.id;
@@ -1993,36 +2063,44 @@ window.ARThreeOnLoad = function() {
 
 				// a small set of yunmu has notation on the second
 				var vowelIndex = (yunmuVowelOnSecond.indexOf(yunmuText) !== -1) ? 1 : 0;
-				
-
 				var shengYunDist = shengYunDistance(shengmuID, yunmuID);
-				
-				//debug
-				ctx.font = 50 + "px Arial";
-				ctx.fillStyle = "#00ff00";
-				ctx.fillText(shengYunDist, canvasWidth * 0.0 - 0 * 0.5, canvasHeight * 0.5);
-				
-				var ysSpaceCheck = false;
-				//if (shengmuText.length == 2) {
-				//	if (shengYunDist < 1.36 || shengYunDist > 1.47) {
-				//		ysSpaceCheck = true;
-				//	}
-				//} else {
-				//	if (shengYunDist < 1.24 || shengYunDist > 1.36) {
-				//		ysSpaceCheck = true;
-				//	}
-				//}
 
+				//debug//
+				
+				if (debugMode) {
+					ctx.font = 50 + "px Arial";
+					ctx.fillStyle = "#00ff00";
+					ctx.fillText(shengYunDist, canvasWidth * 0.0 - 0 * 0.5, canvasHeight * 0.5);
+				}
+				//console.log(shengYunDist);
+				var ysSpaceCheck = false;
+				// if (shengmuText.length == 2) {
+				// 	if (shengYunDist < 1.36 || shengYunDist > 1.47) {
+				// 		ysSpaceCheck = true;
+				// 	}
+				// } else {
+				// 	if (shengYunDist < 1.24 || shengYunDist > 1.36) {
+				// 		ysSpaceCheck = true;
+				// 	}
+				// }
+				
+				
+				
 				// hardcoding jiang
 				if (shengmuText.length == 2) {
-					if (shengYunDist < 1.36 || shengYunDist > 1.47) {
+					
+					if (shengYunDist > 1.09 && shengYunDist < 1.52 ) { // 119 142
 						ysSpaceCheck = true;
 					}
 				} else {
-					if (shengYunDist < 1.7 || shengYunDist > 2.4) {
+					//console.log("single char "+shengYunDist);
+					//console.log("her "+ (shengYunDist < 1.29 ) + " " + (shengYunDist > 1.17));
+					if (shengYunDist > 1.0  && shengYunDist < 1.42) { // 111 132
 						ysSpaceCheck = true;
 					}
 				}
+				
+				//console.log("ys "+ysSpaceCheck);
 
 				//ysSpaceCheck = true;
 				//ysSpaceCheckHistory
@@ -2030,27 +2108,27 @@ window.ARThreeOnLoad = function() {
 				shiftToLength(ysSpaceCheckHistory, bufferSize);
 				var ysCheckRatio = percentValid(ysSpaceCheckHistory, false, false);
 
-				console.log(ysCheckRatio);
-
+				//console.log(ysCheckRatio);
+				//console.log("err " + displayState);
 				//console.log(shengYunDist + " " + ysCheckRatio + " " + ysSpaceCheck);
-				if (ysCheckRatio > 0.7) {
+
+				if (ysCheckRatio < 0.3) {
 					displayState = DisplayStates.ErrorTooNear;
 					displayText = combined;
 					//console.log("s2 "+ shengYunDist + " " + displayText);
 					return;
 				}
 
-
-
 				var validCheckResult = validCombiCheck(shengmuText, yunmuText);
-				//console.log(validCheckResult);
+				// console.log(validCheckResult);
 				toneID = (toneSlot.length > 0) ? toneSlot[0] : -1;
 
 				validCheckHistory.push(validCheckResult);
 				shiftToLength(validCheckHistory, bufferSize);
 
 				var pv = percentValid(validCheckHistory, false, false);
-				if (pv < 0.2) {
+				//if (pv < 0.4) {
+				if (!validCheckResult) {
 					errorCode = 0;
 					displayState = DisplayStates.ErrorCombi;
 					displayText = combined;
@@ -2081,7 +2159,7 @@ window.ARThreeOnLoad = function() {
 				}
 
 				var markedPinyin = markTheVowel(combined, vowelIndex, toneID + 1);
-				var simpleTest = screenSpaceCheck(toneID, yunmuID);
+				var simpleTest = screenSpaceCheck2(toneID, yunmuID);
 				
 				//var complicatedTest = threeDimensionAlternative(toneID, yunmuID);
 				
@@ -2121,6 +2199,13 @@ function onload() {
 
 if (window.ARController && ARController.getUserMediaThreeScene) {
 	window.ARThreeOnLoad();	
+} else {
+	console.log("huh");
+}
+
+
+function onOpenCvReady() {
+	
 }
 
 </script>
