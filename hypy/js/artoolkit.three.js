@@ -12,6 +12,12 @@
 	var tmp_canvas;
 	var buffer;
 
+	var convFlag = false;
+
+	function toggleConv() {
+		convFlag = !convFlag;
+	}
+
 	var integrate = function() {
 		/**
 			Helper for setting up a Three.js AR scene using the device camera as input.
@@ -96,13 +102,16 @@
 		ARController.prototype.createThreeScene = function(video) {
 
 			console.log("create three scene");
-			video = video || this.image;
-			console.log("this iamge");
-			console.log(this.image);
-			console.log("vid here");
 			console.log(video);
-			console.log(video.width);
-			console.log(video.height);
+			console.log(this.image);
+			video = video || this.image;
+
+			// console.log("this iamge");
+			// console.log(this.image);
+			// console.log("vid here");
+			// console.log(video);
+			// console.log(video.width);
+			// console.log(video.height);
 
 			function grayScale(pixels) {
 		         var d = pixels.data;
@@ -199,7 +208,7 @@
 			       		pix[i] = 255;
 			       	else 
 			       		pix[i] = 0;
-			   }
+			    }
 
 			   return imgd;
 			   //return dataToImg(imgd, ctx);
@@ -208,7 +217,6 @@
 			//he_tmp
 
 			function normalizePixel(imgd) {
-
 			    var min = 255;
 			    var max = 0;
 
@@ -380,6 +388,138 @@
 			};
 
 
+			// convolution
+
+			var subtleSharpenKernel =
+			[
+			  -1/8, -1/8, -1/8, -1/8, -1/8,
+			  -1/8,  2/8,  2/8,  2/8, -1/8,
+			  -1/8,  2/8,  8/8,  2/8, -1/8,
+			  -1/8,  2/8,  2/8,  2/8, -1/8,
+			  -1/8, -1/8, -1/8, -1/8, -1/8
+			];
+			subtleSharpenKernel.filterWidth = 5;
+			subtleSharpenKernel.filterHeight = 5;
+			subtleSharpenKernel.factor = 1.0 ; /// 8.0
+			subtleSharpenKernel.bias = 0.0;
+
+			var sharpenKernel = 
+			[
+			  -1, -1, -1,
+			  -1,  9, -1,
+			  -1, -1, -1
+			];
+			sharpenKernel.filterWidth = 3;
+			sharpenKernel.filterHeight = 3;
+			sharpenKernel.factor = 1.0;
+			sharpenKernel.bias = 0.0;
+
+
+			var edgeKernel = 
+			[
+			  -1, -1, -1,
+			  -1,  9, -1,
+			  -1, -1, -1
+			];
+			edgeKernel.filterWidth = 3;
+			edgeKernel.filterHeight = 3;
+			edgeKernel.factor = 1.0;
+			edgeKernel.bias = 0.0;
+
+			var sharpenKernel2 = 
+			[
+			  0, -1, 0,
+			  -1, 5, -1,
+			  0, -1, 0
+			];
+			sharpenKernel2.filterWidth = 3;
+			sharpenKernel2.filterHeight = 3;
+			sharpenKernel2.factor = 1.0;
+			sharpenKernel2.bias = 0.0;
+
+			var blurKernel = 
+			[
+			  1/9, 1/9, 1/9,
+			  1/9, 1/9, 1/9,
+			  1/9, 1/9, 1/9
+			];
+			blurKernel.filterWidth = 3;
+			blurKernel.filterHeight = 3;
+			blurKernel.factor = 1.0;
+			blurKernel.bias = 0.0;
+
+			function applyFilterGray(imgData, kernel)
+			{
+			  //load the image into the buffer
+			  var w = 640
+			  var h = 480;
+			  var channelCount = 4;
+
+			  var kernelWidthHalf = kernel.filterWidth / 2;
+			  var kernelHeightHalf = kernel.filterWidth / 2;
+
+			  //apply the filter
+			  for(var x = 0; x < w; x++)
+			  for(var y = 0; y < h; y++)
+			  {
+
+			    //tmpPixel.length = 0;
+			    var grayVal = 0;
+			    var offsetX = x - kernelWidthHalf + w;
+			    var offsetY = y - kernelHeightHalf + h
+
+			    //multiply every value of the filter with corresponding image pixel
+			    for(var filterY = 0; filterY < kernel.filterHeight; filterY++)
+			    for(var filterX = 0; filterX < kernel.filterWidth; filterX++)
+			    {
+			      var imageX = Math.ceil((offsetX + filterX )); //%w
+			      while (imageX > w) imageX -= w;
+			      var imageY = Math.ceil((offsetY + filterY )); //%h
+			      while (imageY > h) imageY -= h;
+			      var currPixel = getPixel(imgData, w, h, 4, imageX, imageY);
+			      var filterIndex = filterY * kernel.filterWidth + filterX;
+			      grayVal += currPixel[0] * kernel[filterIndex];
+			    }
+
+			    grayVal = Math.min(Math.max(Math.ceil(grayVal), 0), 255);
+			    setPixel(imgData, w, h, channelCount, x, y, [grayVal, grayVal, grayVal, 255]);
+			  }
+
+			  return imgData;
+			}
+
+			function getPixel(imgData, w, h, channelCount, x, y) {
+
+			  var retval = [];
+			  var offset = y*w*channelCount + x*channelCount;
+			  for (var i = 0; i < channelCount; i++) {
+			    retval.push(imgData.data[ offset + i]);
+			  }
+			  return retval;
+			}
+
+			function setPixel(imgData, w, h, channelCount, x, y, newPixel) {
+			  var offset = y*w*channelCount + x*channelCount ;
+			  for (var i = 0; i < channelCount; i++) {
+			    imgData.data[ offset + i] = newPixel[i];
+			  }
+			}
+
+			function grayscale(imgData, w, h, channelCount) {
+
+			  for(var i = 0; i < imgData.data.length; i+=channelCount)
+			  {
+			    var r = imgData.data[i],
+			        g = imgData.data[i+1],
+			        b = imgData.data[i+2],
+			        gray = (r+g+b)/3;
+
+			    imgData.data[i] = gray;
+			    imgData.data[i+1] = gray;
+			    imgData.data[i+2] = gray;
+			  }
+			  return imgData;
+			}
 
 			//var img2 = invertColor(captureImage(this.image));
 			//var img2 = invertColor(captureImage(video));
@@ -432,8 +572,13 @@
 
 				arController: this,
 				video: video,
+				toggleConv: toggleConv,
 
-				process: function(ctx) {
+				process: function(rendererCanvas, overlayContext) {
+
+					// console.log("in process");
+					// console.log(rendererCanvas);
+					// console.log(overlayContext);
 
 					for (var i in self.threePatternMarkers) {
 						self.threePatternMarkers[i].visible = false;
@@ -450,18 +595,67 @@
 						}
 					}
 
-					var img3 = crop (video, 0, 160, 640, 240);
+					//convolution
+			  		//var buffer = document.createElement('canvas');
+			  		var tmp_canvas = document.getElementById('tmp_canvas');
+			  		var b_ctx = tmp_canvas.getContext('2d');
+				    //buffer.width = 640;
+				    //buffer.height = 480;
+					b_ctx.drawImage(video, 0, 0, 640, 480);
+					//var video_imgd = b_ctx.getImageData(0, 0, 640, 480); 
+
+					// var video_img = document.getElementById('video_img');
+					// if (video_img == null) {
+					//   video_img = document.createElement("img");
+					//   var mainTable2 = document.getElementById('mainTable2');
+					//   mainTable2.appendChild(video_img);
+					//   video_img.id = "video_img";
+					//   video_img.width = 640;
+					//   video_img.height = 480;
+					// }
+					
+     // 	   			video_img.src = tmp_canvas.toDataURL();
+
+     			
+     				
+
+					//var img3 = crop (video, 0, 160, 640, 240);
 					//var img3 = crop( video, 0, 0, 640, 480 );
 
-					if (tmp_canvas == null)
-						tmp_canvas = document.createElement('canvas');
-					var ctx3 = tmp_canvas.getContext('2d');
+					// if (tmp_canvas == null)
+					// 	tmp_canvas = document.createElement('canvas');
+					// var ctx3 = tmp_canvas.getContext('2d');
 					
-					ctx3.drawImage( img3, 0, 0, 640, 240 );
+					//ctx3.drawImage( img3, 0, 0, 640, 240 );
 
-					//self.process(img);
+					// process
+					//console.log([video_img.width, video_img.height]);
+
+					// var testImg = document.getElementById("testImg");
+					// self.process(testImg);
+
+					if (convFlag) {
+						console.log("conv");
+						// convolution
+		 				var imgd = b_ctx.getImageData(0, 0, 640, 480); 
+		 				grayscale(imgd, 640, 480, 4);
+		 				applyFilterGray(imgd, subtleSharpenKernel);
+		 				//applyFilterGray(imgd, blurKernel);
+			    		b_ctx.putImageData(imgd, 0, 0);
+			    		self.process(tmp_canvas);
+					} else {
+						self.process(video);
+					}
+					//
+
+					//self.process(video_img);
+					
+
 					//self.process(img3);
-					self.process(video);
+					
+
+					//self.process(rendererCanvas, overlayContext);
+					//self.process(rendererCanvas);
 				},
 
 				renderOn: function(renderer) {
@@ -622,13 +816,13 @@
 		};
 	}; // end of integrate
 
-	var test_tick = function () {
-		console.log("cammie");
-		//console.log(camera);
-		//console.log(scene);
-		console.log(videoScene);
-		setTimeout(test_tick, 1000);
-	}
+	// var test_tick = function () {
+	// 	console.log("cammie");
+	// 	//console.log(camera);
+	// 	//console.log(scene);
+	// 	console.log(videoScene);
+	// 	setTimeout(test_tick, 1000);
+	// }
 
 	var tick = function() {
 		if (window.ARController && window.THREE) {
@@ -642,7 +836,6 @@
 		}
 	};
 
-	
 	tick();
 	//test_tick();
 

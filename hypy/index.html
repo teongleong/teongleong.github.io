@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 
-<body bgcolor="white" onload=onload()>
+<body bgcolor="white">
 	<audio id="player"></audio>
 	<video id="gum-local" autoplay playsinline hidden></video>
 	<table align="center">
@@ -19,14 +19,15 @@
 		</tr>
 		<tr>
 			<td id="mainTable2">
-				<canvas id="tmp_canvas"></canvas>
+				<canvas id="tmp_canvas" width="640" height="480" hidden></canvas>
 			</td>
 		</tr>
 	</table>
-
+	<!--<img src="images/detectTestImg.png" id="testImg"/> -->
 </body>
 
 <script async src="js/artoolkit.my.min.js"></script>
+<!--<script async src="js/artoolkit.my.demin.js"></script>-->
 <script async src="js/three.min.js"></script>
 <script async src="js/artoolkit.three.js"></script> 
 <script async src="js/easeljs-0.8.2.min.js"></script>
@@ -83,52 +84,87 @@ window.ARThreeOnLoad = function() {
 						  "en2", "en3", "eng2",  "eng3",  "eng4",  "er1", 
 						  "fo1", "fo3", "fo4", "fou1", "fou2", "fou4", 
 						  "gai2", "gan2", "gang2", "gao2", "gei1", "gei2", "gei4", "geng2", "gong2", "gou2", 
-						  "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gui4", "ga1", 
-						  "ga2", "ga3", "gai2", "gan2", "gang2", "gao2", "gei1",  "gei2",  "gei4", "geng2", 
+						  "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gui4", 
+						  "gai2", "gan2", "gang2", "gao2", "gei1",  "gei2",  "gei4", "geng2", 
 						  "gong2", "gou2", "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gun1", "gun2",
 						  "hang3", "he3", "hei2", "hei3", "hei4", "hen1", "heng3", "hua3", "huai1", "huai3", "hun3", "jian2", "jiang2",
 						  "jin2", "jing2", "jiong2", "jiong4", "jiu2", "juan2", "jun2", "jun3",
-						  "ka2", "ka4", "kai2", "kan2", "kang3", 
-						  "zhuan2",
-						  "zhuang2"];
+						  "ka2", "ka4", "kai2", "kan2", "kang3", "kao2", "kei2", "kei3", "kei4", "ken1", "ken2", "keng2", "keng3", "keng4", "kong2",
+						  "kou2", "ku2", "kua2", "kuai1", "kuai2", "kuan2", "kuan4", "kun2", "kuo1", "kuo2", "kuo3",
+						  "lai1", "lai3", "lan1", "le2", "le3", "lia1", "lia2", "lia4", "lian1", "liang1", "lie2", "ling1", "lv1", "luan1", "lve1", "lve2", "lve3", 
+						  "m3", "mai1", "mang4", "mei1", "men3", "mian1", "mie2", "mie3", "min1", "min4", "ming1", "miu1", "miu2", "miu3", "mou4", "mu1",
+						  "n1", "nai1", "nai2", "ne1", "ne3", "nei1", "nei2", "nen1", "nen2", "nen3", "neng1", "neng3", "neng4", "ng1", "niang1", "niang3", "niao1", "niao2", 
+						  "nie3", "nin1", "nin3", "nin4", "ning1", "nong1", "nong3", "nou1", "nou2", "nou3", "nu1", "nv1", "nv2", "nuan1", "nuan2", "nuan4", 
+						  "nve1", "nve2", "nve3", "nun1", "nun3", "nun4", "nuo1", "nuo3", 
+						  "pa3", "pan3", "pei3", "peng3", "pie2", "ping3", "ping4", "pou4", 
+						  "qiong1", "qiong3", "qiong4", "qiu4", "que3", "qun3", "qun3", "qun4", 
+						  "ran1", "ran4", "rao1", "re1", "re2", "ren1", "reng3", "reng4", "ri1", "ri2", "ri3", "rong1", "rong4", "rou1", "rou3", "ru1",
+						  "rua1", "rua3", "rua4", "ruan1", "ruan4", "rui1", "run1", "run3", "ruo1", "ruo3", 
+						  "sa2", "sai2", "sai3", "san2", "sang2", "sao2", "se1", "se2", "se3", "sen2", "sen3", "sen4", "seng2", "seng3", "seng4", "shai2", "shan2", 
+						  "shang2", "shei1", "shei3", "shei4", "shua2", "shuai2", "shuan2", "shuan3", "shuang2", "shuang4", "shui1", "shun1", "shun2",
+						  "shuo2", "shuo3", "si2", "sou2", "su3", "suan2", "suan3", "sun2", "sun4", "suo2", "suo4", 
+						  "ta2", "te1", "te2", "te3", "tei2", "tei3", "tei4", "teng3", "teng4", "tie2", 
+						  "wai2", "weng2", "wo2", 
+						  "xia3", "xiong3", "xiu2", "xun3",
+						  "yo2", "yo3", "yo4", "yue2", 
+						  "za4", "zai2", "zang2", "ze1", "ze3", "zei1", "zei3", "zei4", "zen1", "zen2", "zeng2", "zeng3", "zhan2", "zhang2", "zhei1", "zhei2", "zhei3",
+						  "zhen2", "zheng2", "zhong2", "zhua2", "zhua4", "zhuai2", "zhuan2", "zhuang2", "zhui2", "zhui3", "zhun2", "zhun4", "zhuo3", "zhuo4", "zi2",
+						  "zong2", "zou2", "zu4", "zuan2", "zui2", "zun2"
+						  ];
 	
-	const yunmu = [
-		"ai", "an", "ang", "ao", "a", 
-		"e", "ei", "en", "eng", "er", 
-		"i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", 
-		"o", "ong", "ou", 
-		"u", "ua", "uai", "uan", "uang", "ue", "ui", "un", "uo", 
-		"v", "ve",
-		"g"
-	];
+	// const yunmu = [
+	// 	"ai", "an", "ang", "ao", "a", 
+	// 	"e", "ei", "en", "eng", "er", 
+	// 	"i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", 
+	// 	"o", "ong", "ou", 
+	// 	"u", "ua", "uai", "uan", "uang", "ue", "ui", "un", "uo", 
+	// 	"v", "ve",
+	// 	"ng" // converted from g
+	// ];
 
-	const shengmu = [
-		"", "b", "c", "ch", "d", "f", "g", "h", "j", "k", "l", "m", 
-		"n", "p", "q", "r", "s", "sh", "t", "w", "x", "y", "z", "zh"
-	];
+	// const shengmu = [
+	// 	"", "b", "c", "ch", "d", "f", "g", "h", "j", "k", "l", "m", 
+	// 	"n", "p", "q", "r", "s", "sh", "t", "w", "x", "y", "z", "zh"
+	// ];
+
+	
+
+	// const toneMarkerTarget = [-1, -1, -1, -1, 
+	// 					66.4, 66.1, 55.5,//55.5,
+	// 					76.00, 78.2, 78.2, 55.5, 55.5, 
+	// 					65.6, 65.5, 83.1, 
+	// 					66.4, 66.1, 83.1, 77.6, 77.6, 
+	// 					77.6, 78.2, 78.2, 78.2, 66.2,
+	// 					78.2, 55.5, 56.1, 61.1, 78.2, 
+	// 					56.1, 57.8, 
+	// 					77.6, 78.2, 82.00, 78.2, 77.00, 78.9, 78.6];
+						
 
 	const markerMapping = ["tone1", "tone2", "tone3", "tone4",
-						"iang", "iong", "uang",
-						"ang", "eng", "ong", "uai", "uan", 
-						"ian", "iao", "ing", 
-						"ia", "ie", "in", "ai", "an", 
-						"ao", "ei", "en", "er", "iu",
-						"ou", "ua", "ue", "ui", "un", 
-						"uo", "ve",  
-						"a", "e", "i", "o", "u", "v", "g", // 39
-						"b", "c", "ch", "d", "f", "g", "h", "j", "k", "l",
-						"m", "n", "p", "q", "r", "s", "sh", "t", "w", "x",
-						"y", "z", "zh"];
+							"iang", "iong", "uang",
+							"ang", "eng", "ong", "uai", "uan", 
+							"ian", "iao", "ing", 
+							"ia", "ie", "in", "ai", "an", 
+							"ao", "ei", "en", "er", "iu", // er card does not exist
+							"ou", "ua", "ue", "ui", "un", 
+							"uo", "ve",  // ve card does not exist
+							"a", "e", "i", "o", "u", "v", 
+							"g", // 39 
+							"b", "c", "ch", "d", "f", "ng", "h", "j", "k", "l", // changed g to ng (since there is no ng anyway)
+							"m", "n", "p", "q", "r", "s", "sh", "t", "w", "x",
+							"y", "z", "zh"];
 
 	const toneMarkerTarget = [-1, -1, -1, -1, 
-						66.4, 66.1, 55.5,//55.5,
-						76.00, 78.2, 78.2, 55.5, 55.5, 
-						65.6, 65.5, 83.1, 
-						66.4, 66.1, 83.1, 77.6, 77.6, 
-						77.6, 78.2, 78.2, 78.2, 66.2,
-						78.2, 55.5, 56.1, 61.1, 78.2, 
-						56.1, 57.8, 
-						77.6, 78.2, 82.00, 78.2, 77.00, 78.9, 78.6];
+							71, 70, 59,
+							76, 75, 75, 59, 59, 
+							71, 71, 82.5, 
+							71, 70, 82.5, 76, 76, 
+							76, 75, 75, 75, 70.5,
+							75, 59, 58, 64, 76.5, 
+							58.5, 57.8, 
+							76, 75, 82.5, 75, 76.5, 76.5, 
+							78.6];
+						
 	const yunmuVowelOnSecond = ["ia", "ie", "iu", "ua", 
 								"ue", "ui", "uo", "ve", "uai", 
 								"iao", "iong", "uan", "uang",
@@ -150,14 +186,7 @@ window.ARThreeOnLoad = function() {
 	var displayState = DisplayStates.Neutral;
 	var displayText = "";
 
-	// window.onkeyup = function(e) {
-	//    var key = e.keyCode ? e.keyCode : e.which;
-	//    console.log("key "+key);
-	//    if (key == 81) {
-	//    		console.log("toggle debug");
-	//        debugMode = !debugMode;
-	//    }
-	// }
+	var rendererCanvas = null;
 
 	function sizeCanvas(canvas, winWidth, winHeight) {
 		//console.log(winWidth + " " + winHeight);
@@ -279,6 +308,7 @@ window.ARThreeOnLoad = function() {
 	//correct1 恭喜你，你答对了！
 	//correct0 声韵母组合对了，请放音调卡。
 
+	// missing font dont use this anymore
 	function printError(ctx, cw, ch, state) {
 
 		drawCenterLine(ctx, cw, ch);
@@ -387,13 +417,15 @@ window.ARThreeOnLoad = function() {
 			var renderer = new THREE.WebGLRenderer({antialias: true});
 
 			arSetup(arController, renderer);
-			var rendererCanvas = renderer.domElement;
+			rendererCanvas = renderer.domElement;
+			rendererCanvas.id = "rendererCanvas";
 
 			sizeCanvas(rendererCanvas, window.innerWidth, window.innerHeight);
 			
 			var overlay = document.getElementById("myCanvas2");
 			overlay.style.width = rendererCanvas.style.width;
 			overlay.style.height = rendererCanvas.style.height;
+			
 			var ctx = overlay.getContext('2d');
 			
 			const width = rendererCanvas.clientWidth;
@@ -405,7 +437,7 @@ window.ARThreeOnLoad = function() {
 			var canvasWidth = width;
 			var canvasHeight = height;
 
-			// clicking of canvas
+			// clicking of canvas (replay soundclip)
 			overlay.onclick = function(e) {
 				var rect = overlay.getBoundingClientRect();
 				var canvasX = e.clientX - rect.left;
@@ -423,9 +455,32 @@ window.ARThreeOnLoad = function() {
 				}
 			};
 
+			window.onkeyup = function(e) {
+			   var key = e.keyCode ? e.keyCode : e.which;
+			   console.log("key "+key);
+			   if (key == 81) {
+			   		
+			        debugMode = !debugMode;
+			        console.log("toggle debug "+debugMode);
+			        
+
+		       		if (debugMode) {
+						var mycanvas2 = document.getElementById("myCanvas2");
+						mycanvas2.style.backgroundColor = 'rgba(255,255,255,0)';
+					} else {
+						var mycanvas2 = document.getElementById("myCanvas2");
+						mycanvas2.style.backgroundColor = 'rgba(255,255,255,255)';
+					}
+			   }
+			   if (key == 87) {
+			   		arScene.toggleConv();
+			   		console.log("toggle conv ")
+			   }
+			}
+
 			sceneSetup(arScene);
 			mappingFunction();
-			tick(ctx);
+			tick(rendererCanvas, ctx);
 
 			easelSetup();
 
@@ -455,7 +510,8 @@ window.ARThreeOnLoad = function() {
 				
 				// add three js renderer to main_table
 				var mainTable = document.getElementById("mainTable");
-				mainTable.appendChild(renderer.domElement, mainTable);
+				//mainTable.appendChild(renderer.domElement, mainTable);
+				mainTable.appendChild(renderer.domElement);
 			}
 			
 			function sceneSetup(arScene) {
@@ -489,6 +545,7 @@ window.ARThreeOnLoad = function() {
 				}
 			}
 
+			// not used anymore
 			function svgScaling(bitmap, canvas, scale) {
 	    		let bounds = bitmap.getBounds();
 	            if (bounds === null) {
@@ -1392,7 +1449,7 @@ window.ARThreeOnLoad = function() {
 
 			function mappingFunction() {
 
-				validCombi["n"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "g", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan", "un", "uo", "v", "ve"];
+				validCombi["n"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan", "un", "uo", "v", "ve"]; // ng is taken out
 				validCombi["l"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "eng", "i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan","un", "uo", "v", "ve"];
 				validCombi["d"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ia", "ian", "iao", "ie", "ing", "iu", "ong", "ou", "u", "uan", "ui", "un", "uo"];
 				validCombi["g"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
@@ -1413,7 +1470,7 @@ window.ARThreeOnLoad = function() {
 				validCombi["j"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "u", "uan", "ue", "un"];
 				validCombi["x"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "u", "uan", "ue", "un"];
 				validCombi["r"] = ["an", "ang", "ao", "e", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi[""] = ["ao", "ai", "an", "ang", "ao", "e", "ei", "en", "eng", "er", "o", "ou"];
+				validCombi[""] = ["ao", "ai", "an", "ang", "ao", "e", "ei", "en", "eng", "er", "o", "ou", "ng"]; // ng added
 				validCombi["f"] = ["an", "ang", "a", "ei", "en", "eng", "o", "ou", "u"];
 				validCombi["w"] = ["ai", "an", "ang", "a", "ei", "en", "eng", "o", "u"];
 
@@ -1528,8 +1585,6 @@ window.ARThreeOnLoad = function() {
 				parent.add(dest);
 				//console.log(newObj.position);
 			}
-
-			
 			
 			function shengYunDistance(shengmuID, yunmuID) {
 				if (markerTracked[shengmuID] !== undefined && markerTracked[yunmuID] !== undefined) {
@@ -1581,7 +1636,7 @@ window.ARThreeOnLoad = function() {
 					
 					// Due to the frequent underestimate of the marker width in screen space ( mw and mw2 )
 					// a raw multiplier is added in as a last resort to this problem.
-					var cardWidth = sizeScale * cardWidthMM * 1.1;//  * 0.9 ; //20 //
+					var cardWidth = sizeScale * cardWidthMM * 1.05;//  * 0.9 ; //20 //
 
 					//console.log("Cw "+cardWidth);
 
@@ -1917,16 +1972,29 @@ window.ARThreeOnLoad = function() {
 				return (error < thresh);
 			}
 
-			function tick(ctx) {
+			function tick(rendererCanvas, ctx) {
+
+				//console.log("in tick");
+				//console.log(rendererCanvas);
+				//console.log(ctx);
+
 				//ctx.fillStyle = 'white';
 				//ctx.clearRect(0,0,canvasWidth,canvasHeight);
 				//printFeedback(ctx, canvasWidth, canvasHeight);
 				//printError(ctx, canvasWidth, canvasHeight, displayState);
 				//console.log(arScene);
-				arScene.process(ctx);
+
+				// if (ctx != null) {
+				// 	arScene.process(ctx);
+				// } else {
+				// 	console.log("tick ctx null");
+				// }
+
+				arScene.process(rendererCanvas, ctx);
 				arScene.renderOn(renderer);
+
 				requestAnimationFrame(function () {
-					tick(ctx); 
+					tick(rendererCanvas, ctx); 
 				});
 				
 				displayState = DisplayStates.Invalid;
@@ -1948,9 +2016,15 @@ window.ARThreeOnLoad = function() {
 				shengmuText = "";
 				soundName = "";
 				displayText = "";
-				
+
+				if (debugMode) {
+					var mycanvas2 = document.getElementById("myCanvas2");
+					mycanvas2.style.backgroundColor = 'rgba(255,255,255,0)';
+				}
+
 				//retireOld(history);
 				//retireOld2(avgPos);
+				//console.log("detected " + markerNum);
 
 				for (var i = 0; i<markerNum ; i++) {
 					var markerInfo = arController.getMarker(i);
@@ -1973,17 +2047,17 @@ window.ARThreeOnLoad = function() {
 						// categorizing markers into 3 types
 						if (id >= 0 && id <= 3) {
 							toneSlot.push(id);
-						} else if (id >= 4 && id <= 38) {
+						} else if (id >= 4 && id <= 37) { // shifting by 1 to put g / ng from yunmu into shengmu
 							yunmuSlot.push(id);
-						} else if (id >= 39 && id <= 61) {
+						} else if (id >= 38 && id <= 61) {
 							shengmuSlot.push(id);
 						}
 					}
 
-					if (debugMode) {
+					if (debugMode && ctx!= null) {
+						//console.log("came here setting bg to transparent");
 						drawMarkerOutline(ctx, vertex, pos, id);
-						var mycanvas2 = document.getElementById("myCanvas2");
-						mycanvas2.style.backgroundColor = 'rgba(255,255,255,0)';
+						//console.log("came here setting bg to transparent 22");
 					}
 				}
 
@@ -2067,7 +2141,7 @@ window.ARThreeOnLoad = function() {
 
 				//debug//
 				
-				if (debugMode) {
+				if (debugMode && ctx != null) {
 					ctx.font = 50 + "px Arial";
 					ctx.fillStyle = "#00ff00";
 					ctx.fillText(shengYunDist, canvasWidth * 0.0 - 0 * 0.5, canvasHeight * 0.5);
@@ -2193,9 +2267,6 @@ window.ARThreeOnLoad = function() {
 	delete window.ARThreeOnLoad;
 };
 
-function onload() {
-
-}
 
 if (window.ARController && ARController.getUserMediaThreeScene) {
 	window.ARThreeOnLoad();	
