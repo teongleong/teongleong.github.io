@@ -12,7 +12,7 @@
 	var tmp_canvas;
 	var buffer;
 
-	var convFlag = false;
+	var convFlag = true;
 
 	function toggleConv() {
 		convFlag = !convFlag;
@@ -635,15 +635,36 @@
 					// self.process(testImg);
 
 					if (convFlag) {
-						console.log("conv");
-						// convolution
-		 				var imgd = b_ctx.getImageData(0, 0, 640, 480); 
-		 				grayscale(imgd, 640, 480, 4);
-		 				applyFilterGray(imgd, subtleSharpenKernel);
-		 				//applyFilterGray(imgd, blurKernel);
-			    		b_ctx.putImageData(imgd, 0, 0);
-			    		self.process(tmp_canvas);
+						console.log("conv on");
+						// // convolution
+		 			// 	var imgd = b_ctx.getImageData(0, 0, 640, 480); 
+		 			// 	grayscale(imgd, 640, 480, 4);
+		 			// 	applyFilterGray(imgd, subtleSharpenKernel);
+		 			// 	//applyFilterGray(imgd, blurKernel);
+			   //  		b_ctx.putImageData(imgd, 0, 0);
+			   //  		//self.process(tmp_canvas);
+
+			   			var glcanvas = document.getElementById("glcanvas");
+			   			// if (glcanvas == null) {
+			   			// 	glcanvas = document.createElement("canvas");
+			   			// 	glcanvas.id = "glcanvas";
+			   			// 	glcanvas.width = 640;
+			   			// 	glcanvas.width = 480;
+			   			// 	glcanvas.style.display = "none";
+			   			// 	glcanvas.hidden = true;
+			   			// 	glcanvas.style = "width:640; height:480";
+			   			// 	var mainTable2 = document.getElementById("mainTable2");
+			   			// 	mainTable2.appendChild(glcanvas);
+			   			// 	console.log("glcanvas init");
+			   			// }
+
+			    		render(tmp_canvas, glcanvas);
+						render(glcanvas, glcanvas);
+						render(glcanvas, glcanvas);
+						render(glcanvas, glcanvas);
+						self.process(glcanvas);
 					} else {
+						console.log("conv off");
 						self.process(video);
 					}
 					//
