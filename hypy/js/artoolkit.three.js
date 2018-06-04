@@ -13,23 +13,10 @@
 	var buffer;
 
 	var convFlag = true;
-	var conv_level = 1;
 
 	function toggleConv() {
 		convFlag = !convFlag;
 	}
-
-	function conv_level_up () {
-   	  conv_level++;
-   	  if (conv_level > 4) conv_level = 4;
-   	  console.log("conv level "+conv_level);
-   }
-
-	function conv_level_down () {
-   	  conv_level--;		
-   	  if (conv_level < 0) conv_level = 0;
-   	  console.log("conv level "+conv_level);
-   }
 
 	var integrate = function() {
 		/**
@@ -228,6 +215,7 @@
 			}
 
 			//he_tmp
+
 			function normalizePixel(imgd) {
 			    var min = 255;
 			    var max = 0;
@@ -399,7 +387,9 @@
 			  //callback(buffer.toDataURL());
 			};
 
+
 			// convolution
+
 			var subtleSharpenKernel =
 			[
 			  -1/8, -1/8, -1/8, -1/8, -1/8,
@@ -583,11 +573,12 @@
 				arController: this,
 				video: video,
 				toggleConv: toggleConv,
-				conv_level_up: conv_level_up,
-				conv_level_down: conv_level_down,
-
 
 				process: function(rendererCanvas, overlayContext) {
+
+					// console.log("in process");
+					// console.log(rendererCanvas);
+					// console.log(overlayContext);
 
 					for (var i in self.threePatternMarkers) {
 						self.threePatternMarkers[i].visible = false;
@@ -667,39 +658,22 @@
 			   			// 	console.log("glcanvas init");
 			   			// }
 
-			   			//render(tmp_canvas, glcanvas, "gaussianBlur");
-			   			if (conv_level > 0)
-			    			render(tmp_canvas, glcanvas, "sharpen");
-
-			    		if (conv_level > 1)
-							render(glcanvas, glcanvas, "sharpen");
-
-						if (conv_level > 2)
-							render(glcanvas, glcanvas, "sharpen");
-
-						if (conv_level > 3)
-							render(glcanvas, glcanvas, "sharpen");
-
-
-						//render(glcanvas, glcanvas, "sharpen");
-						//render(glcanvas, glcanvas, "gaussianBlur");
-						//render(glcanvas, glcanvas, "gaussianBlur");
-						//render(glcanvas, glcanvas, "sharpen");
-						//render(glcanvas, glcanvas, "sharpen");
-
-						if (conv_level == 0)
-							self.process(video);
-						else 	
-							self.process(glcanvas);
-						//console.log("sharpen update");
-						//
+			    		render(tmp_canvas, glcanvas);
+						render(glcanvas, glcanvas);
+						render(glcanvas, glcanvas);
+						render(glcanvas, glcanvas);
+						self.process(glcanvas);
 					} else {
 						console.log("conv off");
 						self.process(video);
 					}
+					//
 
 					//self.process(video_img);
+					
+
 					//self.process(img3);
+					
 
 					//self.process(rendererCanvas, overlayContext);
 					//self.process(rendererCanvas);
@@ -871,7 +845,6 @@
 	// 	setTimeout(test_tick, 1000);
 	// }
 
-	// dp i really need to loop this?
 	var tick = function() {
 		if (window.ARController && window.THREE) {
 			integrate();
