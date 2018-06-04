@@ -16,7 +16,7 @@ function demo() {
 }
 
 var video = document.querySelector('video');
-var kernelSelection = 'sharpen';
+//var kernelSelection = 'sharpen';
 
 function startWebCamVideo() {
 	var constraints = {};
@@ -88,7 +88,10 @@ function tick() {
 
 var gl = null;
 
-function render(image, canvas) {
+function render(image, canvas, kernelSelection) {
+
+  //console.log("render choice "+kernelSelection );
+
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   //var canvas = document.getElementById("canvas");
@@ -285,8 +288,17 @@ function render(image, canvas) {
     gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
     // set the size of the image
     gl.uniform2f(textureSizeLocation, image.width, image.height);
+
+
+    if (kernels[name] == null) {
+      console.log(name + " kernel not found ");
+      return;
+    }
+
     // set the kernel and it's weight
     gl.uniform1fv(kernelLocation, kernels[name]);
+
+    
     gl.uniform1f(kernelWeightLocation, computeKernelWeight(kernels[name]));
     // Draw the rectangle.
     var primitiveType = gl.TRIANGLES;

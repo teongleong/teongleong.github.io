@@ -19,21 +19,24 @@
 		</tr>
 		<tr>
 			<td id="mainTable2">
-				<canvas id="tmp_canvas" width="640" height="480" hidden></canvas>
-				<canvas id="glcanvas" width="640" height="480" style="visibility: hidden;"></canvas>
+				<!--<canvas id="tmp_canvas" width="640" height="480" hidden></canvas> -->
+				<!--<canvas id="glcanvas" width="640" height="480" style="visibility: hidden;"></canvas> -->
+				<canvas id="tmp_canvas" width="640" height="480" ></canvas>
+				<canvas id="glcanvas" width="640" height="480" "></canvas> 
 			</td>
 		</tr>
 	</table>
 	<!--<img src="images/detectTestImg.png" id="testImg"/> -->
 </body>
 
+<script async src="js/hypy-data.js"></script> 
 <script async src="js/artoolkit.my.min.js"></script>
 <!--<script async src="js/artoolkit.my.demin.js"></script>-->
 <script async src="js/three.min.js"></script>
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/tweenjs/0.6.2/tweenjs.min.js"></script>
-<!--<script async src="js/easeljs-0.8.2.min.js"></script> -->
-<!--<script async src="js/tweenjs-0.6.2.min.js"></script> -->
+<!--<script async src="https://cdnjs.cloudflare.com/ajax/libs/EaselJS/0.8.0/easeljs.min.js"></script>-->
+<!--<script async src="https://cdnjs.cloudflare.com/ajax/libs/tweenjs/0.6.2/tweenjs.min.js"></script>-->
+<script async src="js/easeljs-0.8.2.min.js"></script>
+<script async src="js/tweenjs-0.6.2.min.js"></script>
 <!-- vertex shader -->
 <script id="2d-vertex-shader" type="x-shader/x-vertex">
 	attribute vec2 a_position;
@@ -73,364 +76,16 @@
 		   texture2D(u_image, v_texCoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
 		   texture2D(u_image, v_texCoord + onePixel * vec2( 1,  1)) * u_kernel[8] ;
 	   gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1);
-}
+	}
 </script>
 <script async src="js/webgl-filter.js"></script>
 <script async src="js/webgl-utils.js"></script>
-<script async src="js/artoolkit.three.js"></script> 
-
+<script async src="js/artoolkit.three.js"></script>
+<script async src="js/feedback-animation.js"></script>
 
 <script>
 
 window.ARThreeOnLoad = function() {
-
-	var scaleAnchorX = 1;
-	var scaleAnchorY = 1;
-
-	var prevSoundName = "";
-	var soundName = "";
-
-	// in canvas ratio
-	var soundIconPosX = 0.5;
-	var soundIconPosY = 0.8 + 0.06;
-	var soundIconLength = 0.05;
-	var soundIconActive = false;
-
-	var toneID = -1;
-	var yunmuID = -1;
-	var shengmuID = -1;
-
-	var tonePosCheckHistory = [];
-	var validCheckHistory = [];
-	var ysSpaceCheckHistory = [];
-
-	var bufferSize = 120;
-	var debugMode = false;
-
-	var errorCode = -1;
-
-	var yunmuSlot = [];
-	var shengmuSlot = [];
-	var toneSlot = [];
-
-	var validCombi = [];
-
-	var markerTracked = {};
-	var history = [];
-
-	var imageDir = "images/";
-
-	const validButNoTone = ["an2", "ang3", 
-						  "bang2", "ben2", "bian2", "biao2", "bin2", "bin3", "bing2",
-						  "ca2", "ca4", "cang3", "cang4", "ce1", "ce2", "ce3",  "cei1", "cei2", "cei3", 
-						  "cen3", "cen4", "ceng3", "che2", "chua2", "chua3", "chua4", "chui3", "chui4", "chun4", 
-						  "chuo2", "chuo3", "cong3", "cong4", "cou1", "cou2", "cou3", "cu3", "cuan3", "cui2",
-						  "dai2", "dan2", "dang2", "de3", "dei2", "dei4", "den1", "den2", "den3", "deng2", 
-						  "dia1",  "dia2",  "dia4", "dian2", "diao2", "die3", "die4", "ding2",
-						  "diu2", "diu3", "diu4", "dong2", "dou2", "duan2", "dui2", "dui3", "dun2", 
-						  "en2", "en3", "eng2",  "eng3",  "eng4",  "er1", 
-						  "fo1", "fo3", "fo4", "fou1", "fou2", "fou4", 
-						  "gai2", "gan2", "gang2", "gao2", "gei1", "gei2", "gei4", "geng2", "gong2", "gou2", 
-						  "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gui4", 
-						  "gai2", "gan2", "gang2", "gao2", "gei1",  "gei2",  "gei4", "geng2", 
-						  "gong2", "gou2", "gu2", "gua2", "guai2", "guan2", "guang2", "gui2", "gun1", "gun2",
-						  "hang3", "he3", "hei2", "hei3", "hei4", "hen1", "heng3", "hua3", "huai1", "huai3", "hun3", "jian2", "jiang2",
-						  "jin2", "jing2", "jiong2", "jiong4", "jiu2", "juan2", "jun2", "jun3",
-						  "ka2", "ka4", "kai2", "kan2", "kang3", "kao2", "kei2", "kei3", "kei4", "ken1", "ken2", "keng2", "keng3", "keng4", "kong2",
-						  "kou2", "ku2", "kua2", "kuai1", "kuai2", "kuan2", "kuan4", "kun2", "kuo1", "kuo2", "kuo3",
-						  "lai1", "lai3", "lan1", "le2", "le3", "lia1", "lia2", "lia4", "lian1", "liang1", "lie2", "ling1", "lv1", "luan1", "lve1", "lve2", "lve3", 
-						  "m3", "mai1", "mang4", "mei1", "men3", "mian1", "mie2", "mie3", "min1", "min4", "ming1", "miu1", "miu2", "miu3", "mou4", "mu1",
-						  "n1", "nai1", "nai2", "ne1", "ne3", "nei1", "nei2", "nen1", "nen2", "nen3", "neng1", "neng3", "neng4", "ng1", "niang1", "niang3", "niao1", "niao2", 
-						  "nie3", "nin1", "nin3", "nin4", "ning1", "nong1", "nong3", "nou1", "nou2", "nou3", "nu1", "nv1", "nv2", "nuan1", "nuan2", "nuan4", 
-						  "nve1", "nve2", "nve3", "nun1", "nun3", "nun4", "nuo1", "nuo3", 
-						  "pa3", "pan3", "pei3", "peng3", "pie2", "ping3", "ping4", "pou4", 
-						  "qiong1", "qiong3", "qiong4", "qiu4", "que3", "qun3", "qun3", "qun4", 
-						  "ran1", "ran4", "rao1", "re1", "re2", "ren1", "reng3", "reng4", "ri1", "ri2", "ri3", "rong1", "rong4", "rou1", "rou3", "ru1",
-						  "rua1", "rua3", "rua4", "ruan1", "ruan4", "rui1", "run1", "run3", "ruo1", "ruo3", 
-						  "sa2", "sai2", "sai3", "san2", "sang2", "sao2", "se1", "se2", "se3", "sen2", "sen3", "sen4", "seng2", "seng3", "seng4", "shai2", "shan2", 
-						  "shang2", "shei1", "shei3", "shei4", "shua2", "shuai2", "shuan2", "shuan3", "shuang2", "shuang4", "shui1", "shun1", "shun2",
-						  "shuo2", "shuo3", "si2", "sou2", "su3", "suan2", "suan3", "sun2", "sun4", "suo2", "suo4", 
-						  "ta2", "te1", "te2", "te3", "tei2", "tei3", "tei4", "teng3", "teng4", "tie2", 
-						  "wai2", "weng2", "wo2", 
-						  "xia3", "xiong3", "xiu2", "xun3",
-						  "yo2", "yo3", "yo4", "yue2", 
-						  "za4", "zai2", "zang2", "ze1", "ze3", "zei1", "zei3", "zei4", "zen1", "zen2", "zeng2", "zeng3", "zhan2", "zhang2", "zhei1", "zhei2", "zhei3",
-						  "zhen2", "zheng2", "zhong2", "zhua2", "zhua4", "zhuai2", "zhuan2", "zhuang2", "zhui2", "zhui3", "zhun2", "zhun4", "zhuo3", "zhuo4", "zi2",
-						  "zong2", "zou2", "zu4", "zuan2", "zui2", "zun2"
-						  ];
-	
-	// const yunmu = [
-	// 	"ai", "an", "ang", "ao", "a", 
-	// 	"e", "ei", "en", "eng", "er", 
-	// 	"i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", 
-	// 	"o", "ong", "ou", 
-	// 	"u", "ua", "uai", "uan", "uang", "ue", "ui", "un", "uo", 
-	// 	"v", "ve",
-	// 	"ng" // converted from g
-	// ];
-
-	// const shengmu = [
-	// 	"", "b", "c", "ch", "d", "f", "g", "h", "j", "k", "l", "m", 
-	// 	"n", "p", "q", "r", "s", "sh", "t", "w", "x", "y", "z", "zh"
-	// ];
-
-	
-
-	// const toneMarkerTarget = [-1, -1, -1, -1, 
-	// 					66.4, 66.1, 55.5,//55.5,
-	// 					76.00, 78.2, 78.2, 55.5, 55.5, 
-	// 					65.6, 65.5, 83.1, 
-	// 					66.4, 66.1, 83.1, 77.6, 77.6, 
-	// 					77.6, 78.2, 78.2, 78.2, 66.2,
-	// 					78.2, 55.5, 56.1, 61.1, 78.2, 
-	// 					56.1, 57.8, 
-	// 					77.6, 78.2, 82.00, 78.2, 77.00, 78.9, 78.6];
-						
-
-	const markerMapping = ["tone1", "tone2", "tone3", "tone4",
-							"iang", "iong", "uang",
-							"ang", "eng", "ong", "uai", "uan", 
-							"ian", "iao", "ing", 
-							"ia", "ie", "in", "ai", "an", 
-							"ao", "ei", "en", "er", "iu", // er card does not exist
-							"ou", "ua", "ue", "ui", "un", 
-							"uo", "ve",  // ve card does not exist
-							"a", "e", "i", "o", "u", "v", 
-							"g", // 39 
-							"b", "c", "ch", "d", "f", "ng", "h", "j", "k", "l", // changed g to ng (since there is no ng anyway)
-							"m", "n", "p", "q", "r", "s", "sh", "t", "w", "x",
-							"y", "z", "zh"];
-
-	const toneMarkerTarget = [-1, -1, -1, -1, 
-							71, 70, 59,
-							76, 75, 75, 59, 59, 
-							71, 71, 82.5, 
-							71, 70, 82.5, 76, 76, 
-							76, 75, 75, 75, 70.5,
-							75, 59, 58, 64, 76.5, 
-							58.5, 57.8, 
-							76, 75, 82.5, 75, 76.5, 76.5, 
-							78.6];
-						
-	const yunmuVowelOnSecond = ["ia", "ie", "iu", "ua", 
-								"ue", "ui", "uo", "ve", "uai", 
-								"iao", "iong", "uan", "uang",
-								"ian", "iang"];
-
-	const DisplayStates = {
-		Invalid: -1, // do nothing
-		Neutral: 0, // wait, show black text
-		Correct1: 1, // correct combi
-		Correct2: 2, // correct!
-		ErrorCombi: 3, // wrong Y S combi
-		ErrorNoTone: 4, // no such tone for combi
-		ErrorTonePos: 5, // tone is existent but in wrong position
-		ErrorSwapped: 6, // Y and S position are swapped
-		ErrorTooFar: 7, // Y and S are too far apart
-		ErrorTooNear: 8 // Y and S are too close
-	};
-
-	var displayState = DisplayStates.Neutral;
-	var displayText = "";
-
-	var rendererCanvas = null;
-
-	function sizeCanvas(canvas, winWidth, winHeight) {
-		//console.log(winWidth + " " + winHeight);
-		if ((winWidth / 640 * 480) > winHeight) {
-			
-			var finalHeight = winHeight;
-			var finalWidth = winHeight / 480 * 640;
-			scaleAnchorY = winHeight / 480;
-			scaleAnchorX = finalWidth / 640;
-			console.log("clamp height "+finalWidth + " " + finalHeight);
-			canvas.style.height = finalHeight;
-			canvas.style.width = finalWidth;
-		} else {
-			var finalWidth = winWidth;
-			var finalHeight = winWidth / 640 * 480;
-			scaleAnchorX = winWidth / 640;
-			scaleAnchorY = finalHeight / 480;
-
-			canvas.style.width = finalWidth;
-			canvas.style.height = finalHeight;
-		}
-	}
-
-	function drawSoundIcon(ctx, cw, ch, active) {
-		var img1=document.getElementById("sound1");
-		var img2=document.getElementById("sound2");
-		var img = active ? img2 : img1;
-		ctx.drawImage(img, 
-			cw * (soundIconPosX - soundIconLength*0.5), 
-			ch * (soundIconPosY - soundIconLength*0.5), 
-			cw*soundIconLength, 
-			cw*((soundIconLength / 70) * 53));
-	}
-
-	function drawCenterLine(ctx, cw, ch) {
-		ctx.strokeStyle = 'DimGrey';
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		ctx.moveTo(cw * 0.3, ch * 0.7);
-		ctx.lineTo(cw * 0.7, ch * 0.7);
-		ctx.stroke();
-	}
-
-	function drawCenterText(ctx, cw, ch, color, text) {
-		if (text === "") return;
-		//ctx.fillStyle = "#ff0000";
-		ctx.fillStyle = color;
-		var fontSize = 75 * scaleAnchorX
-		ctx.font = fontSize+"px Hypy";
-		var setA = "ABCDE";
-		var setB = "FGHIJ";
-		var setC = "KLMNO";
-		var setD = "PQRST";
-		var setE = "UVWXY";
-		var setF = "Z_^`~|";
-
-		var textWidth = ctx.measureText(text).width;
-		console.log();
-		ctx.fillText(text, cw * 0.5 - textWidth * 0.5, ch * 0.7);
-		//console.log(text);		
-		//ctx.fillText("\u00E0", cw * 0.55, ch * 0.7);
-	}
-	
-	function drawMarkerOutline(ctx, vertex, pos, id) {
-		//if (id==-1) id = 99;
-		//if (id2==-1) id2 = 99;
-		//console.log(scaleX + " " + scaleY + " " + scaleAnchorX);
-		if (id === -1) return;
-		ctx.strokeStyle = 'red';
-		ctx.lineWidth = 1 * scaleAnchorX;
-		ctx.beginPath();
-		ctx.moveTo(vertex[0][0]*scaleAnchorX, vertex[0][1]*scaleAnchorY);
-		ctx.lineTo(vertex[1][0]*scaleAnchorX, vertex[1][1]*scaleAnchorY);
-		ctx.stroke();
-
-		ctx.strokeStyle = 'blue';
-		ctx.beginPath();
-		ctx.lineTo(vertex[1][0]*scaleAnchorX, vertex[1][1]*scaleAnchorY);
-		ctx.lineTo(vertex[2][0]*scaleAnchorX, vertex[2][1]*scaleAnchorY);
-		ctx.stroke();
-		ctx.strokeStyle = 'green';
-
-		ctx.beginPath();
-		ctx.moveTo(vertex[2][0]*scaleAnchorX, vertex[2][1]*scaleAnchorY);
-		ctx.lineTo(vertex[3][0]*scaleAnchorX, vertex[3][1]*scaleAnchorY);
-		ctx.stroke();
-
-		ctx.strokeStyle = 'yellow';
-		ctx.beginPath();
-		ctx.moveTo(vertex[3][0]*scaleAnchorX, vertex[3][1]*scaleAnchorY);
-		ctx.lineTo(vertex[0][0]*scaleAnchorX, vertex[0][1]*scaleAnchorY);
-		ctx.stroke();
-
-		// print marker id
-		if (true) {
-			ctx.beginPath();
-			ctx.arc(pos[0]*scaleAnchorX, pos[1]*scaleAnchorY, 8, 0, Math.PI * 2);
-			ctx.fillStyle = "#00ff00";
-			ctx.fill();
-
-			var fontSize = 25 * scaleAnchorX;
-			ctx.font = fontSize + "px Arial";
-			ctx.fillText(id,pos[0]*scaleAnchorX,pos[1]*scaleAnchorY);
-		}				
-	}
-
-	// combi error
-	// 声韵母组合错误，请跟换卡片。
-	// \u58f0\u97f5\u6bcd\u7ec4\u5408\u9519\u8bef\uFF0C\u8bf7\u8ddf\u6362\u5361\u7247\u3002
-	// wrong tone position
-	// 音调卡位置错误，请跟换卡片。
-	// \u97f3\u8c03\u5361\u4f4d\u7f6e\u9519\u8bef\uFF0C\u8bf7\u8ddf\u6362\u5361\u7247\u3002
-	// no corresponding tone for combi
-	// 音调不符合拼音，请跟换卡片。
-	// \u97f3\u8c03\u4e0d\u7b26\u5408\u62fc\u97f3\uFF0C\u8bf7\u8ddf\u6362\u5361\u7247\u3002
-	// yunmu shengmu swapped
-	// 声韵母位置错误，请跟换位置。
-	// \u58f0\u97f5\u6bcd\u4f4d\u7f6e\u9519\u8bef\uFF0C\u8bf7\u8ddf\u6362\u4f4d\u7f6e\u3002
-	//correct1 恭喜你，你答对了！
-	//correct0 声韵母组合对了，请放音调卡。
-
-	// missing font dont use this anymore
-	function printError(ctx, cw, ch, state) {
-
-		drawCenterLine(ctx, cw, ch);
-		//drawSoundIcon(ctx, cw, ch, false);
-		soundIconActive = false;
-
-		var fontSize = 20 * scaleAnchorX
-		ctx.font = fontSize+"px kaiti";
-
-		//var rect = ctx.canvas.getBoundingClientRect();
-		var textWidth = ctx.measureText("\u58f0\u97f5\u6bcd\u7ec4\u5408\u9519\u8bef\uFF0C\u8bf7\u66f4\u6362\u5361\u7247\u3002").width;
-		//console.log(rect.width + " " + rect.height);
-		var svg = null;
-		
-		ctx.fillStyle = 'red';
-		var centerTextColor = 'black';
-
-
-		// if (state == DisplayStates.ErrorCombi) { // combi error
-		// 	ctx.fillText("\u58f0\u97f5\u6bcd\u7ec4\u5408\u9519\u8bef\uFF0C\u8bf7\u66f4\u6362\u5361\u7247\u3002", cw * 0.5 - textWidth * 0.5, ch * 0.45); 
-		// 	svg = document.getElementById("error0");
-		// 	centerTextColor = 'red';
-		// }
-		// else if (state == DisplayStates.ErrorTonePos) { // wrong tone position
-		// 	ctx.fillText("\u97f3\u8c03\u5361\u4f4d\u7f6e\u9519\u8bef\uFF0C\u8bf7\u66f4\u6362\u5361\u7247\u3002", cw * 0.5 - textWidth * 0.5, ch * 0.45);
-		// 	svg = document.getElementById("error1");
-		// 	//ctx.drawImage(svg, 0, 0, 200, 100);
-		// 	centerTextColor = 'red';
-		// }
-		// else if (state == DisplayStates.ErrorNoTone) {// no corresponding tone for combi
-		// 	ctx.fillText("\u97f3\u8c03\u4e0d\u7b26\u5408\u62fc\u97f3\uFF0C\u8bf7\u66f4\u6362\u5361\u7247\u3002", cw * 0.5 - textWidth * 0.5, ch * 0.45);
-		// 	svg = document.getElementById("error2");
-		// 	//ctx.drawImage(svg, 0, 0, 200, 100);
-		// 	centerTextColor = 'red';
-		// }
-		// else if (state == DisplayStates.ErrorSwapped) { // yunmu shengmu swapped
-		// 	ctx.fillText("\u58f0\u97f5\u6bcd\u4f4d\u7f6e\u9519\u8bef\uFF0C\u8bf7\u66f4\u6362\u4f4d\u7f6e\u3002", cw * 0.5 - textWidth * 0.5, ch * 0.45);
-		// 	svg = document.getElementById("error3");
-		// 	//ctx.drawImage(svg, 0, 0, 200, 100);
-		// 	centerTextColor = 'red';
-		// }else if (state == DisplayStates.Neutral) {
-		// 	centerTextColor = 'black';
-		// }
-		// else if (state == DisplayStates.Correct1) {
-		// 	ctx.fillStyle = 'green';
-		// 	var textWidth = ctx.measureText("\u58f0\u97f5\u6bcd\u7ec4\u5408\u5BF9\u4E86\uFF0C\u8bf7\u653E\u97f3\u8c03\u5361\u3002").width;
-		// 	ctx.fillText("\u58f0\u97f5\u6bcd\u7ec4\u5408\u5BF9\u4E86\uFF0C\u8bf7\u653E\u97f3\u8c03\u5361\u3002", cw * 0.5 - textWidth * 0.5, ch * 0.45);
-		// 	svg = document.getElementById("correct0");
-		// 	centerTextColor = 'green';
-		// } else if (state == DisplayStates.Correct2) {
-		// 	ctx.fillStyle = 'green';
-		// 	var textWidth = ctx.measureText("\u606D\u559C\u4F60\uFF0C\u4F60\u7B54\u5BF9\u4E86\uFF01").width;
-		// 	ctx.fillText("\u606D\u559C\u4F60\uFF0C\u4F60\u7B54\u5BF9\u4E86\uFF01", cw * 0.5 - textWidth * 0.5, ch * 0.45); 
-		// 	svg = document.getElementById("correct1");
-		// 	centerTextColor = 'green';
-		// }
-
-		drawCenterText(ctx, cw, ch, centerTextColor, displayText);
-
-		// if (state != DisplayStates.Invalid && state != DisplayStates.Neutral) {
-		// 	//console.log(state);
-		// 	var bBox = svg.getBBox();
-		// 	var egWidth = bBox.width;
-		// 	var egHeight = bBox.height;
-
-		// 	//var widthRatio = (egWidth / cw) * 2.5;
-		// 	var widthRatio = 0.4;
-		// 	var heightRatio = (widthRatio / egWidth) * egHeight;
-
-		// 	ctx.drawImage(svg, (cw * 0.5) - (cw * widthRatio * 0.5), (ch * 0.18) - (cw * heightRatio * 0.5), cw * widthRatio, cw * heightRatio);	
-		// 	//errorCode = -1;
-		// }
-
-		displayState = DisplayStates.Invalid;
-	}
 
 	function playSound(soundName) {
 
@@ -501,6 +156,7 @@ window.ARThreeOnLoad = function() {
 				}
 			};
 
+			var conv_level = 1;
 			window.onkeyup = function(e) {
 			   var key = e.keyCode ? e.keyCode : e.which;
 			   console.log("key "+key);
@@ -529,16 +185,21 @@ window.ARThreeOnLoad = function() {
 			   		arScene.toggleConv();
 			   		console.log("toggle conv ")
 			   }
+
+			   if (key == 79) {
+			   	  arScene.conv_level_down();
+			   }
+
+			   if (key == 80) {
+			   	  arScene.conv_level_up();
+			   }
 			}
 
 			sceneSetup(arScene);
-			mappingFunction();
+			//mappingFunction();
 			tick(rendererCanvas, ctx);
 
 			easelSetup();
-
-			var marker0;
-			var obj3d;
 			
 			function arSetup(arController, renderer) {
 				document.body.className = arController.orientation;
@@ -596,828 +257,6 @@ window.ARThreeOnLoad = function() {
 					markerRoot.markerID = i;
 					arScene.scene.add(markerRoot);
 				}
-			}
-
-			// not used anymore
-			function svgScaling(bitmap, canvas, scale) {
-	    		let bounds = bitmap.getBounds();
-	            if (bounds === null) {
-	            	console.log("svg scaling exited: bounds null");
-	            	setTimeout(function() {svgScaling(bitmap, canvas);}, 1000);
-	            	return;
-	            };
-	    		if (bounds.width > bounds.height) {
-					bitmap.scaleX = bounds.width/canvas.width;
-					bitmap.scaleY = bounds.width/canvas.width;
-				} else {
-					bitmap.scaleX = bounds.height/canvas.height;
-					bitmap.scaleY = bounds.height/canvas.height;
-				}
-
-				if (typeof scale !== "undefined") {
-					bitmap.scaleX *= scale;
-					bitmap.scaleY *= scale;
-				}
-	    	}
-
-	    	function bitmapErrorSetup1b(stage) {
-	    		let scale = 0.6;
-	    		
-	    		let container = new createjs.Container();
-	    		let bitmap = new createjs.Bitmap(imageDir+"wrong_big.png");
-
-	    		createjs.Ticker.addEventListener("tick", function(event) {
-	    			if (displayState === DisplayStates.ErrorCombi) {
-						container.visible = true;
-						var yunText = markerMapping[yunmuID];
-						var shengText = markerMapping[shengmuID];
-						sheng.text = shengText;
-	    				yun.text = yunText;
-						setPos();
-					} else {
-						container.visible = false;
-					}
-					stage.update(event);
-				});
-				container.addChild(bitmap);
-				stage.addChild(container);
-				stage.update();
-	    		
-	    		let bWidth = 1000;
-
-				let scale3 = ( stage.canvas.width * scale ) / bWidth;
-
-				container.scaleX = scale3;
-				container.scaleY = scale3;
-
-				container.x = stage.canvas.width * 0.5;
-				container.y = stage.canvas.height * 0.3;
-
-	    		let scaleFontSize = 60 * scaleAnchorX / scale3;
-	    		let sheng = new createjs.Text("ch", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
-				sheng.textBaseline = "alphabetic";
-
-				let yun = new createjs.Text("eng", scaleFontSize + "px Hypy", "#000000"); //人\u97f3
-				yun.textBaseline = "alphabetic";
-
-				container.addChild(sheng, yun);
-
-				var winWidth = window.innerWidth
-					|| document.documentElement.clientWidth
-					|| document.body.clientWidth;
-
-				var leftOffset = stage.canvas.getBoundingClientRect().left;
-				var canvasWidth = stage.canvas.width;
-
-				function setPos() {
-					bitmap.x = -bWidth * 0.5 ;
-					bitmap.y = 0;
-
-					sheng.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
-					yun.y = -stage.canvas.height * 0.00 + sheng.getMeasuredHeight() * 1.2;
-
-					sheng.x = bWidth * -0.25  - sheng.getMeasuredWidth() * 0.5;
-					yun.x = bWidth * 0.03;	
-				}
-				setPos();
-	    	}
-
-	    	function bitmapErrorSetup2b(stage) {
-	    		let scale = 0.47;
-	    		let scale2 = 0.2;
-	    		let container = new createjs.Container();
-	    		let container2 = new createjs.Container();
-
-	    		//if (yunmuID == -1 || shengText == -1) return;
-
-	    		var yunText = markerMapping[yunmuID];
-				var shengText = markerMapping[shengmuID];
-
-	    		let bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"tone_top1.png");
-	    		let bitmap3 = new createjs.Bitmap(imageDir+"tone_top2.png");
-	    		let bitmap4 = new createjs.Bitmap(imageDir+"tone_top3.png");
-	    		let bitmap5 = new createjs.Bitmap(imageDir+"tone_top4.png");
-
-	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
-
-	    		let rawCardWidth = 1000;
-
-	    		let toneCardHeight = 1000;
-	    		let toneCardWidth = 708;
-
-				let scale3 = ( stage.canvas.width * scale ) / rawCardWidth;
-				let scale4 = ( stage.canvas.height * scale2 ) / toneCardHeight;
-				
-
-	    		let fontSize = 60 * scaleAnchorX / scale3;
-	    		let sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
-				sheng.textBaseline = "alphabetic";
-
-				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
-				yun.textBaseline = "alphabetic";
-
-				container.addChild(bitmap);
-				container.addChild(sheng, yun);
-				container2.addChild(bitmap2, bitmap3, bitmap4, bitmap5);
-
-				container.scaleX = scale3;
-				container.scaleY = scale3;
-
-				container2.scaleX = scale4;
-				container2.scaleY = scale4;
-
-				stage.addChild(container, container2);
-				stage.update();
-
-	    		createjs.Ticker.addEventListener("tick", function(event) {
-
-	    	 		if (displayState === DisplayStates.ErrorTonePos) {
-	    	 			container.visible = true;
-	    	 			bitmap.visible = true;
-	    	 			tones.forEach(function(e) {
-	    	 				e.visible = false;
-	    	 			});
-
-	    	 			if (toneID === -1) return;
-	    	 			tones[toneID].visible = true;
-
-	    	 			yunText = markerMapping[yunmuID];
-						shengText = markerMapping[shengmuID];
-						sheng.text = shengText;
-	    	 			yun.text = yunText;
-						 setPos();
-	    	 		} else {
-	    	 			container.visible = false;
-	    	 			bitmap.visible = false;
-	    	 			tones.forEach(function(e) {
-	    	 				e.visible = false;
-	    	 			});
-	    	 		}
-	    			
-					stage.update(event);
-				});
-            	
-				//svgScaling(bitmap, stage.canvas);
-				//svgScaling(bitmap2, stage.canvas);
-				tones.forEach(function(e) {
-	 				//svgScaling(e, stage.canvas, scale2);
-	 			});
-
-				container.x = stage.canvas.width * 0.5;
-	    		container.y = stage.canvas.height * 0.3;
-	    		container2.x = stage.canvas.width * 0.5;
-	    		container2.y = stage.canvas.height * 0.1;
-	    		//container.y = stage.canvas.height * 0.5;
-
-				//container.scaleX *= scale;
-				//container.scaleY *= scale;
-
-				//container.scaleX *= scale;
-				//container.scaleY *= scale;
-
-				//console.log(bitmap.scaleX);
-
-				var tween1 = null;
-				var tween2 = null;
-				var tween3 = null;
-				var tween4 = null;
-
-				function setPos() {
-
-					bitmap.x = -rawCardWidth * 0.5;
-					bitmap.y = stage.canvas.height * 0.0;
-
-					
-		 			sheng.y = sheng.getMeasuredHeight() * 1.2;
-		 			yun.y = yun.getMeasuredHeight() * 1.2;
-
-		 			sheng.x = -rawCardWidth * 0.12 - sheng.getMeasuredWidth() ;
-		 			yun.x = -0.12 * rawCardWidth;
-
-		 			let cardWidth = stage.canvas.width * scale / scale4;
-		 			//let toneWidth = stage.canvas.width * scale2 / scale4; // tone marker is 708 x 1000 dimension\
-		 			let toneWidth = scale2 / toneCardHeight * toneCardWidth * stage.canvas.height / scale4;
-
-		 			tones.forEach(function(e) {
-						e.x = cardWidth * 0.12;
-		 			});
-				
-					if (tween1 === null) {
-						tween1 = createjs.Tween.get(bitmap2, { loop: true })
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
-						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * 0.12 }, 200);
-					}
-					if (tween2 === null) {
-						tween2 = createjs.Tween.get(bitmap3, { loop: true })
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
-						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * 0.12 }, 200);
-					}
-					if (tween3 === null) {
-						tween3 = createjs.Tween.get(bitmap4, { loop: true })
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
-						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * 0.12 }, 200);
-					}
-					if (tween4 === null) {
-						tween4 = createjs.Tween.get(bitmap5, { loop: true })
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * -0.12 - toneWidth}, 200)
-						  .to({ x: cardWidth * 0.12 }, 2000, createjs.Ease.getPowInOut(2))
-						  .to({ x: cardWidth * 0.12 }, 200);
-					}
-				}
-
-    			setPos();
-				stage.update();
-	    	}
-
-	    	function bitmapErrorSetup3b(stage) {
-
-	    		let scale = 0.46;
-
-	    		let container = new createjs.Container();
-
-	    		var bitmap1 = new createjs.Bitmap(imageDir+"tone_wrong1.png");
-	    		var bitmap2 = new createjs.Bitmap(imageDir+"tone_wrong2.png");
-	    		var bitmap3 = new createjs.Bitmap(imageDir+"tone_wrong3.png");
-	    		var bitmap4 = new createjs.Bitmap(imageDir+"tone_wrong4.png");
-	    		
-	    		let choices = [bitmap1, bitmap2, bitmap3, bitmap4];
-	    		let canvasMid = stage.canvas.width * 0.5;
-
-	    		choices.forEach(function(e) {
-	    			container.addChild(e);
-	    			e.visible = false;
-	    			//svgScaling(e, stage.canvas, scale);
-	    		});
-
-	    		let pngHeight = 1000;
-	    		let scale2 = stage.canvas.height * 0.46 / pngHeight;
-
-	    		container.scaleX = scale2;
-	    		container.scaleY = scale2;
-
-	    		stage.addChild(container);
-	    		stage.update();
-
-	    		let markerWidth = (stage.canvas.height * scale) / 1000 * 377;
-
-	    		container.x = stage.canvas.width * 0.5 - markerWidth * 0.5;
-	    		container.y = stage.canvas.height * 0.15
-
-	    		function setPos() {
-	    // 			if ( ! (choices.length > 0)) return;
-					// let bounds = choices[0].getBounds();
-	    			
-					// if (bounds === null) {
-					// 	setTimeout(function(){setPos();}, 1000);
-					// 	return;
-					// };
-					// console.log(bounds);
-
-					// 57 150 (bounds)
-					
-
-					choices.forEach(function(e) {
-						//e.x = canvasMid;// - markerWidth * 0.5;
-						//e.y = stage.canvas.height * 0.15;
-	    			});
-
-					choices.forEach(function(e) {
-		    			e.visible = false;
-		    		});
-
-		    		createjs.Ticker.addEventListener("tick", function(event) {
-
-		    			if (displayState === DisplayStates.ErrorNoTone) {
-			    			if (toneID === -1 ) {
-			    			 	return;
-			    			}
-			    			var bitmap = choices[toneID];
-			    			choices.forEach(function(e) {
-			    				e.visible = false;
-			    			});
-			    			bitmap.visible = true;
-							
-						} else {
-							choices.forEach(function(e) {
-			    				e.visible = false;
-			    			});
-						}
-						stage.update(event);
-					});
-
-					//console.log("error 3 setpos done "+bitmap1.scaleX + " " + bitmap1.scaleY);
-					stage.update();
-	    		}
-
-	    		setPos();
-	    		stage.update();
-	    	}
-
-	    	function bitmapErrorSetup4b(stage) {
-	    		//let scale = 0.23;
-	    		let scale = 0.3;
-	    		let container = new createjs.Container();
-	    		let container2 = new createjs.Container();
-	    		let bitmap = new createjs.Bitmap(imageDir+"blank.png");
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
-
-	    		createjs.Ticker.addEventListener("tick", function(event) {
-					
-					if (displayState === DisplayStates.ErrorSwapped) {
-						container.visible = true;
-						container2.visible = true;
-						var yunText = markerMapping[yunmuID];
-						var shengText = markerMapping[shengmuID];
-						sheng.text = shengText;
-	    	 			yun.text = yunText;
-						setPos();
-					} else {
-						container.visible = false;
-						container2.visible = false;
-					}
-					stage.update(event);
-				});
-
-				container.addChild(bitmap);
-				container2.addChild(bitmap2);
-				stage.addChild(container, container2);
-				//stage.addChild(bitmap3);
-				stage.update();
-
-
-
-	   		//container.scaleX = 1.68;// * scale;
-	   			//container.scaleY = 1.68;// * scale;
-	   			//container2.scaleX = 1.68;// * scale;
-	   			//container2.scaleY = 1.68;// * scale;
-	   			//bitmap3.scaleX = 1.5;
-	   			//bitmap3.scaleY = 1.5;
-
-	   			//let scale2 = 1.8 * scale;
-
-	   			let bWidth = 1000;
-
-				let scale3 = ( stage.canvas.width * scale ) / bWidth;
-
-				container.scaleX = scale3;
-				container.scaleY = scale3;
-				container2.scaleX = scale3;
-				container2.scaleY = scale3;
-
-	    		const canvasMid = stage.canvas.width * 0.5
-	    		//container.x = canvasMid;
-	    		//container.y = stage.canvas.height * 0.3;
-	    		//container2.x = canvasMid;
-	    		//container2.y = stage.canvas.height * 0.3;
-
-	    		let fontSize = 60 * scaleAnchorX / scale3;
-	    		let sheng = new createjs.Text("ch", fontSize + "px Hypy", "#000000"); //人\u97f3
-				sheng.textBaseline = "alphabetic";
-
-				let yun = new createjs.Text("eng", fontSize + "px Hypy", "#000000"); //人\u97f3
-				yun.textBaseline = "alphabetic";
-
-				container.addChild(yun);
-				container2.addChild(sheng);
-
-				container.x = canvasMid;
-				container.y = stage.canvas.height * 0.3;
-				container2.x = canvasMid;
-				container2.y = stage.canvas.height * 0.3;
-
-	    		function setPos() {
-	    			let bounds = bitmap.getBounds();
-					if (bounds === null) {
-						setTimeout(function() {setPos();}, 1000);
-						return;
-					}
-
-					//bitmap.x = -stage.canvas.width * (1.1 / scale2);
-					//bitmap2.x = stage.canvas.width * (0.1 / scale2);
-
-					//bitmap.x = -stage.canvas.width * (1.1);
-					//bitmap2.x = stage.canvas.width * (0.1);
-
-					const bitmapStart2 = bWidth * 0.1;
-					const bitmapStart1 = -bWidth * 1.1;
-					bitmap2.x = bWidth * 0.1;
-					bitmap.x = -bWidth * 1.1;
-
-					 //bitmap.x = bounds.width * -1.05;
-					// bitmap.y = bounds.height * 0.95;
-
-					// bitmap2.x = bounds.width * 0.05;
-					// bitmap2.y = bounds.height * 0.95;
-
-					sheng.y = sheng.getMeasuredHeight() * 1.2;
-					yun.y = yun.getMeasuredHeight()  * 1.2;
-
-					//sheng.y = sheng.getMeasuredHeight() * (1.25 / 1.5);
-					//yun.y = yun.getMeasuredHeight()  * (1.25 / 1.5);
-
-					const shengStart = bWidth * 0.6 - sheng.getMeasuredWidth() * 0.5;
-					const yunStart = -bWidth * 1.1;
-					sheng.x = shengStart;
-					yun.x = yunStart;
-
-					 createjs.Tween.get(container, { loop: true })
-					   .to({ x: canvasMid + stage.canvas.width * 1.2 * 0.3 }, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x: canvasMid + stage.canvas.width * 1.2 * 0.3 }, 200)
-					   .to({ x: canvasMid }, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x: canvasMid }, 200);
-
-					   createjs.Tween.get(container2, { loop: true })
-					   .to({ x: canvasMid - stage.canvas.width * 1.2 * 0.3 }, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x: canvasMid - stage.canvas.width * 1.2 * 0.3 }, 200)
-					   .to({ x: canvasMid }, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x: canvasMid }, 200);
-	    		}
-	    		setPos();
-	    	}
-
-	    	function bitmapErrorSetup5b(stage) {
-	    		let scale = 0.3; //1.3
-
-	    		let container = new createjs.Container();
-	    		let container2 = new createjs.Container();
-	    		let bitmap = new createjs.Bitmap(imageDir+"blank.png");
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"blank.png");
-
-	    		createjs.Ticker.addEventListener("tick", function(event) {
-
-	    			if (displayState === DisplayStates.ErrorTooNear) {
-	    				container.visible = true;
-	    				container2.visible = true;
-	    				var yunText = markerMapping[yunmuID];
-						var shengText = markerMapping[shengmuID];
-						//console.log(yunText);
-						sheng.text = shengText;
-	    	 			yun.text = yunText;
-						setPos();
-	    			} else {
-	    				container.visible = false;
-	    				container2.visible = false;
-	    			}
-					//bitmap.visibility = (displayState == DisplayStates.Correct1);
-					stage.update(event);
-				});
-
-				container.addChild(bitmap);
-				container2.addChild(bitmap2);
-				stage.addChild(container, container2);
-				stage.update();
-
-				let bWidth = 1000;
-
-				let scale3 = ( stage.canvas.width * scale ) / bWidth;
-
-				container.scaleX = scale3;
-				container.scaleY = scale3;
-				container2.scaleX = scale3;
-				container2.scaleY = scale3;
-
-	    		const canvasMid = stage.canvas.width * 0.5
-	    		container.x = canvasMid ;
-	    		container.y = 0;
-	    		container2.x = canvasMid;
-	    		container2.y = 0;
-
-	    		let fontSize = 60 * scaleAnchorX / scale3;
-	    		let sheng = new createjs.Text("h", fontSize+"px Hypy", "#000000"); //人\u97f3
-				sheng.textBaseline = "alphabetic";
-
-				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
-				yun.textBaseline = "alphabetic";
-
-				container.addChild(sheng);
-				container2.addChild(yun);
-
-				let tween = undefined;
-				let bounds = bitmap.getBounds();
-
-				function setOnce() {
-	    			container.x = stage.canvas.width * 0.25;
-	    			container2.x = stage.canvas.width * 0.48;
-	    			container.y = stage.canvas.height * 0.3;
-	    			container2.y = stage.canvas.height * 0.3;
-
-	    			bitmap.x = 0;
-	    			bitmap.y = 0;
-	    			bitmap2.x = 0;
-	    			bitmap2.y = 0;
-
-	    			tween = createjs.Tween.get(container2, { loop: true })
-					   .to({ x:  stage.canvas.width * 0.40 }, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x:  stage.canvas.width * 0.40 }, 200)
-					   .to({ x:  stage.canvas.width * 0.48 }, 1000, createjs.Ease.getPowInOut(2))
-					   .to({ x:  stage.canvas.width * 0.48 }, 200);
-	    			setPos();
-				}
-
-				// update text position, text changes therefore their width height change as well
-				function setPos() {
-					sheng.y = sheng.getMeasuredHeight() * 1.2;
-					yun.y = yun.getMeasuredHeight() * 1.2;
-
-					sheng.x =  - sheng.getMeasuredWidth() * 0.5 + bWidth * 0.5;//stage.canvas.width * 0.5;
-					yun.x = 0;
-				}
-				setOnce();
-	    	}
-
-	    	function bitmapCorrectSetup2b(stage) {
-	    		//let scale = 1.5;
-	    		//let wScale = 0.31 * 1.5;
-
-	    		let scale = 0.47;
-	    		let scale2 = 0.2;
-	    		let container = new createjs.Container();
-	    		let container2 = new createjs.Container();
-
-	    		let bitmap = new createjs.Bitmap(imageDir+"correct_big.png");
-	    		//bitmap.scaleX = 1;
-	    		let bitmap2 = new createjs.Bitmap(imageDir+"tone_top1_correct.png");
-	    		let bitmap3 = new createjs.Bitmap(imageDir+"tone_top2_correct.png");
-	    		let bitmap4 = new createjs.Bitmap(imageDir+"tone_top3_correct.png");
-	    		let bitmap5 = new createjs.Bitmap(imageDir+"tone_top4_correct.png");
-
-	    		let tones = [bitmap2, bitmap3, bitmap4, bitmap5];
-
-	    		let bWidth = 1000;
-	    		let bHeight = 708;
-
-				let scale3 = ( stage.canvas.width * scale ) / bWidth;
-				let scale4 = ( stage.canvas.height * scale2 ) / bWidth;
-
-				container.scaleX = scale3;
-				container.scaleY = scale3;
-				container2.scaleX = scale4;
-				container2.scaleY = scale4;
-
-	    		let fontSize = (60 * scaleAnchorX) / scale3;
-
-	    		let sheng = new createjs.Text("ch", fontSize+"px Hypy", "#000000"); //人\u97f3
-				sheng.textBaseline = "alphabetic";
-
-				let yun = new createjs.Text("eng", fontSize+"px Hypy", "#000000"); //人\u97f3
-				yun.textBaseline = "alphabetic";
-
-	    		createjs.Ticker.addEventListener("tick", function(event) {
-	    			//displayState = DisplayStates.Correct2;
-	    			//console.log(displayState + " " + DisplayStates.Correct2);
-	    			//console.log(container.scaleX + " " + bitmap2.scaleX);
-	    			if (displayState === DisplayStates.Correct1) {
-	    				container.visible = true;
-	    				bitmap.visible = true;
-	    				tones.forEach(function(e) {
-	    					e.visible = false;
-	    				});
-	    				sheng.visible = true;
-	    				yun.visible = true;
-	    				let yunText = markerMapping[yunmuID];
-						let shengText = markerMapping[shengmuID];
-	    				sheng.text = shengText;
-	    				yun.text = yunText;
-	    			} else if (displayState === DisplayStates.Correct2) {
-	    				container.visible = true;
-	    				bitmap.visible = true;
-	    				sheng.visible = true;
-	    				yun.visible = true;
-	    				tones.forEach(function(e) {
-	    					e.visible = false;
-	    				});
-	    				if (toneID !== -1) {
-	    					tones[toneID].visible = true;
-	    				}
-	    				let yunText = markerMapping[yunmuID];
-						let shengText = markerMapping[shengmuID];
-	    				sheng.text = shengText;
-	    				yun.text = yunText;
-	    			} else {
-	    				container.visible = false;
-	    				bitmap.visible = false;
-	    				tones.forEach(function(e) {
-	    					e.visible = false;
-	    				});
-	    				sheng.visible = false;
-	    				yun.visible = false;
-	    			}
-
-	    			setPos();
-					stage.update(event);
-				});
-
-				container.addChild(bitmap);
-				tones.forEach(function(e) {
-					container2.addChild(e);
-				});
-				container.addChild(sheng, yun);
-
-				stage.addChild(container, container2);
-				stage.update();
-
-				container.x = stage.canvas.width * 0.5;
-	    		container.y = stage.canvas.height * 0.3;
-	    		container2.x = stage.canvas.width * 0.5;
-	    		container2.y = stage.canvas.height * 0.3;
-
-				//container.scaleX *= wScale;
-				//container.scaleY *= wScale;
-
-				//let toneWidth = bHeight * 0.28;
-				//let toneHeight = scale4 / bWidth;
-
-				let toneHeight = ( stage.canvas.height * scale2) / scale4;
-				let cardWidth = stage.canvas.width * scale / scale4;
-
-				console.log(["toneHeight", toneHeight]);
-
-				function setPos() {
-					bitmap.x = -bWidth * 0.5;
-					bitmap.y = 0;
-
-					sheng.y = sheng.getMeasuredHeight() * 1.2;
-					yun.y = yun.getMeasuredHeight() * 1.2;
-
-					sheng.x = -bWidth * 0.13 - sheng.getMeasuredWidth();
-					yun.x = -bWidth * 0.12;
-
-					tones.forEach(function(e) {
-						//let ew = stage.canvas.height / 150 * 47;
-						//ew = ew * wScale * 0.85;
-
-						//e.y = -stage.canvas.height * 0.325;
-						//e.y = - bWidth * 0.32;
-						//e.y = -toneHeight;
-						e.x = 0;
-						e.y = -toneHeight;
-						let yunText = markerMapping[yunmuID];
-						//e.scaleX = scale4;
-						//e.scaleY = scale4;
-						// yun card left most 
-						//e.x = -ew + stage.canvas.width * (0.5 - 0.63);
-
-						// yun card right most 
-						//e.x = -ew + stage.canvas.width * (0.5 - 0);
-						if (yunmuVowelOnSecond.indexOf(yunText) !== -1) {
-							//e.x = bounds2.width * -0.35; // position 2	
-							//e.x = -ew + stage.canvas.width * (0.5 - 0.46);
-							e.x = cardWidth * -0.07;
-						} else {
-							//e.x = bounds2.width * -1.05; // position 1 
-							//e.x = -stage.canvas.width * 0.15;
-							//e.x = -ew + stage.canvas.width * (0.5 - 0.57);
-							e.x = cardWidth * -0.18;
-						}
-					});
-
-					// 300, 126
-					// 47, 150
-					
-				}
-
-				setPos();
-				stage.update();
-	    	}
-
-	    	function setupStatic(stage) {
-
-	    		let cw = stage.canvas.width;
-	    		let ch = stage.canvas.height;
-
-	    		var line = new createjs.Shape();
-
-            	// Add this line shape to the canvas
-		        stage.addChild(line);
-
-		        // Set the 'brush stroke' style (basically the thickness of the line)
-		        //      Then start drawing a black line
-		        //line.graphics.setStrokeStyle(2).beginStroke("rgba(0,0,0,1)");
-		        line.graphics.setStrokeStyle(2 * scaleAnchorX).beginStroke("DimGrey");
-
-		        // Tell EaselJS where to go to start drawing the line
-		        line.graphics.moveTo(cw * 0.3, ch * 0.8);
-
-		        // Tell EaselJS where to draw the line to
-		        line.graphics.lineTo(cw * 0.7, ch * 0.8);
-
-		        // Stop drawing this line
-		        line.graphics.endStroke();
-
-		        console.log("line drawn "+cw + " " + ch);
-
-
-		//         var img = active ? img2 : img1;
-		// ctx.drawImage(img, 
-		// 	cw * (soundIconPosX - soundIconLength*0.5), 
-		// 	ch * (soundIconPosY - soundIconLength*0.5), 
-		// 	cw*soundIconLength, 
-		// 	cw*((soundIconLength / 70) * 53));
-				let soundInactiveBmp = new createjs.Bitmap(imageDir+"sound_inactive.png"); //sound_inactive
-				let soundActiveBmp = new createjs.Bitmap(imageDir+"sound_active.png"); //sound_inactive
-
-				stage.addChild(soundInactiveBmp, soundActiveBmp);
-
-				let canvasMid = stage.canvas.width * 0.5;
-		        stage.update();
-
-		        function setPos() {
-			  //       let bounds = soundInactiveBmp.getBounds();
-			  //       if (bounds === null) {
-					// 	setTimeout(function() {setPos();}, 1000);
-					// 	return;
-					// };
-					// console.log("static");
-					// console.log(bounds);
-					// 70 53
-
-					let iconWidth = stage.canvas.width * soundIconLength;
-			  //   	soundInactiveBmp.x = canvasMid - bounds.width * 0.5;
-					// soundInactiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5;
-					// soundActiveBmp.x = canvasMid - bounds.width * 0.5;
-					// soundActiveBmp.y = stage.canvas.height * soundIconPosY - bounds.height * 0.5 ;    
-					soundInactiveBmp.x = canvasMid - iconWidth * 0.5;
-					soundInactiveBmp.y = stage.canvas.height * soundIconPosY - iconWidth * 0.5 / 70 * 53;
-					soundActiveBmp.x = canvasMid - iconWidth * 0.5;
-					soundActiveBmp.y = stage.canvas.height * soundIconPosY - iconWidth * 0.5 / 70 * 53;
-
-					let ratio = iconWidth / 70;
-
-					soundInactiveBmp.scaleX = ratio;
-					soundInactiveBmp.scaleY = ratio;
-					soundActiveBmp.scaleX = ratio;
-					soundActiveBmp.scaleY = ratio;
-			    }
-			    setPos();
-
-			   	//drawCenterText(ctx, cw, ch, centerTextColor, displayText);
-			 //   	if (text == "") return;
-				// //ctx.fillStyle = "#ff0000";
-				// ctx.fillStyle = color;
-				// var fontSize = 75 * scaleAnchorX
-				// ctx.font = fontSize+"px Hypy";
-				// var setA = "ABCDE";
-				// var setB = "FGHIJ";
-				// var setC = "KLMNO";
-				// var setD = "PQRST";
-				// var setE = "UVWXY";
-				// var setF = "Z_^`~|";
-
-				// var textWidth = ctx.measureText(text).width;
-				// console.log();
-				// ctx.fillText(text, cw * 0.5 - textWidth * 0.5, ch * 0.7);
-
-				var fontSize = 75 * scaleAnchorX;
-				let textObj = new createjs.Text(displayText, fontSize+"px Hypy", "#000000"); //人\u97f3
-				textObj.textBaseline = "alphabetic";
-				//textObj.text = "heheh";
-				
-				stage.addChild(textObj);
-
-			    createjs.Ticker.addEventListener("tick", function(event) {
-	    			soundInactiveBmp.visible = !soundIconActive;
-			    	soundActiveBmp.visible = soundIconActive;
-			    	textObj.text = displayText;
-			    	let textWidth = textObj.getMeasuredWidth();
-					textObj.x = stage.canvas.width * 0.5 - textWidth * 0.5;
-					textObj.y = stage.canvas.height * 0.8;
-
-					if (displayState === DisplayStates.Correct1 || displayState === DisplayStates.Correct2) {
-	    				textObj.color = "green";
-	    				soundIconActive = false;
-	    				if (displayState === DisplayStates.Correct2)
-	    					soundIconActive = true;
-	    			} else if (displayState === DisplayStates.Invalid || displayState === DisplayStates.Neutral) {
-	    				textObj.color = "black";
-	    				soundIconActive = false;
-	    			} else { //if (displayState >=3 && displayState <= 8) 
-	    				textObj.color = "red";
-	    				soundIconActive = false;
-	    			}
-
-					stage.update(event);
-				});
-	    	}
-
-			function easelSetup() {
-				var stage = new createjs.Stage("myCanvas2");
-				//setupCard(stage);
-				//bitmapCorrectSetup1(stage);
-				bitmapCorrectSetup2b(stage);
-				setupStatic(stage);
-				bitmapErrorSetup1b(stage);
-				bitmapErrorSetup2b(stage);
-				bitmapErrorSetup3b(stage);
-				bitmapErrorSetup4b(stage);
-				bitmapErrorSetup5b(stage);
 			}
 
 			function markerRecord(id, pos, vertex, timestamp, area) {
@@ -1499,60 +338,6 @@ window.ARThreeOnLoad = function() {
 				if (arr === undefined) return false;
 				return (arr.indexOf(yunmuText) !== -1);
 			}
-
-			function mappingFunction() {
-
-				validCombi["n"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan", "un", "uo", "v", "ve"]; // ng is taken out
-				validCombi["l"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "eng", "i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iu", "ong", "ou", "u", "uan","un", "uo", "v", "ve"];
-				validCombi["d"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ia", "ian", "iao", "ie", "ing", "iu", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi["g"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
-				validCombi["h"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
-				validCombi["sh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
-				validCombi["t"] = ["ai", "an", "ang", "ao", "a", "e", "eng", "i", "ian", "iao", "ie", "ing", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi["zh"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
-				validCombi["m"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "iu", "o", "ou", "u"];
-				validCombi["k"] = ["ai", "an", "ang", "ao", "a", "e", "en", "eng", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
-				validCombi["ch"] = ["ai", "an", "ang", "ao", "a", "e", "eng", "i", "ong", "ou", "u", "ua", "uai", "uan", "uang", "ui", "un", "uo"];
-				validCombi["p"] = ["ai", "an", "ang", "ao", "a", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "o", "ou", "u"];
-				validCombi["z"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi["c"] = ["ai", "an", "ang", "ao", "a", "e", "ei", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi["b"] = ["ai", "an", "ang", "ao", "a", "ei", "en", "eng", "i", "ian", "iao", "ie", "in", "ing", "o", "u"];
-				validCombi["s"] = ["ai", "an", "ang", "ao", "a", "e", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi["q"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iang", "iong", "iu", "u", "uan", "ue", "un"];
-				validCombi["y"] = ["an", "ang", "ao", "a", "e", "i", "in", "ing", "o", "ong", "ou", "u", "uan", "ue", "un"];
-				validCombi["j"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "u", "uan", "ue", "un"];
-				validCombi["x"] = ["i", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "iu", "u", "uan", "ue", "un"];
-				validCombi["r"] = ["an", "ang", "ao", "e", "en", "eng", "i", "ong", "ou", "u", "uan", "ui", "un", "uo"];
-				validCombi[""] = ["ao", "ai", "an", "ang", "ao", "e", "ei", "en", "eng", "er", "o", "ou", "ng"]; // ng added
-				validCombi["f"] = ["an", "ang", "a", "ei", "en", "eng", "o", "ou", "u"];
-				validCombi["w"] = ["ai", "an", "ang", "a", "ei", "en", "eng", "o", "u"];
-
-				// verify that there is no typo in validCombi
-				
-				/// typo check 
-				/*
-				var result = true;
-				shengmu.forEach(function(x) { 
-					//console.log(validCombi[x]); 
-					validCombi[x].forEach(function(y) {
-
-						//result = result && yunmu.includes(y);
-						//result = result && (yunmu.indexOf(y) != -1);
-
-						if (typeof Array.prototype.includes === "function") { 
-						    result = result && yunmu.includes(y);
-
-						} else {
-							result = result && (yunmu.indexOf(y) != -1);
-						}
-					}); 
-				});
-
-				// if true no typo in validCombi
-				//console.log(result);
-				*/
-			}
-
 			function cloneObj(obj) {
 				return JSON.parse(JSON.stringify(obj));
 			}
@@ -1643,7 +428,7 @@ window.ARThreeOnLoad = function() {
 				if (markerTracked[shengmuID] !== undefined && markerTracked[yunmuID] !== undefined) {
 					var mw = markerWidth2 (yunmuID);
 					var mw2 = markerWidth2 (shengmuID);
-					var rawMarkerWidth = 10;
+					var rawMarkerWidth = 20;
 					mw = (mw + mw2) / 2;
 					
 					//var cardWidth = mw / 20 * 90;
@@ -1679,8 +464,8 @@ window.ARThreeOnLoad = function() {
 					var mw = markerWidth2(yunmuID);
 					var mw2 = markerWidth2(toneID);
 					var cardWidthMM = 89
-					var markerWidthMM = 10; //20
-					var markerToBorder = 10; //6
+					var markerWidthMM = 20; //20
+					var markerToBorder = 13; //6
 
 					mw = (mw + mw2) / 2;
 
@@ -2007,15 +792,6 @@ window.ARThreeOnLoad = function() {
 				var correctX = toneMarkerTarget[yunmuID];
 				var cardproper = (correctX/90);
 
-				//console.log(yunmuID);
-				//console.log(correctX)
-				//console.log(cardproper);
-				//console.log(projection);
-
-				//console.log(dirLen);
-				//console.log(dir);
-				//console.log(v);
-
 				// in the ratio of a card len
 				var error  = Math.abs(projection - cardproper);
 				var thresh = 10/90;
@@ -2026,16 +802,6 @@ window.ARThreeOnLoad = function() {
 			}
 
 			function tick(rendererCanvas, ctx) {
-
-				//console.log("in tick");
-				//console.log(rendererCanvas);
-				//console.log(ctx);
-
-				//ctx.fillStyle = 'white';
-				//ctx.clearRect(0,0,canvasWidth,canvasHeight);
-				//printFeedback(ctx, canvasWidth, canvasHeight);
-				//printError(ctx, canvasWidth, canvasHeight, displayState);
-				//console.log(arScene);
 
 				// if (ctx != null) {
 				// 	arScene.process(ctx);
@@ -2051,11 +817,6 @@ window.ARThreeOnLoad = function() {
 				});
 				
 				displayState = DisplayStates.Invalid;
-				//displayState = DisplayStates.ErrorCombi;
-				//displayState = DisplayStates.ErrorTonePos;
-				//displayState = DisplayStates.ErrorNoTone;
-				//displayState = DisplayStates.ErrorSwapped;
-				//displayState = DisplayStates.ErrorTooNear;
 
 
 				var markerNum = arController.getMarkerNum();
@@ -2108,13 +869,11 @@ window.ARThreeOnLoad = function() {
 					}
 
 					if (debugMode && ctx!= null) {
-						//console.log("came here setting bg to transparent");
 						drawMarkerOutline(ctx, vertex, pos, id);
-						//console.log("came here setting bg to transparent 22");
 					}
 				}
 
-				// exit if there are duplicate yunmu or shengmu or tone
+				//Step 1: exit if there are duplicate yunmu or shengmu or tone
 				if (yunmuSlot.length > 1) {
 					console.log("duplicate yunmu "+yunmuSlot);
 					yunmuSlot.forEach(function(e) {
@@ -2134,6 +893,8 @@ window.ARThreeOnLoad = function() {
 					return;	
 				}
 
+
+				// Step 2: retrieve corresponding shengmu yunmu text and check for swapped error
 				var shengmuText = (shengmuSlot.length > 0) ? markerMapping[shengmuSlot[0]] : "";
 				var yunmuText = (yunmuSlot.length > 0) ? markerMapping[yunmuSlot[0]] : "";
 
@@ -2163,10 +924,8 @@ window.ARThreeOnLoad = function() {
 					rightText = yunmuText;
 				}
 
-				//for debug
-				//console.log(threeDimensionAlternative(toneID, yunmuID));
-				//console.log(screenSpaceCheck(toneID, yunmuID));
-
+				// Step 3: exit if not all 3 component exists
+				// @TODO there are words that do not need shengmu to function
 				var combined = leftText + rightText;
 
 				// don't even go to the combi check if one of them is not set
@@ -2188,32 +947,24 @@ window.ARThreeOnLoad = function() {
 					return;
 				}
 
-				// a small set of yunmu has notation on the second
-				var vowelIndex = (yunmuVowelOnSecond.indexOf(yunmuText) !== -1) ? 1 : 0;
+
+
+				// Step 4" check whether shengmu yunmu cards too far/near and show error if so
 				var shengYunDist = shengYunDistance(shengmuID, yunmuID);
 
 				//debug//
-				
 				if (debugMode && ctx != null) {
 					ctx.font = 50 + "px Arial";
 					ctx.fillStyle = "#00ff00";
 					ctx.fillText(shengYunDist, canvasWidth * 0.0 - 0 * 0.5, canvasHeight * 0.5);
+					//console.log(shengYunDist);
 				}
-				//console.log(shengYunDist);
+				
 				var ysSpaceCheck = false;
-				// if (shengmuText.length == 2) {
-				// 	if (shengYunDist < 1.36 || shengYunDist > 1.47) {
-				// 		ysSpaceCheck = true;
-				// 	}
-				// } else {
-				// 	if (shengYunDist < 1.24 || shengYunDist > 1.36) {
-				// 		ysSpaceCheck = true;
-				// 	}
-				// }
+
+				// 2 1.36 1.47
+				// 1.24 1.36
 				
-				
-				
-				// hardcoding jiang
 				if (shengmuText.length == 2) {
 					
 					if (shengYunDist > 1.09 && shengYunDist < 1.52 ) { // 119 142
@@ -2222,14 +973,11 @@ window.ARThreeOnLoad = function() {
 				} else {
 					//console.log("single char "+shengYunDist);
 					//console.log("her "+ (shengYunDist < 1.29 ) + " " + (shengYunDist > 1.17));
-					if (shengYunDist > 1.0  && shengYunDist < 1.42) { // 111 132
+					if (shengYunDist > 0.95  && shengYunDist < 1.42) { // 111 132
 						ysSpaceCheck = true;
 					}
 				}
-				
-				//console.log("ys "+ysSpaceCheck);
 
-				//ysSpaceCheck = true;
 				//ysSpaceCheckHistory
 				ysSpaceCheckHistory.push(ysSpaceCheck);
 				shiftToLength(ysSpaceCheckHistory, bufferSize);
@@ -2246,6 +994,8 @@ window.ARThreeOnLoad = function() {
 					return;
 				}
 
+
+				// Step 5: check whether combination of sheng yun mu valid, if not show error
 				var validCheckResult = validCombiCheck(shengmuText, yunmuText);
 				// console.log(validCheckResult);
 				toneID = (toneSlot.length > 0) ? toneSlot[0] : -1;
@@ -2272,6 +1022,8 @@ window.ARThreeOnLoad = function() {
 					}
 				}
 
+
+				// Step 6: if tone component exists, check for valid but no tone error
 				var toneName = (toneID + 1);
 				if (isNaN(toneName)) return;
 				soundName = combined + toneName;
@@ -2285,11 +1037,15 @@ window.ARThreeOnLoad = function() {
 					return;
 				}
 
+
+				// Step 7: check whether tone card position is correct, if incorrect show error
+				//         if correct, play sound if seeing word for the first time
+				// a small set of yunmu has notation on the second
+				var vowelIndex = (yunmuVowelOnSecond.indexOf(yunmuText) !== -1) ? 1 : 0;
 				var markedPinyin = markTheVowel(combined, vowelIndex, toneID + 1);
 				var simpleTest = screenSpaceCheck2(toneID, yunmuID);
 				
 				//var complicatedTest = threeDimensionAlternative(toneID, yunmuID);
-				
 				//var horiResult = horiTest (toneID, yunmuID, shengmuID);
 				
 				tonePosCheckHistory.push(simpleTest);
