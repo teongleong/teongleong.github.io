@@ -82,8 +82,8 @@ function tick() {
 	//canvas2.style.height = 480;
 	drawVideoOnCanvas(video, canvas2);
 	render(canvas2, canvas);
-	render(canvas, canvas);
-	render(canvas, canvas);
+//	render(canvas, canvas);
+//	render(canvas, canvas);
 }
 
 var gl = null;

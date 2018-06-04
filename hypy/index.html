@@ -445,12 +445,13 @@ window.ARThreeOnLoad = function() {
 		      // Automatic playback started!
 		      // Show playing UI.
 		      // We can now safely pause video...
-		      console.log("success play");
+		      //console.log("success play?");
+		      // video.pause();
 		    })
 		    .catch(error => {
 		      // Auto-play was prevented
 		      // Show paused UI.
-		      console.log("fail play..."+error);
+		      //console.log("fail play..."+error);
 		    });
 		}
 	}
@@ -1643,7 +1644,7 @@ window.ARThreeOnLoad = function() {
 				if (markerTracked[shengmuID] !== undefined && markerTracked[yunmuID] !== undefined) {
 					var mw = markerWidth2 (yunmuID);
 					var mw2 = markerWidth2 (shengmuID);
-					var rawMarkerWidth = 10;
+					var rawMarkerWidth = 20;
 					mw = (mw + mw2) / 2;
 					
 					//var cardWidth = mw / 20 * 90;
@@ -1679,8 +1680,8 @@ window.ARThreeOnLoad = function() {
 					var mw = markerWidth2(yunmuID);
 					var mw2 = markerWidth2(toneID);
 					var cardWidthMM = 89
-					var markerWidthMM = 10; //20
-					var markerToBorder = 10; //6
+					var markerWidthMM = 20; //20
+					var markerToBorder = 13; //6
 
 					mw = (mw + mw2) / 2;
 
@@ -2222,7 +2223,7 @@ window.ARThreeOnLoad = function() {
 				} else {
 					//console.log("single char "+shengYunDist);
 					//console.log("her "+ (shengYunDist < 1.29 ) + " " + (shengYunDist > 1.17));
-					if (shengYunDist > 1.0  && shengYunDist < 1.42) { // 111 132
+					if (shengYunDist > 0.95  && shengYunDist < 1.42) { // 111 132
 						ysSpaceCheck = true;
 					}
 				}
